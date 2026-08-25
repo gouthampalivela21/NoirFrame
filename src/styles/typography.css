@@ -1,0 +1,96 @@
+:root {
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--color-fg);
+}
+
+.display-1 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7.5vw, 110px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--color-fg);
+}
+
+.display-2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(34px, 4.6vw, 72px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+}
+
+.heading-lg {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(28px, 3.2vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--color-fg);
+}
+
+.heading-md {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1vw, 15px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fg-muted);
+}
+
+.label-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fg-muted);
+}
+
+.body-lg {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(17px, 1.35vw, 21px);
+  line-height: 1.55;
+  letter-spacing: -0.015em;
+  color: var(--color-fg-dim);
+}
+
+.body-md {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.012em;
+  color: var(--color-fg-dim);
+}
+
+.font-serif-italic {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 500;
+  color: var(--color-fg-dim);
+}

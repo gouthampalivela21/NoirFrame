@@ -1,0 +1,56 @@
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-strong-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-panel {
+  border-radius: 4px;
+  contain: paint;
+}
+
+.glass-pill {
+  border-radius: 999px;
+}
+
+/* Light Frosted Liquid Glass Navbar */
+.glass-nav {
+  background: rgba(251, 249, 245, 0.68);
+  backdrop-filter: blur(14px) saturate(185%) contrast(102%);
+  -webkit-backdrop-filter: blur(14px) saturate(185%) contrast(102%);
+  border-bottom: 1px solid rgba(20, 19, 18, 0.08);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: background 0.4s var(--ease-soft), border-color 0.4s var(--ease-soft), box-shadow 0.4s var(--ease-soft);
+}
+
+.glass-nav.is-scrolled {
+  background: rgba(251, 249, 245, 0.82);
+  backdrop-filter: blur(18px) saturate(190%) contrast(104%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(104%);
+  border-bottom: 1px solid rgba(20, 19, 18, 0.1);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 6px 28px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 768px) {
+  .glass-nav {
+    background: rgba(251, 249, 245, 0.78);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  .glass-nav.is-scrolled {
+    background: rgba(251, 249, 245, 0.88);
+  }
+}

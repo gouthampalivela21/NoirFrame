@@ -1,0 +1,225 @@
+@media (max-width: 1100px) {
+  :root {
+    --nav-height: 48px;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 16vw;
+  }
+
+  .portfolio-card--large {
+    grid-column: span 4;
+    grid-row: span 3;
+  }
+
+  .portfolio-card--wide {
+    grid-column: span 4;
+    grid-row: span 2;
+  }
+
+  .portfolio-card--tall {
+    grid-column: span 2;
+    grid-row: span 3;
+  }
+
+  .portfolio-card--normal {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding: clamp(60px, 12vw, 100px) var(--edge);
+    contain-intrinsic-size: 500px;
+  }
+
+  .hero-split__inner {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  .hero-split__frame {
+    max-width: 100% !important;
+  }
+
+  .split-layout {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: auto !important;
+    gap: 16px !important;
+  }
+
+  .portfolio-grid > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    aspect-ratio: 4 / 5;
+  }
+
+  .services-item__main {
+    grid-template-columns: 44px 1fr !important;
+    gap: 16px !important;
+  }
+
+  .services-item__desc-col {
+    grid-column: span 2 !important;
+  }
+
+  .services-item__image-col {
+    grid-column: span 2 !important;
+    justify-content: flex-start !important;
+  }
+
+  .services-item__image-wrap {
+    width: 100% !important;
+    height: 180px !important;
+    transform: none !important;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+}
+
+/* Mobile & touch specific layout */
+@media (max-width: 768px) {
+  .gallery-section__item {
+    width: 86vw !important;
+    max-width: none !important;
+    aspect-ratio: 16 / 10 !important;
+  }
+
+  /* Horizontally scrollable filter pills on mobile */
+  .portfolio__filters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 6px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    max-width: 100%;
+  }
+
+  .portfolio__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .portfolio__filter {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --nav-height: 44px;
+  }
+
+  .display-1 {
+    font-size: clamp(38px, 12vw, 64px);
+    letter-spacing: -0.01em;
+  }
+
+  .display-2 {
+    font-size: clamp(28px, 7.5vw, 44px);
+  }
+
+  .heading-lg {
+    font-size: clamp(24px, 6vw, 36px);
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  .hero__content {
+    padding-bottom: 72px;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .about__stats {
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+
+  /* Responsive StoryModal on mobile/tablet */
+  .story-hero-stage {
+    padding: 80px var(--edge) 40px !important;
+    min-height: 92dvh !important;
+  }
+
+  .story-hero-image-wrap {
+    max-width: 92vw !important;
+    max-height: 52vh !important;
+    margin-bottom: 20px !important;
+  }
+
+  .story-copy-section {
+    min-height: 50dvh !important;
+    padding: 60px var(--edge) !important;
+  }
+
+  .story-image-section {
+    min-height: 80dvh !important;
+    padding: 40px var(--edge) !important;
+  }
+
+  .story-gallery-grid--2,
+  .story-gallery-grid--3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Responsive Project Story Page */
+  .project-specs-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .project-gallery-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .project-gallery-item--wide {
+    grid-column: span 1 !important;
+  }
+}
+
+/* Touch & coarse pointer optimizations */
+@media (pointer: coarse), (hover: none) {
+  /* Disable expensive full-screen blending filter on mobile/touch GPUs */
+  .grain-layer {
+    display: none !important;
+  }
+
+  /* Ensure card metadata is readable on touch screens without needing hover */
+  .portfolio-card__meta {
+    opacity: 0.95 !important;
+    transform: translateY(0) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
