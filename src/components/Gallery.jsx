@@ -201,6 +201,8 @@ export default function Gallery() {
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
     dragStartRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
       x: touch.clientX,
       y: touch.clientY,
       isDragging: true,
@@ -208,13 +210,23 @@ export default function Gallery() {
     };
   };
 
+  const handleTouchMove = (e) => {
+    if (!dragStartRef.current.isDragging) return;
+    const touch = e.touches[0];
+    const diffX = touch.clientX - dragStartRef.current.startX;
+    const diffY = touch.clientY - dragStartRef.current.startY;
+    if (Math.abs(diffX) > 8 || Math.abs(diffY) > 8) {
+      dragStartRef.current.moved = true;
+    }
+  };
+
   const handleTouchEnd = (e) => {
     if (!dragStartRef.current.isDragging) return;
     const touch = e.changedTouches[0];
-    const diffX = touch.clientX - dragStartRef.current.x;
+    const diffX = touch.clientX - dragStartRef.current.startX;
     dragStartRef.current.isDragging = false;
 
-    if (Math.abs(diffX) > 40) {
+    if (Math.abs(diffX) > 35) {
       if (diffX < 0) {
         setVirtualIndex((curr) => curr + 1);
       } else {
@@ -286,6 +298,7 @@ export default function Gallery() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <div className="gallery-section__header container-max">

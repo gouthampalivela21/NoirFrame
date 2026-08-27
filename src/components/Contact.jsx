@@ -7,15 +7,54 @@ const initialState = { name: "", email: "", projectType: "", message: "" };
 
 export default function Contact({ isStandalone = false }) {
   const [form, setForm] = useState(initialState);
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
-    setSubmitted(true);
-    setForm(initialState);
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/teamnoirframe@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          projectType: form.projectType || "General Inquiry",
+          message: form.message,
+          _subject: `New Inquiry from ${form.name} — Noir Frame`,
+          _template: "table",
+          _captcha: "false",
+        }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setForm(initialState);
+      } else {
+        throw new Error("Network response error");
+      }
+    } catch (err) {
+      console.warn("Direct form endpoint error, opening email client fallback:", err);
+      // Fallback: trigger client email application directly with prefilled body
+      const subject = encodeURIComponent(`Noir Frame Inquiry from ${form.name}`);
+      const body = encodeURIComponent(
+        `Name: ${form.name}\nEmail: ${form.email}\nProject Type: ${form.projectType || "Not specified"}\n\nMessage:\n${form.message}`
+      );
+      window.location.href = `mailto:teamnoirframe@gmail.com?subject=${subject}&body=${body}`;
+      setSubmitted(true);
+      setForm(initialState);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,11 +69,17 @@ export default function Contact({ isStandalone = false }) {
           <div className="contact__direct-info">
             <div className="contact__direct-item">
               <span className="label-sm">Inquiries</span>
-              <span className="body-md">commissions@noirframe.com</span>
+              <a
+                href="mailto:teamnoirframe@gmail.com"
+                className="body-md"
+                style={{ textDecoration: "underline", textUnderlineOffset: "3px" }}
+              >
+                teamnoirframe@gmail.com
+              </a>
             </div>
             <div className="contact__direct-item">
-              <span className="label-sm">Locations</span>
-              <span className="body-md">Milan &bull; Paris &bull; Tokyo</span>
+              <span className="label-sm">Location</span>
+              <span className="body-md">India &bull; Worldwide Commissions</span>
             </div>
           </div>
         </div>
@@ -85,13 +130,18 @@ export default function Contact({ isStandalone = false }) {
             />
           </label>
 
-          <button type="submit" className="btn btn-primary" data-cursor="button">
-            Send Message
+          <button
+            type="submit"
+            className="btn btn-primary"
+            data-cursor="button"
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Send Message"}
           </button>
 
           {submitted && (
             <p className="label-sm contact__success">
-              Thank you &mdash; your message has been sent.
+              Thank you &mdash; your message has been sent directly to teamnoirframe@gmail.com.
             </p>
           )}
         </GlassPanel>

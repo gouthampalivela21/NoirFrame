@@ -225,11 +225,35 @@ img {
 
 .navbar__menu-btn {
   display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-strong);
+  background: var(--glass-bg);
+  color: var(--color-fg);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: background 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
+  min-height: 38px;
 }
 
-@media (max-width: 560px) {
+.navbar__menu-btn:hover,
+.navbar__menu-btn[aria-expanded="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  border-color: var(--color-fg);
+}
+
+@media (max-width: 860px) {
+  .nav-links {
+    display: none !important;
+  }
+
   .navbar__menu-btn {
-    display: inline-flex;
+    display: inline-flex !important;
   }
 }
 
@@ -240,9 +264,14 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 80px var(--edge) 40px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s var(--ease-soft), visibility 0.5s var(--ease-soft);
+  background: var(--nav-scrolled-bg-mobile);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transition: opacity 0.4s var(--ease-soft), visibility 0.4s var(--ease-soft);
+  overflow-y: auto;
 }
 
 .mobile-overlay.is-open {
@@ -254,14 +283,17 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 28px;
   text-align: center;
+  width: 100%;
 }
 
 .mobile-overlay__link {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.5s var(--ease-soft), transform 0.5s var(--ease-soft);
+  transition: opacity 0.4s var(--ease-soft), transform 0.4s var(--ease-soft);
+  font-size: clamp(32px, 8.5vw, 48px);
+  letter-spacing: -0.02em;
 }
 
 .mobile-overlay.is-open .mobile-overlay__link {
@@ -707,6 +739,7 @@ img {
   background: var(--color-modal-bg);
   color: var(--color-fg);
   overflow: hidden;
+  cursor: pointer;
   transition: background-color 0.4s var(--ease-soft), color 0.4s var(--ease-soft);
 }
 
@@ -1379,7 +1412,7 @@ img {
   padding: 8px 2px;
   font-family: var(--font-sans);
   font-weight: 300;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--color-fg);
   resize: vertical;
 }

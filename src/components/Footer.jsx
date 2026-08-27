@@ -13,7 +13,7 @@ export default function Footer() {
           <a href="https://behance.net" target="_blank" rel="noreferrer" className="label-sm" data-cursor="button">
             Behance
           </a>
-          <a href="mailto:studio@noirframe.com" className="label-sm" data-cursor="button">
+          <a href="mailto:teamnoirframe@gmail.com" className="label-sm" data-cursor="button">
             Email
           </a>
         </div>

@@ -52,8 +52,8 @@ export default function Hero() {
               <span className="hero-split__stat-label label-sm">Editorial Craft</span>
             </div>
             <div className="hero-split__stat">
-              <span className="hero-split__stat-num">Worldwide</span>
-              <span className="hero-split__stat-label label-sm">Milan • Paris • Tokyo</span>
+              <span className="hero-split__stat-num">India</span>
+              <span className="hero-split__stat-label label-sm">Worldwide Commissions</span>
             </div>
           </div>
         </div>

@@ -37,8 +37,15 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [menuOpen]);
 
@@ -55,7 +62,7 @@ export default function Navbar() {
     <>
       <header ref={navRef} className={`glass-nav navbar ${scrolled ? "is-scrolled" : ""}`}>
         <div className="navbar__inner container-max">
-          <Link to="/" className="navbar__brand label-sm" data-cursor="button">
+          <Link to="/" className="navbar__brand label-sm" data-cursor="button" onClick={() => setMenuOpen(false)}>
             Noir Frame
           </Link>
 
@@ -85,8 +92,11 @@ export default function Navbar() {
         </div>
       </header>
 
-      <div className={`mobile-overlay glass-strong ${menuOpen ? "is-open" : ""}`}>
-        <nav className="mobile-overlay__links">
+      <div 
+        className={`mobile-overlay glass-strong ${menuOpen ? "is-open" : ""}`}
+        onClick={() => setMenuOpen(false)}
+      >
+        <nav className="mobile-overlay__links" onClick={(e) => e.stopPropagation()}>
           {LINKS.map((link, i) => (
             <Link
               key={link.label}

@@ -50,7 +50,7 @@ export default function StoryModal({ activeStory, onClose }) {
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           onClick={onClose}
         >
-          {/* Real Continuous 1-Screen Snap Document */}
+          {/* Real Continuous 1-Screen Snap Document (Clicking anywhere closes modal) */}
           <div
             className="story-scroll-container"
             ref={scrollRef}
@@ -58,7 +58,13 @@ export default function StoryModal({ activeStory, onClose }) {
           >
             {/* SECTION 00: Centered Popup Hero Stage */}
             <section className="story-hero-stage">
-              <div className="story-hero-container">
+              <motion.div
+                className="story-hero-container"
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, amount: 0.35 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              >
                 {/* 1. Large Hero Image with shared-element FLIP transition */}
                 <motion.div
                   className="story-hero-image-wrap"
@@ -77,13 +83,7 @@ export default function StoryModal({ activeStory, onClose }) {
                 </motion.div>
 
                 {/* 2. Metadata, Title & Quote */}
-                <motion.div
-                  className="story-hero-meta"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <div className="story-hero-meta">
                   <span className="eyebrow story-hero-eyebrow">
                     {(activeStory.category || "PHOTOGRAPHY").toUpperCase()} &mdash;{" "}
                     {activeStory.year || "2026"}
@@ -97,20 +97,14 @@ export default function StoryModal({ activeStory, onClose }) {
                       "Some stories are not told. They are remembered."}
                     &rdquo;
                   </p>
-                </motion.div>
+                </div>
 
                 {/* 3. Scroll Indicator */}
-                <motion.div
-                  className="story-scroll-indicator label-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <div className="story-scroll-indicator label-sm">
                   <span>SCROLL TO EXPLORE STORY</span>
                   <span className="story-scroll-indicator__arrow">&darr;</span>
-                </motion.div>
-              </div>
+                </div>
+              </motion.div>
             </section>
 
             {/* STORY CONTENT FLOW */}
