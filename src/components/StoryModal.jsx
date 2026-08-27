@@ -1,9 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SmartImage from "./SmartImage.jsx";
 
 export default function StoryModal({ activeStory, onClose }) {
   const scrollRef = useRef(null);
+
+  const handleDismiss = useCallback(() => {
+    if (window.history.state?.modal === "story") {
+      window.history.back();
+    } else {
+      onClose();
+    }
+  }, [onClose]);
 
   useEffect(() => {
     if (!activeStory) return undefined;
@@ -22,9 +30,19 @@ export default function StoryModal({ activeStory, onClose }) {
       scrollRef.current.scrollTop = 0;
     }
 
+    // Push history state so mobile navigation / browser back gesture closes the modal
+    window.history.pushState({ modal: "story", storyId: activeStory.id }, "");
+    let isPushed = true;
+
+    const handlePopState = () => {
+      isPushed = false;
+      onClose();
+    };
+    window.addEventListener("popstate", handlePopState);
+
     const onKey = (e) => {
       if (e.key === "Escape") {
-        onClose();
+        handleDismiss();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -35,8 +53,14 @@ export default function StoryModal({ activeStory, onClose }) {
         window.__lenis.start();
       }
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("popstate", handlePopState);
+
+      // If closed via UI click rather than browser back button, clean up history entry
+      if (isPushed && window.history.state?.modal === "story") {
+        window.history.back();
+      }
     };
-  }, [activeStory, onClose]);
+  }, [activeStory, onClose, handleDismiss]);
 
   return (
     <AnimatePresence>
@@ -48,7 +72,7 @@ export default function StoryModal({ activeStory, onClose }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          onClick={onClose}
+          onClick={handleDismiss}
         >
           {/* Real Continuous 1-Screen Snap Document (Clicking anywhere closes modal) */}
           <div
