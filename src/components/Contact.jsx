@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 import GlassPanel from "./GlassPanel.jsx";
+import { useData } from "../context/DataContext.jsx";
 
 const PROJECT_TYPES = ["Wedding", "Portrait", "Editorial", "Fashion", "Event", "Other"];
 
 const initialState = { name: "", email: "", projectType: "", message: "" };
 
 export default function Contact({ isStandalone = false }) {
+  const { contactData } = useData();
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const {
+    eyebrow = "",
+    title = "",
+    subtitle = "",
+    inquiryEmail = "",
+    location = "",
+  } = contactData || {};
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -19,7 +29,7 @@ export default function Contact({ isStandalone = false }) {
     setLoading(true);
 
     try {
-      const res = await fetch("https://formsubmit.co/ajax/teamnoirframe@gmail.com", {
+      const res = await fetch(`https://formsubmit.co/ajax/${inquiryEmail}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,7 +40,7 @@ export default function Contact({ isStandalone = false }) {
           email: form.email,
           projectType: form.projectType || "General Inquiry",
           message: form.message,
-          _subject: `New Inquiry from ${form.name} — Noir Frame`,
+          _subject: `New Inquiry from ${form.name}`,
           _template: "table",
           _captcha: "false",
         }),
@@ -45,11 +55,11 @@ export default function Contact({ isStandalone = false }) {
     } catch (err) {
       console.warn("Direct form endpoint error, opening email client fallback:", err);
       // Fallback: trigger client email application directly with prefilled body
-      const subject = encodeURIComponent(`Noir Frame Inquiry from ${form.name}`);
+      const subject = encodeURIComponent(`Inquiry from ${form.name}`);
       const body = encodeURIComponent(
         `Name: ${form.name}\nEmail: ${form.email}\nProject Type: ${form.projectType || "Not specified"}\n\nMessage:\n${form.message}`
       );
-      window.location.href = `mailto:teamnoirframe@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:${inquiryEmail}?subject=${subject}&body=${body}`;
       setSubmitted(true);
       setForm(initialState);
     } finally {
@@ -61,25 +71,25 @@ export default function Contact({ isStandalone = false }) {
     <section className={`section contact ${isStandalone ? "contact--standalone" : ""}`} id="contact">
       <div className="container-max contact-grid">
         <div className="contact__intro">
-          <span className="eyebrow">Get In Touch</span>
-          <h2 className="heading-lg">Let&rsquo;s create something timeless.</h2>
+          <span className="eyebrow">{eyebrow}</span>
+          <h2 className="heading-lg">{title}</h2>
           <p className="body-md">
-            Tell us a little about your project and we&rsquo;ll respond within two business days.
+            {subtitle}
           </p>
           <div className="contact__direct-info">
             <div className="contact__direct-item">
               <span className="label-sm">Inquiries</span>
               <a
-                href="mailto:teamnoirframe@gmail.com"
+                href={`mailto:${inquiryEmail}`}
                 className="body-md"
                 style={{ textDecoration: "underline", textUnderlineOffset: "3px" }}
               >
-                teamnoirframe@gmail.com
+                {inquiryEmail}
               </a>
             </div>
             <div className="contact__direct-item">
               <span className="label-sm">Location</span>
-              <span className="body-md">India &bull; Worldwide Commissions</span>
+              <span className="body-md">{location}</span>
             </div>
           </div>
         </div>
@@ -141,7 +151,7 @@ export default function Contact({ isStandalone = false }) {
 
           {submitted && (
             <p className="label-sm contact__success">
-              Thank you &mdash; your message has been sent directly to teamnoirframe@gmail.com.
+              Thank you &mdash; your message has been sent directly to {inquiryEmail}.
             </p>
           )}
         </GlassPanel>

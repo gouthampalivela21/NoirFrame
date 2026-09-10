@@ -5,7 +5,7 @@
 /* ---------- Tablet Landscape & Medium Desktops (<= 1100px) ---------- */
 @media (max-width: 1100px) {
   :root {
-    --nav-height: 50px;
+    --nav-height: 46px;
   }
 
   .portfolio-grid {
@@ -37,7 +37,7 @@
 /* ---------- Tablets & Mobile Landscape (<= 860px) ---------- */
 @media (max-width: 860px) {
   :root {
-    --nav-height: 48px;
+    --nav-height: 46px;
   }
 
   .section {
@@ -185,62 +185,79 @@
 @media (max-width: 768px) {
   :root {
     --edge: clamp(16px, 5vw, 28px);
-    --nav-height: 48px;
+    --nav-height: 56px;
   }
 
-  /* Moments in Motion Gallery Track */
+  /* Moments in Motion Gallery Track - Fit to Screen */
   .gallery-section {
-    padding: 16px 0 28px !important;
+    height: 100svh !important;
+    min-height: 520px !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: clamp(12px, 2vh, 20px) 0 !important;
+    box-sizing: border-box !important;
   }
 
   .gallery-section__header {
-    margin-bottom: 14px !important;
+    margin-bottom: clamp(6px, 1vh, 12px) !important;
+  }
+
+  .gallery-section__track-wrap {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
   .gallery-section__item {
-    width: 88vw !important;
+    width: min(calc((100svh - 180px) * (16 / 10)), 88vw) !important;
     max-width: none !important;
+    max-height: calc(100svh - 180px) !important;
     aspect-ratio: 16 / 10 !important;
-    border-radius: 6px !important;
+    border-radius: 12px !important;
+  }
+
+  .gallery-section__item-brand {
+    top: 14px !important;
+    right: 14px !important;
+    font-size: 11px !important;
   }
 
   .gallery-section__item-overlay {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-end !important;
-    padding: 14px 16px !important;
-    gap: 8px !important;
-    background: linear-gradient(180deg, transparent 5%, rgba(0, 0, 0, 0.86) 85%) !important;
+    padding: 16px 18px !important;
+    background: linear-gradient(180deg, transparent 5%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.9) 90%) !important;
   }
 
-  .gallery-section__item-meta {
-    gap: 3px !important;
+  .gallery-section__item-headline {
+    margin-bottom: 10px !important;
     max-width: 100% !important;
   }
 
-  .gallery-section__item-category {
-    font-size: 10px !important;
-    letter-spacing: 0.1em !important;
-  }
-
   .gallery-section__item-title {
-    font-size: clamp(17px, 4.8vw, 22px) !important;
-    line-height: 1.15 !important;
+    font-size: clamp(20px, 5.5vw, 26px) !important;
+    line-height: 1.05 !important;
+    margin-bottom: 2px !important;
   }
 
-  .gallery-section__item-tagline {
-    font-size: 12.5px !important;
-    line-height: 1.35 !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
+  .gallery-section__item-subheadline {
+    font-size: 11.5px !important;
+    letter-spacing: 0.08em !important;
   }
 
-  .gallery-section__item-badge {
-    font-size: 10.5px !important;
-    padding: 6px 12px !important;
-    margin-top: 4px !important;
+  .gallery-section__item-bottom-row {
+    gap: 10px !important;
+  }
+
+  .gallery-section__item-cta {
+    font-size: 11.5px !important;
+    padding: 6px 14px !important;
+  }
+
+  .gallery-section__item-meta-inline {
+    font-size: 12px !important;
+    gap: 5px !important;
   }
 
   .gallery-pagination {
@@ -279,6 +296,12 @@
     flex-shrink: 0 !important;
     padding: 7px 14px !important;
     font-size: 11px !important;
+  }
+
+  .portfolio-card__meta {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    padding: 16px 14px 14px !important;
   }
 
   /* Story Modal: Exactly 1 Full-Screen (100dvh) Snap Page at a Time with Smooth Fade */
@@ -566,7 +589,7 @@
 @media (max-width: 560px) {
   :root {
     --edge: 16px;
-    --nav-height: 44px;
+    --nav-height: 50px;
   }
 
   .display-1 {

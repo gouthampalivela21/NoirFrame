@@ -1,11 +1,12 @@
 import { gsap } from "gsap";
+import { prefersReducedMotion } from "../utils/helpers.js";
 
 /**
- * A restrained magnetic-button effect: the element follows the
- * pointer within its own bounds by a small fraction, then eases home.
+ * Apple-style subtle magnetic button interaction:
+ * Follows the cursor by a tiny fraction, then smoothly springs back.
  */
-export function attachMagnetic(el, strength = 0.25) {
-  if (!el) return () => {};
+export function attachMagnetic(el, strength = 0.15) {
+  if (!el || prefersReducedMotion()) return () => {};
 
   const handleMove = (e) => {
     const rect = el.getBoundingClientRect();
@@ -14,13 +15,18 @@ export function attachMagnetic(el, strength = 0.25) {
     gsap.to(el, {
       x: relX * strength,
       y: relY * strength,
-      duration: 0.6,
-      ease: "power3.out",
+      duration: 0.45,
+      ease: "power2.out",
     });
   };
 
   const handleLeave = () => {
-    gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.4)" });
+    gsap.to(el, {
+      x: 0,
+      y: 0,
+      duration: 0.5,
+      ease: "power3.out",
+    });
   };
 
   el.addEventListener("mousemove", handleMove);
@@ -32,12 +38,14 @@ export function attachMagnetic(el, strength = 0.25) {
   };
 }
 
-/** Slow, deliberate zoom used on portfolio / service imagery on hover. */
+/**
+ * Restrained, elegant image zoom on hover (1.025x max, silky 0.7s easing).
+ */
 export function imageHoverZoom(imgEl, active) {
-  if (!imgEl) return;
+  if (!imgEl || prefersReducedMotion()) return;
   gsap.to(imgEl, {
-    scale: active ? 1.06 : 1,
-    duration: 1.1,
+    scale: active ? 1.025 : 1,
+    duration: 0.7,
     ease: "power3.out",
   });
 }

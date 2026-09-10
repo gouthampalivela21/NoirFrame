@@ -1,42 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React from "react";
 import SmartImage from "./SmartImage.jsx";
 
 export default function PortfolioCard({ item, onOpen }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { rootMargin: "60px 0px", threshold: 0.05 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <button
-      ref={ref}
       type="button"
-      className={`portfolio-card portfolio-card--${item.size} ${visible ? "is-visible" : ""}`}
+      className={`portfolio-card portfolio-card--${item.size}`}
       onClick={() => onOpen(item)}
       data-cursor="view"
+      aria-label={`View story: ${item.title}`}
     >
-      <motion.span
-        className="portfolio-card__frame"
-        layoutId={`story-image-${item.id}`}
-        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <span className="portfolio-card__frame">
         <SmartImage
           seed={item.seed}
           aspect={item.aspect}
@@ -44,7 +18,7 @@ export default function PortfolioCard({ item, onOpen }) {
           sizes="(max-width: 600px) 100vw, (max-width: 1024px) 50vw, 33vw"
           alt={item.title}
         />
-      </motion.span>
+      </span>
       <span className="portfolio-card__meta">
         <span className="heading-md portfolio-card__title">{item.title}</span>
         <span className="label-sm portfolio-card__category">

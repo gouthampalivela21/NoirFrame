@@ -1,29 +1,35 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { routeTransition } from "../animations/pageTransitions.js";
-import { portfolioItems } from "../data/portfolio.js";
+import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
 import SmartImage from "../components/SmartImage.jsx";
 import StoryModal from "../components/StoryModal.jsx";
 import GlassPanel from "../components/GlassPanel.jsx";
+import { useData } from "../context/DataContext.jsx";
 
 export default function ProjectPage() {
   const { id } = useParams();
+  const pageRef = useRef(null);
+  const { portfolioItems = [] } = useData();
   const [activeStory, setActiveStory] = useState(null);
 
   const currentIndex = useMemo(() => {
     const idx = portfolioItems.findIndex((item) => item.id === id);
     return idx !== -1 ? idx : 0;
-  }, [id]);
+  }, [id, portfolioItems]);
 
-  const project = portfolioItems[currentIndex];
+  const project = portfolioItems[currentIndex] || portfolioItems[0];
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const triggers = initScrollReveals(pageRef.current, ".reveal");
+    return () => killTriggers(triggers);
   }, [id]);
 
   return (
     <motion.article
+      ref={pageRef}
       className="project-page"
       variants={routeTransition}
       initial="initial"
@@ -34,7 +40,7 @@ export default function ProjectPage() {
       <header className="project-header section">
         <div className="container-max">
           <div className="project-nav-bar">
-            <Link to="/portfolio" className="project-back-link label-sm">
+            <Link to="/portfolio" className="project-back-link label-sm" data-cursor="button">
               ‹ Back to Archive
             </Link>
             <span className="eyebrow project-nav-pill">
@@ -53,6 +59,7 @@ export default function ProjectPage() {
       <section className="project-hero-wrap container-max">
         <div
           className="project-hero-image"
+          data-cursor="view"
           onClick={() => setActiveStory(project)}
           role="button"
           tabIndex={0}
@@ -72,7 +79,7 @@ export default function ProjectPage() {
       {/* Specifications Grid */}
       <section className="section project-specs-section">
         <div className="container-max">
-          <GlassPanel className="project-specs-grid">
+          <GlassPanel className="project-specs-grid reveal">
             {[
               { label: "Category", value: project.category },
               { label: "Year", value: String(project.year) },
@@ -91,7 +98,7 @@ export default function ProjectPage() {
       {/* Editorial Narrative */}
       {project.intro?.description && (
         <section className="section project-story-section">
-          <div className="container-max split-layout">
+          <div className="container-max split-layout reveal">
             <div className="project-story-title">
               <span className="eyebrow">The Narrative</span>
               <h2 className="heading-lg">Restraint, Light & Composition</h2>
@@ -108,8 +115,10 @@ export default function ProjectPage() {
       {project.sections && (
         <section className="section project-gallery-section">
           <div className="container-max">
-            <span className="eyebrow project-gallery-eyebrow">Visual Archive</span>
-            <h2 className="heading-lg project-gallery-title">Frames From The Story</h2>
+            <div className="reveal">
+              <span className="eyebrow project-gallery-eyebrow">Visual Archive</span>
+              <h2 className="heading-lg project-gallery-title">Frames From The Story</h2>
+            </div>
 
             <div className="project-gallery-grid">
               {project.sections.map(
@@ -117,7 +126,8 @@ export default function ProjectPage() {
                   section.image && (
                     <figure
                       key={i}
-                      className={`project-gallery-item project-gallery-item--${i % 2 === 0 ? "wide" : "normal"}`}
+                      className={`project-gallery-item project-gallery-item--${i % 2 === 0 ? "wide" : "normal"} reveal`}
+                      data-cursor="view"
                       onClick={() => setActiveStory(project)}
                       role="button"
                       tabIndex={0}

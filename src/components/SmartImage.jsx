@@ -2,10 +2,11 @@ import React, { useState, useLayoutEffect, useRef } from "react";
 import { getOptimizedImageUrl, loadedImageUrls } from "../utils/imageRegistry.js";
 
 /**
- * High-Speed Zero-CLS Image Component.
- * - Direct CDN asset delivery (bypasses 302 redirects).
- * - Instant memory cache recognition (0ms render on subsequent views).
- * - High priority decoding and eager loading for modal hero views.
+ * High-Speed Zero-CLS Zero-Pop-in Image Component.
+ * - Direct CDN asset delivery (bypasses redirects).
+ * - Instant memory cache recognition.
+ * - Predictable aspect-ratio layout reservation (0 Cumulative Layout Shift).
+ * - Native rendering with zero JavaScript-delayed opacity.
  */
 export default function SmartImage({
   seed,
@@ -19,8 +20,9 @@ export default function SmartImage({
   ...rest
 }) {
   const imgRef = useRef(null);
+  const safeAspect = Number(aspect) && Number(aspect) > 0 ? Number(aspect) : 3 / 2;
   const mainWidth = widths[widths.length - 1];
-  const mainHeight = Math.round(mainWidth / aspect);
+  const mainHeight = Math.round(mainWidth / safeAspect);
   const mainSrc = getOptimizedImageUrl(seed, mainWidth, mainHeight);
 
   const [loaded, setLoaded] = useState(() => loadedImageUrls.has(mainSrc));
@@ -37,7 +39,7 @@ export default function SmartImage({
   }, [mainSrc]);
 
   const srcSet = widths
-    .map((w) => `${getOptimizedImageUrl(seed, w, Math.round(w / aspect))} ${w}w`)
+    .map((w) => `${getOptimizedImageUrl(seed, w, Math.round(w / safeAspect))} ${w}w`)
     .join(", ");
 
   const handleLoad = () => {
@@ -49,7 +51,7 @@ export default function SmartImage({
     <span
       className={`smart-image ${loaded ? "is-loaded" : ""} ${className}`}
       style={{
-        aspectRatio: aspect,
+        aspectRatio: safeAspect,
         ...style,
       }}
       {...rest}
@@ -63,7 +65,7 @@ export default function SmartImage({
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
+        fetchpriority={priority ? "high" : "auto"}
         onLoad={handleLoad}
       />
     </span>

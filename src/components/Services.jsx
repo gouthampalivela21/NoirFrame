@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { services } from "../data/services.js";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
 import SmartImage from "./SmartImage.jsx";
+import { useData } from "../context/DataContext.jsx";
 
 export default function Services() {
   const sectionRef = useRef(null);
-  const [activeId, setActiveId] = useState("s01");
+  const { services = [] } = useData();
+  const [activeId, setActiveId] = useState(() => services[0]?.id || "s01");
+
+  useEffect(() => {
+    if (services.length > 0 && !services.find((s) => s.id === activeId)) {
+      setActiveId(services[0].id);
+    }
+  }, [services, activeId]);
 
   useEffect(() => {
     const triggers = initScrollReveals(sectionRef.current);

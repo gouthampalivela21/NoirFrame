@@ -101,10 +101,20 @@ export const imageRegistry = {
 export const loadedImageUrls = new Set();
 
 /**
- * Generate a direct, optimized Unsplash image URL.
+ * Generate a direct, optimized Unsplash or custom image URL.
  */
 export function getOptimizedImageUrl(seed, width, height) {
-  const photoId = imageRegistry[seed] || "1492691527719-9d1e07e534b4";
+  if (!seed) {
+    return "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1200";
+  }
+
+  // If seed is already a complete URL or data URL, return it directly
+  if (seed.startsWith("http://") || seed.startsWith("https://") || seed.startsWith("data:") || seed.startsWith("/")) {
+    return seed;
+  }
+
+  // If seed is an entry in imageRegistry, use that ID, otherwise treat seed itself as an Unsplash ID if length > 8
+  const photoId = imageRegistry[seed] || (seed.length > 6 ? seed : "1492691527719-9d1e07e534b4");
   const w = Math.min(width || 1200, 1600);
   const h = height ? Math.min(height, 1600) : Math.round(w / (3 / 2));
   return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&q=80&w=${w}&h=${h}`;
@@ -114,7 +124,7 @@ export function getOptimizedImageUrl(seed, width, height) {
  * Preload high-priority images into browser memory.
  */
 export function preloadImage(seed, width = 1200, height) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !seed) return;
   const url = getOptimizedImageUrl(seed, width, height);
   if (loadedImageUrls.has(url)) return;
 
@@ -122,3 +132,6 @@ export function preloadImage(seed, width = 1200, height) {
   img.src = url;
   img.onload = () => loadedImageUrls.add(url);
 }
+
+export const getImageUrl = getOptimizedImageUrl;
+

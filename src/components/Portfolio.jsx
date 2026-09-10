@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { categories, portfolioItems } from "../data/portfolio.js";
 import PortfolioCard from "./PortfolioCard.jsx";
 import StoryModal from "./StoryModal.jsx";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
 import { preloadImage } from "../utils/imageRegistry.js";
+import { useData } from "../context/DataContext.jsx";
 
 export default function Portfolio({ limit, hideHeader = false }) {
   const sectionRef = useRef(null);
+  const { portfolioItems = [], categories = ["All"] } = useData();
   const [category, setCategory] = useState("All");
   const [activeStory, setActiveStory] = useState(null);
 
@@ -16,7 +17,7 @@ export default function Portfolio({ limit, hideHeader = false }) {
         ? portfolioItems
         : portfolioItems.filter((item) => item.category === category);
     return limit ? list.slice(0, limit) : list;
-  }, [category, limit]);
+  }, [category, limit, portfolioItems]);
 
   useEffect(() => {
     // Preload visible work in background

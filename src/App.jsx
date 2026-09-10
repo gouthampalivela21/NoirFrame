@@ -15,6 +15,7 @@ const PortfolioPage = lazy(() => import("./pages/PortfolioPage.jsx"));
 const ProjectPage = lazy(() => import("./pages/ProjectPage.jsx"));
 const AboutPage = lazy(() => import("./pages/AboutPage.jsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage.jsx"));
+const CustomPageView = lazy(() => import("./pages/CustomPageView.jsx"));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -89,6 +90,7 @@ export default function App() {
               <Route path="/project/:id" element={<ProjectPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/page/:slug" element={<CustomPageView />} />
             </Routes>
           </AnimatePresence>
         </Suspense>

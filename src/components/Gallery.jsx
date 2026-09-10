@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
-import { galleryStrip } from "../data/gallery.js";
-import { portfolioItems } from "../data/portfolio.js";
 import SmartImage from "./SmartImage.jsx";
 import StoryModal from "./StoryModal.jsx";
 import { prefersReducedMotion } from "../utils/helpers.js";
 import { preloadImage } from "../utils/imageRegistry.js";
+import { useData } from "../context/DataContext.jsx";
 
 const AUTO_SWITCH_DURATION = 4800; // 4.8s per item in Apple TV+ style
-const ITEM_COUNT = galleryStrip.length;
 
 export default function Gallery() {
   const sectionRef = useRef(null);
@@ -18,9 +16,12 @@ export default function Gallery() {
   const lastWheelTimeRef = useRef(0);
   const dragStartRef = useRef({ x: 0, y: 0, isDragging: false, moved: false });
   const [activeStory, setActiveStory] = useState(null);
+
+  const { galleryStrip = [], portfolioItems = [] } = useData();
+  const itemCount = galleryStrip.length || 1;
   
   // Start in the middle set for seamless infinite continuous loop
-  const [virtualIndex, setVirtualIndex] = useState(ITEM_COUNT);
+  const [virtualIndex, setVirtualIndex] = useState(itemCount);
   const [progress, setProgress] = useState(0);
 
   // 3 duplicate sets of items to guarantee continuous forward wrap-around without rewind
@@ -30,7 +31,7 @@ export default function Gallery() {
       ...galleryStrip.map((item) => ({ ...item, cloneId: `c2-${item.id}` })),
       ...galleryStrip.map((item) => ({ ...item, cloneId: `c3-${item.id}` })),
     ],
-    []
+    [galleryStrip]
   );
 
   // Preload all gallery images
@@ -38,7 +39,7 @@ export default function Gallery() {
     galleryStrip.forEach((item) => {
       preloadImage(item.seed, 1400);
     });
-  }, []);
+  }, [galleryStrip]);
 
   const getTargetX = useCallback((index) => {
     const track = trackRef.current;
@@ -72,15 +73,15 @@ export default function Gallery() {
           force3D: true,
           onComplete: () => {
             // Seamless forward / backward wrap-around reset
-            if (index >= ITEM_COUNT * 2) {
+            if (index >= itemCount * 2) {
               isResettingRef.current = true;
-              const resetIndex = index - ITEM_COUNT;
+              const resetIndex = index - itemCount;
               const resetX = getTargetX(resetIndex);
               gsap.set(track, { x: -resetX, force3D: true });
               setVirtualIndex(resetIndex);
-            } else if (index < ITEM_COUNT) {
+            } else if (index < itemCount) {
               isResettingRef.current = true;
-              const resetIndex = index + ITEM_COUNT;
+              const resetIndex = index + itemCount;
               const resetX = getTargetX(resetIndex);
               gsap.set(track, { x: -resetX, force3D: true });
               setVirtualIndex(resetIndex);
@@ -89,7 +90,7 @@ export default function Gallery() {
         });
       }
     },
-    [getTargetX]
+    [getTargetX, itemCount]
   );
 
   // Scroll on index change (unless silently resetting)
@@ -110,8 +111,8 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, [virtualIndex, scrollToVirtualIndex]);
 
-  // Active original item index (0 to 5)
-  const activeDotIndex = ((virtualIndex % ITEM_COUNT) + ITEM_COUNT) % ITEM_COUNT;
+  // Active original item index (0 to itemCount - 1)
+  const activeDotIndex = ((virtualIndex % itemCount) + itemCount) % itemCount;
 
   // Uninterrupted Apple-style automatic progress bar & continuous forward cycling
   // Continues cycling non-stop even when placing/hovering mouse over images
@@ -238,9 +239,9 @@ export default function Gallery() {
 
   // Handle dot click: always glide forward smoothly
   const handleDotClick = (dotIdx) => {
-    const currentDot = ((virtualIndex % ITEM_COUNT) + ITEM_COUNT) % ITEM_COUNT;
+    const currentDot = ((virtualIndex % itemCount) + itemCount) % itemCount;
     let diff = dotIdx - currentDot;
-    if (diff < 0) diff += ITEM_COUNT;
+    if (diff < 0) diff += itemCount;
     setVirtualIndex((curr) => curr + diff);
     setProgress(0);
   };
@@ -346,26 +347,51 @@ export default function Gallery() {
                     <SmartImage
                       seed={item.seed}
                       aspect={16 / 9}
-                      widths={[600, 1000, 1400]}
-                      sizes="(max-width: 768px) 85vw, min(1200px, 75vw)"
+                      widths={[800, 1400, 2000]}
+                      sizes="(max-width: 768px) 92vw, min(1400px, 86vw)"
                       alt={item.caption}
                     />
                   </motion.div>
 
-                  {/* Cinematic Content Overlay */}
+                  {/* Top-Right Apple TV+ Style Brand Badge */}
+                  <div className="gallery-section__item-brand">
+                    <span>✦ NOIR</span>
+                  </div>
+
+                  {/* Apple TV+ Cinematic Content Overlay */}
                   <div className="gallery-section__item-overlay">
-                    <div className="gallery-section__item-meta">
-                      <span className="eyebrow gallery-section__item-category">
-                        {item.category || "VISUAL STORY"} &mdash; {item.year || "2026"}
-                      </span>
-                      <h3 className="heading-lg gallery-section__item-title">{item.caption}</h3>
+                    <div className="gallery-section__item-headline">
+                      <h3 className="gallery-section__item-title">{item.caption}</h3>
                       {item.tagline && (
-                        <p className="body-md gallery-section__item-tagline font-serif-italic">
-                          &ldquo;{item.tagline}&rdquo;
+                        <p className="gallery-section__item-subheadline">
+                          {item.tagline}
                         </p>
                       )}
                     </div>
-                    <span className="gallery-section__item-badge label-sm">Explore Story &rarr;</span>
+
+                    <div className="gallery-section__item-bottom-row">
+                      <button
+                        type="button"
+                        className="gallery-section__item-cta"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenItem(item);
+                        }}
+                        data-cursor="button"
+                      >
+                        Explore story
+                      </button>
+
+                      <div className="gallery-section__item-meta-inline">
+                        <span className="gallery-section__item-genre">
+                          {item.category || "Editorial"}
+                        </span>
+                        <span className="gallery-section__item-dot">&bull;</span>
+                        <span className="gallery-section__item-logline">
+                          {item.quote || item.description || "Captured on location in natural light."}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </figure>
               );

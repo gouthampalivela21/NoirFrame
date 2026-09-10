@@ -30,7 +30,7 @@
   box-shadow: 
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
     0 4px 20px rgba(0, 0, 0, 0.02);
-  transition: background 0.4s var(--ease-soft), border-color 0.4s var(--ease-soft), box-shadow 0.4s var(--ease-soft);
+  transition: background 0.4s var(--ease-apple), border-color 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
 }
 
 .glass-nav.is-scrolled {
