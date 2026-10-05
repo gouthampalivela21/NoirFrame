@@ -443,7 +443,6 @@
   .btn,
   .nav-link,
   .mobile-apple-nav__link,
-  .mobile-apple-nav__cta,
   .navbar__mobile-toggle {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;

@@ -12,6 +12,45 @@ const NAV_LINKS = [
   { label: "Contact", to: "/#contact", id: "contact" },
 ];
 
+const APPLE_EASE = [0.22, 1, 0.36, 1];
+
+const menuVariants = {
+  closed: {
+    opacity: 0,
+    transition: {
+      duration: 0.28,
+      ease: APPLE_EASE,
+    },
+  },
+  open: {
+    opacity: 1,
+    transition: {
+      duration: 0.45,
+      ease: APPLE_EASE,
+    },
+  },
+};
+
+const itemVariants = {
+  closed: {
+    opacity: 0,
+    y: 10,
+    transition: {
+      duration: 0.22,
+      ease: APPLE_EASE,
+    },
+  },
+  open: (idx) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      delay: 0.06 + idx * 0.05,
+      ease: APPLE_EASE,
+    },
+  }),
+};
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -82,7 +121,7 @@ export default function Navbar() {
         className={`navbar ${scrolled ? "is-scrolled" : ""} ${menuOpen ? "navbar--open" : ""}`}
         initial={isReduced ? false : { opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, delay: 0.35, ease: APPLE_EASE }}
       >
         <div className="navbar__inner container-max">
           {/* Brand */}
@@ -92,10 +131,16 @@ export default function Navbar() {
             data-cursor="pointer"
             aria-label="Noir Frame Homepage"
           >
-            <span className="navbar__brand-logo">
-              <Logo size={18} />
-            </span>
-            <span>NOIR FRAME</span>
+            <motion.span
+              animate={menuOpen ? { opacity: [0.75, 1] } : { opacity: 1 }}
+              transition={{ duration: 0.45, ease: APPLE_EASE }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <span className="navbar__brand-logo">
+                <Logo size={18} />
+              </span>
+              <span>NOIR FRAME</span>
+            </motion.span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -133,33 +178,53 @@ export default function Navbar() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
-            {menuOpen ? (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            ) : (
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              >
-                <line x1="4" y1="8" x2="20" y2="8" />
-                <line x1="4" y1="16" x2="20" y2="16" />
-              </svg>
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {menuOpen ? (
+                <motion.span
+                  key="close"
+                  initial={isReduced ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={isReduced ? false : { opacity: 0 }}
+                  transition={{ duration: 0.28, ease: APPLE_EASE }}
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="hamburger"
+                  initial={isReduced ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={isReduced ? false : { opacity: 0 }}
+                  transition={{ duration: 0.28, ease: APPLE_EASE }}
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  >
+                    <line x1="4" y1="8" x2="20" y2="8" />
+                    <line x1="4" y1="16" x2="20" y2="16" />
+                  </svg>
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
 
@@ -168,24 +233,22 @@ export default function Navbar() {
           {menuOpen && (
             <motion.div
               className="mobile-apple-nav"
-              initial={isReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={isReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
-              transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+              initial={isReduced ? { opacity: 0 } : "closed"}
+              animate={isReduced ? { opacity: 1 } : "open"}
+              exit={isReduced ? { opacity: 0 } : "closed"}
+              variants={menuVariants}
             >
               <div className="mobile-apple-nav__inner">
-                {/* Navigation Links Stack */}
+                {/* Navigation Links Stack ONLY */}
                 <nav className="mobile-apple-nav__links" aria-label="Mobile Navigation">
                   {NAV_LINKS.map((link, idx) => (
                     <motion.div
                       key={link.label}
-                      initial={isReduced ? false : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.28,
-                        delay: isReduced ? 0 : 0.03 + idx * 0.035,
-                        ease: [0.25, 0.1, 0.25, 1],
-                      }}
+                      custom={idx}
+                      variants={itemVariants}
+                      initial={isReduced ? false : "closed"}
+                      animate={isReduced ? { opacity: 1 } : "open"}
+                      exit={isReduced ? false : "closed"}
                     >
                       <Link
                         to={link.to}
@@ -197,39 +260,6 @@ export default function Navbar() {
                     </motion.div>
                   ))}
                 </nav>
-
-                {/* Bottom Actions & Contact Info */}
-                <motion.div
-                  className="mobile-apple-nav__footer"
-                  initial={isReduced ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.28,
-                    delay: isReduced ? 0 : 0.18,
-                    ease: [0.25, 0.1, 0.25, 1],
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="btn btn-primary mobile-apple-nav__cta"
-                    onClick={(e) => handleLinkClick(e, { to: "/#contact", id: "contact" })}
-                  >
-                    <span>Start a Conversation</span>
-                    <span className="btn-arrow">&rarr;</span>
-                  </button>
-
-                  <div className="mobile-apple-nav__contact">
-                    <a
-                      href="mailto:teamnoirframe@gmail.com"
-                      className="mobile-apple-nav__email"
-                    >
-                      teamnoirframe@gmail.com
-                    </a>
-                    <span className="mobile-apple-nav__meta">
-                      DIRECT INQUIRIES &bull; AVAILABLE WORLDWIDE &bull; 2026
-                    </span>
-                  </div>
-                </motion.div>
               </div>
             </motion.div>
           )}
