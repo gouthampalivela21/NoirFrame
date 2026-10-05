@@ -40,6 +40,10 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
   }, [location]);
 
   useEffect(() => {
@@ -48,11 +52,22 @@ export default function Navbar() {
   }, []);
 
   const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
+    setMenuOpen((prev) => {
+      const next = !prev;
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = next ? "hidden" : "";
+        document.documentElement.style.overflow = next ? "hidden" : "";
+      }
+      return next;
+    });
   };
 
   const handleLinkClick = (e, link) => {
     setMenuOpen(false);
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
     if (location.pathname === "/" && link.id) {
       e.preventDefault();
       scrollToId(link.id);
@@ -64,7 +79,7 @@ export default function Navbar() {
   return (
     <>
       <motion.header
-        className={`navbar ${scrolled ? "is-scrolled" : ""}`}
+        className={`navbar ${scrolled ? "is-scrolled" : ""} ${menuOpen ? "navbar--open" : ""}`}
         initial={isReduced ? false : { opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -110,7 +125,7 @@ export default function Navbar() {
             <span className="btn-arrow">&rarr;</span>
           </button>
 
-          {/* Mobile Hamburger Toggle */}
+          {/* Mobile Hamburger / X Toggle */}
           <button
             type="button"
             className="navbar__mobile-toggle"
@@ -120,8 +135,8 @@ export default function Navbar() {
           >
             {menuOpen ? (
               <svg
-                width="20"
-                height="20"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -148,47 +163,75 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Compact Apple-Style Dropdown Popover */}
+        {/* Full-Width Apple-Style Mobile Navigation Surface directly below header */}
         <AnimatePresence>
           {menuOpen && (
-            <>
-              <div
-                className="mobile-dropdown-backdrop"
-                onClick={() => setMenuOpen(false)}
-                aria-hidden="true"
-              />
-              <motion.div
-                className="mobile-dropdown"
-                initial={isReduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: -6 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={isReduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: -6 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <nav className="mobile-dropdown__nav" aria-label="Mobile Navigation">
-                  {NAV_LINKS.map((link) => (
-                    <Link
+            <motion.div
+              className="mobile-apple-nav"
+              initial={isReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={isReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+            >
+              <div className="mobile-apple-nav__inner">
+                {/* Navigation Links Stack */}
+                <nav className="mobile-apple-nav__links" aria-label="Mobile Navigation">
+                  {NAV_LINKS.map((link, idx) => (
+                    <motion.div
                       key={link.label}
-                      to={link.to}
-                      className="mobile-dropdown__link"
-                      onClick={(e) => handleLinkClick(e, link)}
+                      initial={isReduced ? false : { opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.28,
+                        delay: isReduced ? 0 : 0.03 + idx * 0.035,
+                        ease: [0.25, 0.1, 0.25, 1],
+                      }}
                     >
-                      <span>{link.label}</span>
-                    </Link>
+                      <Link
+                        to={link.to}
+                        className="mobile-apple-nav__link"
+                        onClick={(e) => handleLinkClick(e, link)}
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
                   ))}
                 </nav>
 
-                <div className="mobile-dropdown__footer">
+                {/* Bottom Actions & Contact Info */}
+                <motion.div
+                  className="mobile-apple-nav__footer"
+                  initial={isReduced ? false : { opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.28,
+                    delay: isReduced ? 0 : 0.18,
+                    ease: [0.25, 0.1, 0.25, 1],
+                  }}
+                >
                   <button
                     type="button"
-                    className="btn btn-primary mobile-dropdown__cta"
+                    className="btn btn-primary mobile-apple-nav__cta"
                     onClick={(e) => handleLinkClick(e, { to: "/#contact", id: "contact" })}
                   >
                     <span>Start a Conversation</span>
                     <span className="btn-arrow">&rarr;</span>
                   </button>
-                </div>
-              </motion.div>
-            </>
+
+                  <div className="mobile-apple-nav__contact">
+                    <a
+                      href="mailto:teamnoirframe@gmail.com"
+                      className="mobile-apple-nav__email"
+                    >
+                      teamnoirframe@gmail.com
+                    </a>
+                    <span className="mobile-apple-nav__meta">
+                      DIRECT INQUIRIES &bull; AVAILABLE WORLDWIDE &bull; 2026
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </motion.header>

@@ -365,6 +365,17 @@
     width: 100%;
   }
 
+  .contact-form__direct {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 24px;
+  }
+
+  .contact-form__direct-block {
+    align-items: center;
+  }
+
   /* Footer Mobile */
   .footer {
     padding: 32px var(--edge) 20px var(--edge);
@@ -428,8 +439,8 @@
   textarea,
   .btn,
   .nav-link,
-  .mobile-dropdown__link,
-  .mobile-dropdown__cta,
+  .mobile-apple-nav__link,
+  .mobile-apple-nav__cta,
   .navbar__mobile-toggle {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
