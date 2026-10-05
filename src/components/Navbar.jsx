@@ -152,7 +152,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
           >
             <div className="mobile-menu-shell">
               {/* Top Bar Header */}
@@ -193,11 +193,11 @@ export default function Navbar() {
                 {NAV_LINKS.map((link, idx) => (
                   <motion.div
                     key={link.label}
-                    initial={isReduced ? false : { opacity: 0, y: 16 }}
+                    initial={isReduced ? false : { opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      duration: 0.45,
-                      delay: isReduced ? 0 : 0.06 + idx * 0.05,
+                      duration: 0.28,
+                      delay: isReduced ? 0 : 0.03 + idx * 0.035,
                       ease: [0.22, 1, 0.36, 1],
                     }}
                   >
@@ -219,11 +219,11 @@ export default function Navbar() {
               {/* Footer: Translucent Glass CTA & Subtle Info */}
               <motion.div
                 className="mobile-menu-footer"
-                initial={isReduced ? false : { opacity: 0, y: 14 }}
+                initial={isReduced ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: 0.45,
-                  delay: isReduced ? 0 : 0.28,
+                  duration: 0.28,
+                  delay: isReduced ? 0 : 0.18,
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
