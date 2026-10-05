@@ -28,7 +28,7 @@ export default function Contact() {
     if (prefersReducedMotion()) {
       gsap.set(
         sectionRef.current.querySelectorAll(
-          ".contact-section__eyebrow, .contact-section__headline, .contact-section__sub, .contact-section__divider, .contact-section__direct, .contact-section__footnote, .editorial-field, .contact-editorial-form__submit, .contact-form__direct"
+          ".contact-section__eyebrow, .contact-section__headline, .contact-section__sub, .contact-section__divider, .contact-section__direct, .contact-section__footnote, .editorial-field, .contact-editorial-form__submit"
         ),
         { autoAlpha: 1, y: 0 }
       );
@@ -81,11 +81,11 @@ export default function Contact() {
         "-=0.45"
       );
 
-      // 5. CTA and direct inquiries reveal last
+      // 5. CTA appears last
       tl.fromTo(
-        [".contact-editorial-form__submit", ".contact-form__direct"],
+        ".contact-editorial-form__submit",
         { autoAlpha: 0, y: 12 },
-        { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.08 },
+        { autoAlpha: 1, y: 0, duration: 0.5 },
         "-=0.1"
       );
     }, sectionRef);
@@ -304,32 +304,6 @@ export default function Contact() {
                   <span>{loading ? "Sending..." : "Start a Conversation"}</span>
                   <span className="editorial-btn__arrow" aria-hidden="true">&rarr;</span>
                 </button>
-
-                <div className="contact-form__direct">
-                  <div className="contact-form__direct-block">
-                    <span className="contact-form__direct-label">DIRECT INQUIRIES</span>
-                    <a
-                      href="mailto:teamnoirframe@gmail.com"
-                      className="contact-form__direct-link"
-                      data-cursor="pointer"
-                    >
-                      teamnoirframe@gmail.com
-                    </a>
-                  </div>
-
-                  <div className="contact-form__direct-block">
-                    <span className="contact-form__direct-label">INSTAGRAM</span>
-                    <a
-                      href="https://instagram.com/noirframe.in"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="contact-form__direct-link"
-                      data-cursor="pointer"
-                    >
-                      @noirframe.in
-                    </a>
-                  </div>
-                </div>
               </>
             )}
           </form>

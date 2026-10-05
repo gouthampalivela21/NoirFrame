@@ -1517,45 +1517,6 @@ img {
   transform: translateX(5px);
 }
 
-/* Direct Inquiries & Socials below submit button */
-.contact-form__direct {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 28px;
-  align-self: flex-start;
-}
-
-.contact-form__direct-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.contact-form__direct-label {
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-fg-muted);
-}
-
-.contact-form__direct-link {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--color-fg);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  width: fit-content;
-  transition: opacity 0.2s var(--ease-cinema), color 0.2s var(--ease-cinema);
-}
-
-.contact-form__direct-link:hover {
-  color: var(--color-dark);
-  opacity: 0.65;
-}
-
 /* Success Confirmation State */
 .contact-editorial-form__success {
   display: flex;
@@ -1637,6 +1598,13 @@ img {
   font-size: 11.5px;
   color: var(--color-fg-light-muted);
   border-top: 1px solid var(--color-line-dark);
+}
+
+.footer__bottom-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 /* ==========================================================================

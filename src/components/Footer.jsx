@@ -46,15 +46,15 @@ export default function Footer() {
         </div>
 
         <div className="footer__bottom">
-          <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+          <div className="footer__bottom-links">
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/noirframe.in"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               data-cursor="pointer"
               className="footer__link"
             >
-              Instagram &mdash; Follow the journey
+              Instagram &mdash; @noirframe.in
             </a>
             <a
               href="mailto:teamnoirframe@gmail.com"

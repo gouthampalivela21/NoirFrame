@@ -365,17 +365,6 @@
     width: 100%;
   }
 
-  .contact-form__direct {
-    align-self: center;
-    align-items: center;
-    text-align: center;
-    margin-top: 24px;
-  }
-
-  .contact-form__direct-block {
-    align-items: center;
-  }
-
   /* Footer Mobile */
   .footer {
     padding: 32px var(--edge) 20px var(--edge);
@@ -394,7 +383,15 @@
   .footer__bottom {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .footer__bottom-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    align-items: center;
+    width: 100%;
   }
 }
 
@@ -424,6 +421,12 @@
 
   .service-card {
     padding: 20px 16px;
+  }
+
+  .footer__bottom-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
 
