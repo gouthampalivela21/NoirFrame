@@ -6,7 +6,13 @@ import { prefersReducedMotion } from "../utils/helpers.js";
  * Follows the cursor by a tiny fraction, then smoothly springs back.
  */
 export function attachMagnetic(el, strength = 0.15) {
-  if (!el || prefersReducedMotion()) return () => {};
+  if (
+    !el ||
+    prefersReducedMotion() ||
+    (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)
+  ) {
+    return () => {};
+  }
 
   const handleMove = (e) => {
     const rect = el.getBoundingClientRect();
@@ -42,7 +48,13 @@ export function attachMagnetic(el, strength = 0.15) {
  * Restrained, elegant image zoom on hover (1.025x max, silky 0.7s easing).
  */
 export function imageHoverZoom(imgEl, active) {
-  if (!imgEl || prefersReducedMotion()) return;
+  if (
+    !imgEl ||
+    prefersReducedMotion() ||
+    (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)
+  ) {
+    return;
+  }
   gsap.to(imgEl, {
     scale: active ? 1.025 : 1,
     duration: 0.7,

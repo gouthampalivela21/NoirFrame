@@ -6,10 +6,10 @@ import { attachMagnetic } from "../animations/hoverAnimations.js";
 import Logo from "./Logo.jsx";
 
 const NAV_LINKS = [
-  { label: "Work", to: "/#portfolio", id: "portfolio" },
-  { label: "Services", to: "/#services", id: "services" },
-  { label: "About", to: "/#about", id: "about" },
-  { label: "Contact", to: "/#contact", id: "contact" },
+  { num: "01", label: "Work", to: "/#portfolio", id: "portfolio" },
+  { num: "02", label: "Services", to: "/#services", id: "services" },
+  { num: "03", label: "About", to: "/#about", id: "about" },
+  { num: "04", label: "Contact", to: "/#contact", id: "contact" },
 ];
 
 export default function Navbar() {
@@ -19,8 +19,20 @@ export default function Navbar() {
   const location = useLocation();
 
   useEffect(() => {
+    let ticking = false;
+    let lastScrolled = false;
     const onScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const isScrolled = window.scrollY > 20;
+          if (isScrolled !== lastScrolled) {
+            lastScrolled = isScrolled;
+            setScrolled(isScrolled);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -28,7 +40,10 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
-    document.body.style.overflow = "";
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
   }, [location]);
 
   useEffect(() => {
@@ -39,7 +54,10 @@ export default function Navbar() {
   const toggleMenu = () => {
     setMenuOpen((prev) => {
       const next = !prev;
-      document.body.style.overflow = next ? "hidden" : "";
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = next ? "hidden" : "";
+        document.documentElement.style.overflow = next ? "hidden" : "";
+      }
       return next;
     });
   };
@@ -52,11 +70,13 @@ export default function Navbar() {
     }
   };
 
+  const isReduced = prefersReducedMotion();
+
   return (
     <>
       <motion.header
         className={`navbar ${scrolled ? "is-scrolled" : ""}`}
-        initial={prefersReducedMotion() ? false : { opacity: 0, y: -6 }}
+        initial={isReduced ? false : { opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
@@ -114,7 +134,7 @@ export default function Navbar() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.75"
               strokeLinecap="round"
             >
               <line x1="4" y1="8" x2="20" y2="8" />
@@ -124,7 +144,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Fullscreen Mobile Menu Overlay */}
+      {/* Fullscreen Mobile Menu — Apple-Inspired Liquid Glass Aesthetic */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -132,61 +152,103 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="mobile-menu-header">
-              <Link to="/" className="navbar__brand" onClick={toggleMenu} style={{ color: "#FFF" }}>
-                <Logo size={20} />
-                <span>NOIR FRAME</span>
-              </Link>
-              <button
-                type="button"
-                className="mobile-menu-close"
-                onClick={toggleMenu}
-                aria-label="Close menu"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mobile-menu-body">
-              {NAV_LINKS.map((link, idx) => (
-                <motion.div
-                  key={link.label}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 + idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            <div className="mobile-menu-shell">
+              {/* Top Bar Header */}
+              <div className="mobile-menu-header">
+                <Link
+                  to="/"
+                  className="navbar__brand mobile-menu-brand"
+                  onClick={toggleMenu}
+                  aria-label="Noir Frame Homepage"
                 >
-                  <Link
-                    to={link.to}
-                    className="mobile-menu-link"
-                    onClick={(e) => handleLinkClick(e, link)}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+                  <Logo size={18} />
+                  <span>NOIR FRAME</span>
+                </Link>
 
-            <motion.div
-              className="mobile-menu-footer"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <button
-                type="button"
-                className="btn btn-white"
-                style={{ width: "100%", justifyContent: "center" }}
-                onClick={(e) => handleLinkClick(e, { to: "/#contact", id: "contact" })}
+                <button
+                  type="button"
+                  className="mobile-menu-close"
+                  onClick={toggleMenu}
+                  aria-label="Close menu"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Main Navigation Links */}
+              <nav className="mobile-menu-body" aria-label="Mobile Navigation">
+                {NAV_LINKS.map((link, idx) => (
+                  <motion.div
+                    key={link.label}
+                    initial={isReduced ? false : { opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.45,
+                      delay: isReduced ? 0 : 0.06 + idx * 0.05,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
+                    <Link
+                      to={link.to}
+                      className="mobile-menu-link"
+                      onClick={(e) => handleLinkClick(e, link)}
+                    >
+                      <span className="mobile-menu-link__num">{link.num}</span>
+                      <span className="mobile-menu-link__label">{link.label}</span>
+                      <span className="mobile-menu-link__arrow" aria-hidden="true">
+                        &rarr;
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </nav>
+
+              {/* Footer: Translucent Glass CTA & Subtle Info */}
+              <motion.div
+                className="mobile-menu-footer"
+                initial={isReduced ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.45,
+                  delay: isReduced ? 0 : 0.28,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               >
-                <span>Start a Conversation</span>
-                <span className="btn-arrow">&rarr;</span>
-              </button>
-              <a href="mailto:teamnoirframe@gmail.com" style={{ textAlign: "center", marginTop: "8px" }}>
-                teamnoirframe@gmail.com
-              </a>
-            </motion.div>
+                <button
+                  type="button"
+                  className="mobile-menu-glass-cta"
+                  onClick={(e) => handleLinkClick(e, { to: "/#contact", id: "contact" })}
+                >
+                  <span>Start a Conversation</span>
+                  <span className="btn-arrow">&rarr;</span>
+                </button>
+
+                <div className="mobile-menu-contact">
+                  <a
+                    href="mailto:teamnoirframe@gmail.com"
+                    className="mobile-menu-email"
+                  >
+                    teamnoirframe@gmail.com
+                  </a>
+                  <span className="mobile-menu-availability">
+                    DIRECT INQUIRIES &bull; AVAILABLE WORLDWIDE &bull; 2026
+                  </span>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

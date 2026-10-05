@@ -34,8 +34,17 @@ export const scrollToId = (id) => {
   const el = document.getElementById(id);
   if (!el) return;
   if (window.__lenis) {
-    window.__lenis.scrollTo(el, { offset: -80, duration: 1.4 });
+    window.__lenis.scrollTo(el, { offset: -70, duration: 1.2 });
   } else {
-    el.scrollIntoView({ behavior: "smooth" });
+    const navOffset = 64;
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = el.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = Math.max(0, elementPosition - navOffset);
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
   }
 };

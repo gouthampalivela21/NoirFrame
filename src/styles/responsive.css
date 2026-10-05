@@ -417,6 +417,54 @@
 }
 
 /* ==========================================================================
+   TOUCH & MOBILE PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+@media (pointer: coarse), (hover: none) {
+  /* Fast instant touch response — zero 300ms tap delay */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  .btn,
+  .nav-link,
+  .mobile-menu-link,
+  .mobile-menu-close,
+  .mobile-menu-glass-cta,
+  .navbar__mobile-toggle {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent unnecessary GPU composition layer memory retention on static items */
+  .btn,
+  .btn-arrow,
+  .story-card__image-wrap img {
+    will-change: auto;
+  }
+
+  /* Keep card meta legible on touch screens without requiring hover */
+  .story-card__meta,
+  .service-card {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Reduce blur on fixed navbar during mobile scroll for silky 120Hz/60Hz frame rates */
+  .navbar {
+    background: rgba(245, 244, 241, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .navbar.is-scrolled {
+    background: rgba(245, 244, 241, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/* ==========================================================================
    ACCESSIBILITY — PREFERS REDUCED MOTION
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {

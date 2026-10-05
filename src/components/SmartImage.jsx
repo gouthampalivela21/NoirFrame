@@ -66,6 +66,8 @@ export default function SmartImage({
         srcSet={srcSet}
         sizes={sizes}
         alt={alt}
+        width={mainWidth}
+        height={mainHeight}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         fetchpriority={priority ? "high" : "auto"}

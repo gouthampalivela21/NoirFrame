@@ -26,11 +26,20 @@ export default function App() {
     if (prefersReducedMotion()) return undefined;
 
     const isTouch = isTouchDevice();
+    if (isTouch) {
+      // On mobile / touch devices, rely on native GPU momentum scrolling
+      // for 120Hz/60Hz jitter-free response without virtual scroll fighting touch events.
+      const onNativeScroll = () => {
+        ScrollTrigger.update();
+      };
+      window.addEventListener("scroll", onNativeScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onNativeScroll);
+    }
+
     const lenis = new Lenis({
-      duration: isTouch ? 0.6 : 0.85,
-      smoothWheel: !isTouch,
+      duration: 0.85,
+      smoothWheel: true,
       wheelMultiplier: 0.98,
-      touchMultiplier: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
 
