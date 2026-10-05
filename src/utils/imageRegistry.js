@@ -6,7 +6,7 @@
 
 export const imageRegistry = {
   // Hero
-  "noir-hero-main": "1492691527719-9d1e07e534b4",
+  "noir-hero-main": "/images/hero-editorial.jpg",
 
   // Portfolio 01 - Quiet Vows
   "noir-wedding-01": "1519741497674-611481863552",
@@ -115,6 +115,9 @@ export function getOptimizedImageUrl(seed, width, height) {
 
   // If seed is an entry in imageRegistry, use that ID, otherwise treat seed itself as an Unsplash ID if length > 8
   const photoId = imageRegistry[seed] || (seed.length > 6 ? seed : "1492691527719-9d1e07e534b4");
+  if (photoId.startsWith("http://") || photoId.startsWith("https://") || photoId.startsWith("data:") || photoId.startsWith("/")) {
+    return photoId;
+  }
   const w = Math.min(width || 1200, 1600);
   const h = height ? Math.min(height, 1600) : Math.round(w / (3 / 2));
   return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&q=80&w=${w}&h=${h}`;

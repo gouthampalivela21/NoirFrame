@@ -27,10 +27,10 @@ export default function App() {
 
     const isTouch = isTouchDevice();
     const lenis = new Lenis({
-      duration: isTouch ? 0.8 : 0.95,
+      duration: isTouch ? 0.6 : 0.85,
       smoothWheel: !isTouch,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 0.98,
+      touchMultiplier: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
 
@@ -77,8 +77,6 @@ export default function App() {
 
   return (
     <>
-      <div className="grain-layer" />
-      <div className="vignette" />
       <Navbar />
 
       <main>

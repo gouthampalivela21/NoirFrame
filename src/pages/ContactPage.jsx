@@ -6,13 +6,13 @@ import Contact from "../components/Contact.jsx";
 export default function ContactPage() {
   return (
     <motion.div
-      className="page-screen-fit contact-screen-fit"
       variants={routeTransition}
       initial="initial"
       animate="animate"
       exit="exit"
+      style={{ paddingTop: "calc(var(--nav-height) + 20px)" }}
     >
-      <Contact isStandalone />
+      <Contact />
     </motion.div>
   );
 }

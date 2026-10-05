@@ -27,61 +27,35 @@ const STORAGE_KEY = "noir_frame_cms_v1";
 
 export const defaultSiteSettings = {
   studioName: "Noir Frame",
-  eyebrow: "Photography & Cinematography Studio",
+  eyebrow: "A New Visual Studio",
   heroTitle: "NOIR FRAME",
   heroSubtitle:
-    "An editorial studio dedicated to quiet elegance, candid atmosphere, and cinematic visual stories crafted across continents.",
-  heroBadge: "Featured Archive — 2026",
+    "Visual stories, framed differently. A new visual studio focused on cinematic photography, intimate moments and distinctive visual storytelling.",
+  heroBadge: "The First Chapter — 2026",
   heroImage: "noir-hero-main",
-  heroAction1: "Selected Work ↓",
-  heroAction2: "Moments in Motion",
-  heroStats: [
-    {
-      num: "450+",
-      label: "Stories Documented",
-    },
-    {
-      num: "12 Yrs",
-      label: "Editorial Craft",
-    },
-    {
-      num: "India",
-      label: "Worldwide Commissions",
-    },
-  ],
+  heroAction1: "Explore Noir Frame",
+  heroAction2: "Start a Conversation",
+  heroStats: [],
 };
 
 export const defaultAboutData = {
-  eyebrow: "Studio Ethos",
-  title: "We capture\nwhat words\ncannot.",
-  studioSubtitle: "The Studio",
+  eyebrow: "Studio Philosophy",
+  title: "WHY NOIR FRAME?",
+  studioSubtitle: "The Philosophy",
   bio1:
-    "Noir Frame is an international photography studio working across weddings, portraiture, editorial and fashion. We build every commission around restraint — natural light, considered composition, and frames that hold up in silence.",
+    "Noir Frame was created around a simple belief: the best photographs aren't simply seen — they're remembered.",
   bio2:
-    "Founded on the belief that a photograph should feel like a memory rather than a performance, our work favours long exposures of trust over quick, styled moments.",
-  stats: [
-    {
-      num: "12+",
-      label: "Years shooting",
-    },
-    {
-      num: "450+",
-      label: "Stories told",
-    },
-    {
-      num: "18",
-      label: "Countries",
-    },
-  ],
+    "Built at the intersection of photography, design and storytelling, Noir Frame aims to create images with atmosphere, emotion and intention.",
+  stats: [],
 };
 
 export const defaultContactData = {
-  eyebrow: "Get In Touch",
-  title: "Let’s create something timeless.",
+  eyebrow: "First Commissions",
+  title: "LET’S CREATE THE FIRST STORY.",
   subtitle:
-    "Tell us a little about your project and we’ll respond within two business days.",
+    "Noir Frame is currently opening its first set of creative projects.",
   inquiryEmail: "teamnoirframe@gmail.com",
-  location: "India • Worldwide Commissions",
+  location: "Available for Commissions",
 };
 
 export const defaultVisualHero = {

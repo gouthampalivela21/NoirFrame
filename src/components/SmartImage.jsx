@@ -38,9 +38,12 @@ export default function SmartImage({
     }
   }, [mainSrc]);
 
-  const srcSet = widths
-    .map((w) => `${getOptimizedImageUrl(seed, w, Math.round(w / safeAspect))} ${w}w`)
-    .join(", ");
+  const isLocal = mainSrc.startsWith("/");
+  const srcSet = isLocal
+    ? undefined
+    : widths
+        .map((w) => `${getOptimizedImageUrl(seed, w, Math.round(w / safeAspect))} ${w}w`)
+        .join(", ");
 
   const handleLoad = () => {
     loadedImageUrls.add(mainSrc);

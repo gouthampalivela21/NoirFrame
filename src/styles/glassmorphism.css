@@ -1,46 +1,69 @@
+/* ==========================================================================
+   NOIR FRAME — GLASSMORPHISM ARCHITECTURE
+   Frosted liquid glass effects, cards, navigation, and overlays.
+   ========================================================================== */
+
+/* ==========================================================================
+   01. GLASS VARIABLES
+   ========================================================================== */
+
+:root {
+  --glass-bg: rgba(20, 19, 18, 0.04);
+  --glass-bg-strong: rgba(20, 19, 18, 0.08);
+  --glass-border: rgba(20, 19, 18, 0.12);
+  --glass-strong-bg: rgba(251, 249, 245, 0.92);
+  --glass-blur: 14px;
+}
+
+/* ==========================================================================
+   02. GLASS CARDS & PANELS
+   ========================================================================== */
+
 .glass {
   background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
 }
 
 .glass-strong {
   background: var(--glass-strong-bg);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid var(--glass-border);
 }
 
 .glass-panel {
-  border-radius: 4px;
+  border-radius: var(--radius-sm, 4px);
   contain: paint;
 }
 
-.glass-pill {
-  border-radius: 999px;
-}
+/* ==========================================================================
+   03. GLASS NAVIGATION
+   ========================================================================== */
 
 /* Light Frosted Liquid Glass Navbar */
 .glass-nav {
   background: rgba(251, 249, 245, 0.68);
-  backdrop-filter: blur(14px) saturate(185%) contrast(102%);
-  -webkit-backdrop-filter: blur(14px) saturate(185%) contrast(102%);
   border-bottom: 1px solid rgba(20, 19, 18, 0.08);
   box-shadow: 
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
     0 4px 20px rgba(0, 0, 0, 0.02);
-  transition: background 0.4s var(--ease-apple), border-color 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+  backdrop-filter: blur(14px) saturate(185%) contrast(102%);
+  -webkit-backdrop-filter: blur(14px) saturate(185%) contrast(102%);
+  transition: background 0.4s var(--ease-soft, ease),
+              border-color 0.4s var(--ease-soft, ease),
+              box-shadow 0.4s var(--ease-soft, ease);
 }
 
 .glass-nav.is-scrolled {
   background: rgba(251, 249, 245, 0.82);
-  backdrop-filter: blur(18px) saturate(190%) contrast(104%);
-  -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(104%);
   border-bottom: 1px solid rgba(20, 19, 18, 0.1);
   box-shadow: 
     0 1px 0 rgba(255, 255, 255, 0.85) inset,
     0 6px 28px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(18px) saturate(190%) contrast(104%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(104%);
 }
 
 @media (max-width: 768px) {
@@ -53,4 +76,36 @@
   .glass-nav.is-scrolled {
     background: rgba(251, 249, 245, 0.88);
   }
+}
+
+/* ==========================================================================
+   04. GLASS BUTTONS & PILLS
+   ========================================================================== */
+
+.glass-pill {
+  border-radius: var(--radius-pill, 999px);
+}
+
+/* ==========================================================================
+   05. GLASS OVERLAYS
+   ========================================================================== */
+
+.glass-overlay {
+  background: rgba(12, 12, 12, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ==========================================================================
+   06. GLASS EFFECTS & HARDWARE ACCELERATION
+   ========================================================================== */
+
+.glass,
+.glass-strong,
+.glass-panel,
+.glass-nav {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }

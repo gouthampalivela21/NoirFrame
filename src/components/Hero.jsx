@@ -4,21 +4,24 @@ import SmartImage from "./SmartImage.jsx";
 import { scrollToId, prefersReducedMotion } from "../utils/helpers.js";
 import { initParallax, killTriggers } from "../animations/scrollAnimations.js";
 import { attachMagnetic } from "../animations/hoverAnimations.js";
-import { useData } from "../context/DataContext.jsx";
-import { EASE_APPLE, EASE_APPLE_SOFT } from "../animations/pageTransitions.js";
+
+const EASE_CINEMA = [0.22, 1, 0.36, 1];
 
 export default function Hero() {
   const sectionRef = useRef(null);
   const btn1Ref = useRef(null);
   const btn2Ref = useRef(null);
-  const { siteSettings } = useData();
+  const imageFrameRef = useRef(null);
+
   const reducedMotion = prefersReducedMotion();
 
   useEffect(() => {
     if (reducedMotion) return undefined;
-    const triggers = initParallax(sectionRef.current);
-    const cleanBtn1 = attachMagnetic(btn1Ref.current, 0.15);
-    const cleanBtn2 = attachMagnetic(btn2Ref.current, 0.15);
+
+    const triggers = initParallax(sectionRef.current, "[data-speed]");
+    const cleanBtn1 = attachMagnetic(btn1Ref.current, 0.08);
+    const cleanBtn2 = attachMagnetic(btn2Ref.current, 0.08);
+
     return () => {
       killTriggers(triggers);
       cleanBtn1();
@@ -26,124 +29,117 @@ export default function Hero() {
     };
   }, [reducedMotion]);
 
-  const {
-    eyebrow = "",
-    heroTitle = "",
-    heroSubtitle = "",
-    heroBadge = "",
-    heroImage = "noir-hero-main",
-    heroAction1 = "Selected Work ↓",
-    heroAction2 = "Moments in Motion",
-    heroStats = [],
-  } = siteSettings || {};
-
-  const transitionConfig = (delay, duration = 0.65) => ({
-    duration: reducedMotion ? 0.01 : duration,
-    delay: reducedMotion ? 0 : delay,
-    ease: EASE_APPLE,
-  });
-
   return (
-    <section className="hero-split" id="hero" ref={sectionRef}>
-      <div className="hero-split__inner container-max">
-        {/* Left Column: Typography & Studio Narrative (Staggered Cinematic Reveal) */}
-        <div className="hero-split__content">
-          <motion.span
-            className="eyebrow hero-split__eyebrow"
+    <section className="section hero-startup" id="hero" ref={sectionRef}>
+      <div className="container-max hero-startup__grid">
+        {/* Left Column: Typography & Staggered Cinematic Sequence */}
+        <div className="hero-startup__content">
+          {/* 1. Eyebrow */}
+          <motion.div
+            className="hero-startup__eyebrow"
             initial={reducedMotion ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={transitionConfig(0.08, 0.55)}
+            transition={{ duration: 0.7, delay: 0.1, ease: EASE_CINEMA }}
           >
-            {eyebrow}
-          </motion.span>
+            <span className="hero-startup__eyebrow-dot" />
+            <span className="eyebrow">CREATIVE STUDIO / COMMISSIONS OPEN</span>
+          </motion.div>
 
-          <motion.h1
-            className="display-1 hero-split__title"
-            initial={reducedMotion ? false : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transitionConfig(0.16, 0.65)}
-          >
-            {heroTitle}
-          </motion.h1>
+          {/* 2. Main Brand Title (Line-by-line rise) */}
+          <div style={{ overflow: "hidden" }}>
+            <motion.h1
+              className="display-1 hero-startup__title"
+              initial={reducedMotion ? false : { y: "105%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.85, delay: 0.18, ease: EASE_CINEMA }}
+            >
+              NOIR FRAME
+            </motion.h1>
+          </div>
 
+          {/* 3. Headline */}
+          <div style={{ overflow: "hidden" }}>
+            <motion.h2
+              className="hero-startup__headline font-serif-italic"
+              initial={reducedMotion ? false : { y: "105%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.85, delay: 0.28, ease: EASE_CINEMA }}
+            >
+              Visual stories, framed differently.
+            </motion.h2>
+          </div>
+
+          {/* 4. Subtitle narrative */}
           <motion.p
-            className="body-lg hero-split__subtitle"
+            className="body-lg hero-startup__subtitle"
             initial={reducedMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={transitionConfig(0.28, 0.6)}
+            transition={{ duration: 0.75, delay: 0.38, ease: EASE_CINEMA }}
           >
-            {heroSubtitle}
+            A visual studio dedicated to cinematic photography, unhurried observation,
+            and frames that stand the test of time.
           </motion.p>
 
+          {/* 5. CTAs with micro-interactions */}
           <motion.div
-            className="hero-split__actions"
-            initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+            className="hero-startup__actions"
+            initial={reducedMotion ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={transitionConfig(0.38, 0.5)}
+            transition={{ duration: 0.65, delay: 0.48, ease: EASE_CINEMA }}
           >
             <button
               ref={btn1Ref}
+              type="button"
               className="btn btn-primary"
-              data-cursor="button"
-              onClick={() => scrollToId("portfolio")}
+              onClick={() => scrollToId("beginning")}
             >
-              {heroAction1}
+              <span>Explore Collection</span>
+              <span className="btn-arrow">&rarr;</span>
             </button>
             <button
               ref={btn2Ref}
-              className="btn btn-ghost"
-              data-cursor="button"
-              onClick={() => scrollToId("gallery")}
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => scrollToId("contact")}
             >
-              {heroAction2}
+              <span>Commission an Inquiry</span>
+              <span className="btn-arrow">&rarr;</span>
             </button>
-          </motion.div>
-
-          <motion.div
-            className="hero-split__stats"
-            initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transitionConfig(0.48, 0.5)}
-          >
-            {heroStats.map((st, i) => (
-              <div key={i} className="hero-split__stat">
-                <span className="hero-split__stat-num">{st.num}</span>
-                <span className="hero-split__stat-label label-sm">{st.label}</span>
-              </div>
-            ))}
           </motion.div>
         </div>
 
-        {/* Right Column: Featured Visual Archive Frame */}
-        <div className="hero-split__visual">
+        {/* Right Column: Hero Visual Frame with Mask Reveal & Subtle Parallax */}
+        <div
+          ref={imageFrameRef}
+          className="hero-startup__visual-frame"
+          data-speed="0.04"
+        >
           <motion.div
-            className="hero-split__frame"
-            data-cursor="view"
-            onClick={() => scrollToId("portfolio")}
-            initial={reducedMotion ? false : { opacity: 0.96, scale: 1.03 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={transitionConfig(0.05, 1.0)}
+            className="hero-startup__image-wrapper"
+            initial={
+              reducedMotion
+                ? false
+                : { clipPath: "inset(0 0 100% 0)", scale: 1.05, opacity: 0.85 }
+            }
+            animate={{ clipPath: "inset(0 0 0% 0)", scale: 1, opacity: 1 }}
+            transition={{ duration: 1.1, delay: 0.22, ease: EASE_CINEMA }}
           >
             <SmartImage
-              seed={heroImage}
+              seed="noir-hero-main"
               aspect={4 / 5}
               widths={[600, 1000, 1400]}
-              sizes="(max-width: 900px) 100vw, 48vw"
-              alt={`${heroTitle} Archival Photography`}
-              className="hero-split__image"
+              sizes="(max-width: 1024px) 100vw, 500px"
+              alt="Noir Frame Visual Study Composition"
               priority
             />
-            <motion.div
-              className="hero-split__badge label-sm"
-              initial={reducedMotion ? false : { opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={transitionConfig(0.42, 0.5)}
-            >
-              {heroBadge}
-            </motion.div>
+            <div className="hero-startup__placeholder-watermark">
+              <span>SERIES 01 &mdash; THE MONOCHROME STUDY</span>
+              <span>ARCHIVE &bull; 2026</span>
+            </div>
           </motion.div>
         </div>
       </div>
     </section>
   );
 }
+

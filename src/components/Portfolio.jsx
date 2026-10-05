@@ -1,54 +1,45 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import PortfolioCard from "./PortfolioCard.jsx";
-import StoryModal from "./StoryModal.jsx";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
-import { preloadImage } from "../utils/imageRegistry.js";
-import { useData } from "../context/DataContext.jsx";
+import { portfolioItems, categories } from "../data/portfolio.js";
+import PortfolioCard from "./PortfolioCard.jsx";
 
-export default function Portfolio({ limit, hideHeader = false }) {
+export default function Portfolio({ limit }) {
   const sectionRef = useRef(null);
-  const { portfolioItems = [], categories = ["All"] } = useData();
-  const [category, setCategory] = useState("All");
-  const [activeStory, setActiveStory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   const filtered = useMemo(() => {
     const list =
-      category === "All"
+      activeCategory === "All"
         ? portfolioItems
-        : portfolioItems.filter((item) => item.category === category);
+        : portfolioItems.filter((item) => item.category === activeCategory);
     return limit ? list.slice(0, limit) : list;
-  }, [category, limit, portfolioItems]);
+  }, [activeCategory, limit]);
 
   useEffect(() => {
-    // Preload visible work in background
-    filtered.forEach((item) => {
-      preloadImage(item.seed, 1400);
-    });
-
-    const triggers = initScrollReveals(sectionRef.current, ".reveal");
+    const triggers = initScrollReveals(sectionRef.current);
     return () => killTriggers(triggers);
   }, [filtered]);
 
   return (
-    <section className="section portfolio" id="portfolio" ref={sectionRef}>
+    <section className="section portfolio-section" id="portfolio" ref={sectionRef}>
       <div className="container-max">
-        <div className="portfolio__header reveal">
-          {!hideHeader ? (
-            <div>
-              <span className="eyebrow">Selected Work</span>
-              <h2 className="heading-lg">Portfolio</h2>
-            </div>
-          ) : (
-            <div />
-          )}
+        <span className="eyebrow portfolio-section__eyebrow">PORTFOLIO</span>
 
-          <div className="portfolio__filters">
+        <div className="portfolio-section__header reveal">
+          <p className="body-md portfolio-section__desc">
+            Currently building the first Noir Frame collection. Every frame begins with intentional observation.
+          </p>
+
+          <div className="portfolio-filters">
             {categories.map((cat) => (
               <button
                 key={cat}
-                className={`portfolio__filter label-sm ${category === cat ? "is-active" : ""}`}
-                onClick={() => setCategory(cat)}
+                type="button"
                 data-cursor="button"
+                className={`portfolio-filter-btn ${
+                  activeCategory === cat ? "is-active" : ""
+                }`}
+                onClick={() => setActiveCategory(cat)}
               >
                 {cat}
               </button>
@@ -56,14 +47,12 @@ export default function Portfolio({ limit, hideHeader = false }) {
           </div>
         </div>
 
-        <div className="portfolio-grid">
+        <div className="portfolio-grid-cards">
           {filtered.map((item) => (
-            <PortfolioCard key={item.id} item={item} onOpen={setActiveStory} />
+            <PortfolioCard key={item.id} item={item} />
           ))}
         </div>
       </div>
-
-      <StoryModal activeStory={activeStory} onClose={() => setActiveStory(null)} />
     </section>
   );
 }
