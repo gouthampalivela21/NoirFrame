@@ -221,109 +221,80 @@ export function AdminProvider({ children }) {
 
   /**
    * Google Sign-In Trigger
-   * Initiates Google OAuth via Supabase, or handles direct testing account simulation
+   * Immediately launches official Google OAuth with prompt: 'select_account'
    */
-  const loginWithGoogle = useCallback(
-    async (simulatedEmail = null) => {
-      setIsAuthLoading(true);
-      setAuthError(null);
+  const loginWithGoogle = useCallback(async () => {
+    setIsAuthLoading(true);
+    setAuthError(null);
 
-      // Direct simulated Google sign-in (for testing various roles and unauthorized accounts)
-      if (simulatedEmail) {
-        const clean = simulatedEmail.trim().toLowerCase();
-        const mockGoogleUser = {
-          id: `g_${Date.now()}`,
-          email: clean,
-          user_metadata: {
-            full_name:
-              clean === "gouthampalivela26@gmail.com"
-                ? "Goutham Palivela"
-                : clean === "harshith@phantomlabs.in"
-                ? "Harshith"
-                : clean === "team@phantomlabs.in"
-                ? "Studio Operations"
-                : clean.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-            avatar_url:
-              clean === "gouthampalivela26@gmail.com"
-                ? "/images/team/goutham.png"
-                : clean === "harshith@phantomlabs.in"
-                ? "/images/team/harshith.png"
-                : "/images/admin-avatar.png",
-          },
-        };
-
+    // Real Supabase Google OAuth Provider
+    if (isSupabaseConfigured && supabase) {
+      // Pre-flight check: verify that the Supabase host exists in DNS and responds
+      const health = await checkSupabaseHealth(3000);
+      if (!health.ok) {
+        console.warn("[AdminAuth] Supabase endpoint unreachable:", health);
         setIsAuthLoading(false);
-        return handleGoogleUser(mockGoogleUser);
+        const hostname = health.hostname || (supabaseUrl ? supabaseUrl.replace(/^https?:\/\//, "").split("/")[0] : "supabase.co");
+        setAuthError({
+          code: "SUPABASE_SERVER_UNREACHABLE",
+          title: "Authentication Server Not Found",
+          message: `Could not reach the Supabase authentication server (${hostname}). The project may be paused, inactive, or the Project URL in .env is outdated.`,
+          hostname,
+        });
+        return {
+          success: false,
+          error: `Server not found: ${hostname}`,
+        };
       }
 
-      // Real Supabase Google OAuth Provider
-      if (isSupabaseConfigured && supabase) {
-        // Pre-flight check: verify that the Supabase host exists in DNS and responds
-        const health = await checkSupabaseHealth(3000);
-        if (!health.ok) {
-          console.warn("[AdminAuth] Supabase endpoint unreachable:", health);
-          setIsAuthLoading(false);
-          const hostname = health.hostname || (supabaseUrl ? supabaseUrl.replace(/^https?:\/\//, "").split("/")[0] : "supabase.co");
-          setAuthError({
-            code: "SUPABASE_SERVER_UNREACHABLE",
-            title: "Authentication Server Not Found",
-            message: `Could not reach the Supabase authentication server (${hostname}). The project may be paused, inactive, or the Project URL in .env is outdated.`,
-            hostname,
-          });
-          return {
-            success: false,
-            needsAccountSelection: true,
-            error: `Server not found: ${hostname}`,
-          };
-        }
+      try {
+        const redirectUrl =
+          typeof window !== "undefined" && window.location?.origin
+            ? `${window.location.origin}/admin/login`
+            : `${import.meta.env.VITE_SITE_URL || "https://phantomlabs.in"}/admin/login`;
 
-        try {
-          const redirectUrl =
-            typeof window !== "undefined" && window.location?.origin
-              ? `${window.location.origin}/admin/login`
-              : `${import.meta.env.VITE_SITE_URL || "https://phantomlabs.in"}/admin/login`;
-
-          const { data: authResult, error } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-              redirectTo: redirectUrl,
-              queryParams: {
-                access_type: "offline",
-                prompt: "select_account",
-              },
+        const { data: authResult, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: redirectUrl,
+            queryParams: {
+              access_type: "offline",
+              prompt: "select_account",
             },
-          });
+          },
+        });
 
-          if (error) {
-            throw error;
-          }
-
-          return { success: true, redirected: true, data: authResult };
-        } catch (err) {
-          console.warn("[AdminAuth] Supabase Google OAuth exception:", err.message);
-          setIsAuthLoading(false);
-          setAuthError({
-            code: "OAUTH_EXCEPTION",
-            title: "OAuth Connection Error",
-            message: err.message,
-          });
-          return {
-            success: false,
-            needsAccountSelection: true,
-            error: err.message,
-          };
+        if (error) {
+          throw error;
         }
-      }
 
-      setIsAuthLoading(false);
-      return {
-        success: false,
-        needsAccountSelection: true,
-        error: "Supabase client not initialized.",
-      };
-    },
-    [handleGoogleUser]
-  );
+        return { success: true, redirected: true, data: authResult };
+      } catch (err) {
+        console.warn("[AdminAuth] Supabase Google OAuth exception:", err.message);
+        setIsAuthLoading(false);
+        setAuthError({
+          code: "OAUTH_EXCEPTION",
+          title: "OAuth Connection Error",
+          message: err.message,
+        });
+        return {
+          success: false,
+          error: err.message,
+        };
+      }
+    }
+
+    setIsAuthLoading(false);
+    setAuthError({
+      code: "SUPABASE_NOT_CONFIGURED",
+      title: "Configuration Required",
+      message: "Supabase client is not configured. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are set.",
+    });
+    return {
+      success: false,
+      error: "Supabase client not initialized.",
+    };
+  }, []);
 
   /**
    * Sign Out

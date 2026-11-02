@@ -26,12 +26,9 @@ function GoogleIcon({ size = 18 }) {
 }
 
 export default function AdminLoginPage() {
-  const { loginWithGoogle, isAuthenticated, isAuthLoading, authError, logout, administrators } = useAdmin();
+  const { loginWithGoogle, isAuthenticated, isAuthLoading, authError, logout } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [showIdentitySelector, setShowIdentitySelector] = useState(false);
-  const [customEmail, setCustomEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const from = location.state?.from?.pathname || "/admin";
@@ -47,31 +44,14 @@ export default function AdminLoginPage() {
       const res = await loginWithGoogle();
       if (res?.success && !res?.redirected) {
         navigate(from, { replace: true });
-      } else if (res?.needsAccountSelection) {
-        // Open identity selector if running in local environment without OAuth client credentials
-        setShowIdentitySelector(true);
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleSelectAccount = async (email) => {
-    setIsSubmitting(true);
-    try {
-      const res = await loginWithGoogle(email);
-      if (res?.success) {
-        navigate(from, { replace: true });
-      }
-    } finally {
-      setIsSubmitting(false);
-      setShowIdentitySelector(false);
-    }
-  };
-
-  const handleSignOutUnauthorized = async () => {
+  const handleDismissError = async () => {
     await logout();
-    setShowIdentitySelector(false);
   };
 
   return (
@@ -118,7 +98,7 @@ export default function AdminLoginPage() {
           />
         </div>
 
-        {/* ACCESS RESTRICTED SCREEN (For Unauthorized or Deactivated Google Accounts) */}
+        {/* ACCESS RESTRICTED SCREEN (For Unauthorized or Deactivated Google Accounts or Host Errors) */}
         {authError ? (
           <div>
             <div
@@ -164,7 +144,7 @@ export default function AdminLoginPage() {
                 "This Google account is not authorised to access the PHANTOM LABS studio workspace."}
             </p>
 
-            {/* Display Unreachable Hostname Diagnostics if server connection failed */}
+            {/* Display Unreachable Host Diagnostics if server connection failed */}
             {authError.hostname && (
               <div
                 style={{
@@ -253,7 +233,7 @@ export default function AdminLoginPage() {
             {/* Action Button */}
             <button
               type="button"
-              onClick={handleSignOutUnauthorized}
+              onClick={handleDismissError}
               style={{
                 width: "100%",
                 background: "#FFFFFF",
@@ -334,153 +314,6 @@ export default function AdminLoginPage() {
               <GoogleIcon size={19} />
               <span>{isSubmitting || isAuthLoading ? "Connecting to Google..." : "Continue with Google"}</span>
             </button>
-
-            {/* Subtle Account Switcher Link for Testing Roles */}
-            <div style={{ marginTop: "16px" }}>
-              <button
-                type="button"
-                onClick={() => setShowIdentitySelector((prev) => !prev)}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "#6B6964",
-                  fontSize: "11.5px",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  padding: "4px 8px",
-                }}
-              >
-                {showIdentitySelector ? "Hide Account Switcher" : "Select Test Google Account ▾"}
-              </button>
-            </div>
-
-            {/* Test Google Account Selector (Permits verifying Founder, Co-Founder, Admin & Unauthorized) */}
-            {showIdentitySelector && (
-              <div
-                style={{
-                  marginTop: "16px",
-                  padding: "16px",
-                  background: "#181818",
-                  borderRadius: "10px",
-                  border: "1px solid #2B2B2B",
-                  textAlign: "left",
-                }}
-              >
-                <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#8E8D88", marginBottom: "10px", fontWeight: 600 }}>
-                  Select Authorized Google Identity:
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {(administrators || []).map((admin) => (
-                    <button
-                      key={admin.id}
-                      type="button"
-                      onClick={() => handleSelectAccount(admin.email)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 12px",
-                        background: "#202020",
-                        border: "1px solid #303030",
-                        borderRadius: "6px",
-                        color: "#FFFFFF",
-                        cursor: "pointer",
-                        fontSize: "12.5px",
-                        textAlign: "left",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "#282828")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "#202020")}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 600 }}>{admin.name}</div>
-                        <div style={{ fontSize: "11px", color: "#8E8D88" }}>{admin.email}</div>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: "10.5px",
-                          padding: "2px 7px",
-                          borderRadius: "4px",
-                          background:
-                            admin.role === "Founder"
-                              ? "rgba(255, 255, 255, 0.15)"
-                              : admin.role === "Co-Founder"
-                              ? "rgba(100, 150, 255, 0.15)"
-                              : "rgba(150, 150, 150, 0.15)",
-                          color: "#FFFFFF",
-                        }}
-                      >
-                        {admin.role} ({admin.status})
-                      </span>
-                    </button>
-                  ))}
-
-                  {/* Option to test an unauthorized account to verify refusal */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectAccount("unauthorized.guest@gmail.com")}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      background: "rgba(239, 68, 68, 0.08)",
-                      border: "1px dashed rgba(239, 68, 68, 0.3)",
-                      borderRadius: "6px",
-                      color: "#FCA5A5",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                      textAlign: "left",
-                    }}
-                  >
-                    <span>Test Unauthorised Google Account</span>
-                    <span style={{ fontSize: "10.5px" }}>Will be restricted ✕</span>
-                  </button>
-                </div>
-
-                {/* Custom Google Email Input */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (customEmail) handleSelectAccount(customEmail);
-                  }}
-                  style={{ marginTop: "12px", display: "flex", gap: "6px" }}
-                >
-                  <input
-                    type="email"
-                    required
-                    placeholder="Enter any other Google email..."
-                    value={customEmail}
-                    onChange={(e) => setCustomEmail(e.target.value)}
-                    style={{
-                      flex: 1,
-                      background: "#111111",
-                      border: "1px solid #333333",
-                      color: "#FFFFFF",
-                      padding: "7px 10px",
-                      borderRadius: "5px",
-                      fontSize: "12px",
-                      outline: "none",
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    style={{
-                      background: "#FFFFFF",
-                      color: "#000000",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "0 12px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Simulate
-                  </button>
-                </form>
-              </div>
-            )}
           </div>
         )}
 
