@@ -23,9 +23,14 @@ export default function ProjectPage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (project?.title) {
+      document.title = `${project.title} — Phantom Labs`;
+    } else {
+      document.title = "Work Archive — Phantom Labs";
+    }
     const triggers = initScrollReveals(pageRef.current, ".reveal");
     return () => killTriggers(triggers);
-  }, [id]);
+  }, [id, project]);
 
   return (
     <motion.article

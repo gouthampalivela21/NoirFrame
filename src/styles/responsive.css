@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NOIR FRAME — RESPONSIVE STYLES ARCHITECTURE
+   PHANTOM LABS — RESPONSIVE STYLES ARCHITECTURE
    ========================================================================== */
 
 /* ==========================================================================
@@ -79,8 +79,8 @@
   }
 
   .contact-section__grid {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
-    gap: clamp(32px, 4vw, 52px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(28px, 3.5vw, 44px);
     align-items: center;
   }
 }
@@ -344,7 +344,7 @@
 
   .contact-section__grid {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 36px;
   }
 
   .contact-section__headline {
@@ -356,9 +356,11 @@
   }
 
   .contact-editorial-form {
-    gap: 18px;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-line);
+    max-width: 100%;
+    margin-left: 0;
+    gap: 12px;
+    padding: 20px 16px;
+    border-radius: 16px;
   }
 
   .contact-editorial-form__submit {

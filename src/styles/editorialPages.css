@@ -1,0 +1,436 @@
+/* ==========================================================================
+   PHANTOM LABS — EDITORIAL MULTI-PAGE ARCHITECTURE STYLES
+   Dedicated pages for:
+   - Work / Portfolio (/work)
+   - Services & Commissions (/services)
+   - About Phantom Labs (/about)
+   - Contact (/contact)
+   ========================================================================== */
+
+/* ==========================================================================
+   01. GLOBAL PAGE HEADERS
+   ========================================================================== */
+
+.portfolio-page,
+.services-page,
+.about-page,
+.contact-page {
+  position: relative;
+  background: var(--color-bg);
+  min-height: 100vh;
+  color: var(--color-fg);
+  overflow-x: hidden;
+}
+
+.portfolio-page__header,
+.services-page__header,
+.about-page__header {
+  padding-top: calc(var(--nav-height) + clamp(48px, 8vh, 88px));
+  padding-bottom: clamp(40px, 6vh, 64px);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-bg);
+}
+
+.portfolio-page__header-inner,
+.services-page__header-inner,
+.about-page__header-inner {
+  max-width: 860px;
+}
+
+.portfolio-page__eyebrow,
+.services-page__eyebrow,
+.about-page__eyebrow {
+  margin-bottom: clamp(16px, 2.5vh, 24px);
+  display: inline-block;
+  color: var(--color-fg-muted);
+}
+
+.portfolio-page__title,
+.services-page__title,
+.about-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--color-fg);
+  margin-bottom: clamp(20px, 3vh, 28px);
+}
+
+.portfolio-page__lead,
+.services-page__lead,
+.about-page__lead {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.35;
+  color: var(--color-fg);
+  margin-bottom: 20px;
+}
+
+.portfolio-page__sub,
+.services-page__sub {
+  font-family: var(--font-sans);
+  font-size: clamp(15.5px, 1.3vw, 17.5px);
+  line-height: 1.65;
+  color: var(--color-fg-muted);
+  max-width: 680px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   02. SERVICES PAGE SPECIFIC STYLES (/services)
+   ========================================================================== */
+
+.services-page__list-section {
+  padding: clamp(64px, 9vh, 108px) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.services-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+  gap: clamp(24px, 3.5vw, 44px);
+}
+
+.services-page__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--color-bg);
+  border: 1px solid var(--color-line);
+  padding: clamp(32px, 4.5vh, 48px);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.3s var(--ease-cinema), transform 0.3s var(--ease-cinema);
+}
+
+.services-page__item:hover {
+  border-color: var(--color-line-strong);
+  transform: translateY(-2px);
+}
+
+.services-page__item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.services-page__num {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-fg-muted);
+}
+
+.services-page__status {
+  color: var(--color-fg);
+  background: var(--color-bg-alt);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.services-page__item-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 2.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-fg);
+  margin-bottom: 8px;
+}
+
+.services-page__item-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+  margin-bottom: 16px;
+}
+
+.services-page__item-desc {
+  color: var(--color-fg-dim);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.services-page__item-details {
+  background: var(--color-bg-alt);
+  padding: 20px;
+  border-radius: var(--radius-xs);
+  margin-bottom: 28px;
+}
+
+.services-page__details-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-fg-muted);
+  margin-bottom: 12px;
+}
+
+.services-page__details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.services-page__detail-point {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--color-fg-dim);
+}
+
+.services-page__bullet {
+  color: var(--color-fg-muted);
+  font-weight: 600;
+}
+
+.services-page__inquire-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: opacity 0.2s var(--ease-cinema);
+}
+
+.services-page__inquire-link:hover {
+  opacity: 0.65;
+}
+
+/* Services Page: Methodology Process Grid */
+.services-page__process-section {
+  padding: clamp(64px, 9vh, 108px) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.services-page__process-header {
+  max-width: 680px;
+  margin-bottom: clamp(40px, 6vh, 64px);
+}
+
+.services-page__process-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(24px, 3.5vw, 44px);
+}
+
+.services-page__process-step {
+  display: flex;
+  flex-direction: column;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-line);
+}
+
+.services-page__process-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-fg-muted);
+  margin-bottom: 14px;
+}
+
+.services-page__process-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-fg);
+  margin-bottom: 10px;
+}
+
+.services-page__process-desc {
+  color: var(--color-fg-muted);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   03. ABOUT PAGE SPECIFIC STYLES (/about)
+   ========================================================================== */
+
+.about-page__pillars-section {
+  padding: clamp(64px, 9vh, 108px) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.about-page__pillars-header {
+  margin-bottom: clamp(36px, 5vh, 56px);
+}
+
+.about-page__pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.about-page__pillar-card {
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line-strong);
+}
+
+.about-page__pillar-num {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-fg-muted);
+  margin-bottom: 14px;
+}
+
+.about-page__pillar-title {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+  margin-bottom: 12px;
+}
+
+.about-page__pillar-desc {
+  color: var(--color-fg-dim);
+  line-height: 1.65;
+}
+
+/* About Page: Team Invitation Banner */
+.about-page__team-invite {
+  padding: clamp(64px, 9vh, 100px) 0;
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.about-page__team-invite-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.about-page__team-invite-content {
+  max-width: 600px;
+}
+
+/* ==========================================================================
+   04. CLOSING CTA BANNER (COMMON FOR EDITORIAL PAGES)
+   ========================================================================== */
+
+.portfolio-page__cta-section,
+.services-page__cta-section,
+.about-page__cta-section {
+  padding: clamp(84px, 12vh, 140px) var(--edge);
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.portfolio-page__cta-inner,
+.services-page__cta-inner,
+.about-page__cta-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.portfolio-page__cta-title,
+.services-page__cta-headline,
+.about-page__cta-title {
+  margin: 16px 0 14px 0;
+  color: var(--color-fg);
+}
+
+.portfolio-page__cta-text {
+  color: var(--color-fg-muted);
+  line-height: 1.6;
+  max-width: 540px;
+  margin-bottom: 32px;
+}
+
+.services-page__cta-lead {
+  margin-bottom: 32px;
+}
+
+.portfolio-page__cta-actions,
+.services-page__cta-btn-wrap,
+.about-page__cta-btn-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   05. ACTIVE NAVIGATION INDICATOR (DESKTOP & MOBILE)
+   ========================================================================== */
+
+.nav-link.is-active {
+  color: var(--color-fg) !important;
+  font-weight: 600;
+}
+
+.nav-link.is-active::after {
+  transform: scaleX(1) !important;
+  transform-origin: left !important;
+}
+
+.mobile-apple-nav__link.is-active {
+  color: var(--color-fg);
+  font-weight: 700;
+  position: relative;
+}
+
+.mobile-apple-nav__link.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 32px;
+  height: 2px;
+  background: var(--color-fg);
+}
+
+/* ==========================================================================
+   06. RESPONSIVE REFINEMENTS
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .services-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-page__team-invite-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .about-page__team-invite-btn-wrap {
+    width: 100%;
+  }
+
+  .about-page__team-invite-btn-wrap .btn {
+    width: 100%;
+  }
+}
+

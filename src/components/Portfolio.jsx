@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
 import { portfolioItems, categories } from "../data/portfolio.js";
 import PortfolioCard from "./PortfolioCard.jsx";
 
 export default function Portfolio({ limit }) {
   const sectionRef = useRef(null);
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("All");
 
   const filtered = useMemo(() => {
@@ -27,7 +29,7 @@ export default function Portfolio({ limit }) {
 
         <div className="portfolio-section__header reveal">
           <p className="body-md portfolio-section__desc">
-            Currently building the first Noir Frame collection. Every frame begins with intentional observation.
+            Currently building the first Phantom Labs collection. Every frame begins with intentional observation.
           </p>
 
           <div className="portfolio-filters">
@@ -52,6 +54,15 @@ export default function Portfolio({ limit }) {
             <PortfolioCard key={item.id} item={item} />
           ))}
         </div>
+
+        {location.pathname === "/" && (
+          <div className="portfolio-section__cta-wrap reveal" style={{ marginTop: "48px", textAlign: "center" }}>
+            <Link to="/work" className="btn btn-secondary" data-cursor="button">
+              <span>EXPLORE COMPLETE PORTFOLIO</span>
+              <span className="btn-arrow">&rarr;</span>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

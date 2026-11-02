@@ -1,5 +1,5 @@
 /**
- * Direct High-Speed CDN Image Registry for Noir Frame.
+ * Direct High-Speed CDN Image Registry for Phantom Labs.
  * Bypasses redirect latency, delivers WebP/AVIF compressed assets instantly,
  * and maintains an in-memory cache to prevent re-rendering.
  */

@@ -1,6 +1,6 @@
-# Noir Frame
+# Phantom Labs
 
-A premium, cinematic photography studio website — dark editorial design,
+A premium, cinematic creative visual studio website — dark editorial design,
 glassmorphism used sparingly, and a slow-drifting glass sculpture built
 in Three.js / React Three Fiber as the site's signature motif.
 

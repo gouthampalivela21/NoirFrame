@@ -1,13 +1,15 @@
 import React, { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "../utils/helpers.js";
-import logoImage from "../assets/logo.png";
+import phantomLogo from "../assets/phantom-labs-logo.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
   const sectionRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -71,21 +73,21 @@ export default function About() {
     <section className="section about-section" id="about" ref={sectionRef}>
       <div className="about-section__container">
         <div className="about-section__grid">
-          {/* Left Column — Noir Frame Brand Identity */}
+          {/* Left Column — Phantom Labs Brand Identity */}
           <div className="about-ethos__identity">
             <div className="about-ethos__logo-wrap">
               <img
-                src={logoImage}
-                alt="Noir Frame Monogram"
-                width={280}
-                height={280}
+                src={phantomLogo}
+                alt="PHANTOM LABS"
+                width={360}
                 className="about-ethos__logo-mark"
                 loading="lazy"
                 decoding="async"
+                style={{ width: "100%", maxWidth: "340px", height: "auto", objectFit: "contain", borderRadius: "2px" }}
               />
             </div>
             <div className="about-ethos__identity-caption">
-              <span className="about-ethos__identity-name">NOIR FRAME</span>
+              <span className="about-ethos__identity-name">PHANTOM LABS</span>
               <span className="about-ethos__identity-sub">
                 PHOTOGRAPHY / STORIES / 2026
               </span>
@@ -97,13 +99,13 @@ export default function About() {
             <span className="eyebrow about-ethos__eyebrow">STUDIO ETHOS</span>
 
             <blockquote className="about-ethos__quote">
-              &ldquo;NOIR FRAME WAS CREATED AROUND A SIMPLE BELIEF: THE BEST PHOTOGRAPHS AREN’T SIMPLY SEEN &mdash; THEY’RE REMEMBERED.&rdquo;
+              &ldquo;PHANTOM LABS WAS CREATED AROUND A SIMPLE BELIEF: THE BEST PHOTOGRAPHS AREN’T SIMPLY SEEN &mdash; THEY’RE REMEMBERED.&rdquo;
             </blockquote>
 
             <div className="about-ethos__narrative">
               <p className="about-ethos__lead">
-                Built at the intersection of photography, design and storytelling, Noir
-                Frame aims to create images with atmosphere, emotion and intention.
+                Built at the intersection of photography, design and storytelling, Phantom
+                Labs aims to create images with atmosphere, emotion and intention.
               </p>
 
               <p className="about-ethos__body">
@@ -111,6 +113,15 @@ export default function About() {
                 the test of time. Rather than producing high-volume, generic shoots, we
                 collaborate closely on a limited number of projects.
               </p>
+
+              {location.pathname === "/" && (
+                <div style={{ marginTop: "24px" }}>
+                  <Link to="/about" className="btn btn-secondary" data-cursor="button">
+                    <span>READ FULL STUDIO ETHOS</span>
+                    <span className="btn-arrow" aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -3,7 +3,8 @@ import { verifyToken } from "./auth.js";
 // In-memory fallback cache for serverless container lifecycle & local dev
 let memoryCache = null;
 
-const STORAGE_KEY = "noir_frame_cms_v1";
+const STORAGE_KEY = "phantom_labs_cms_v1";
+const LEGACY_STORAGE_KEY = "noir_frame_cms_v1";
 
 // Remote Storage Adapters
 async function getFromRemoteDatabase() {

@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from "../lib/supabase.js";
 
 const CONTENT_TABLE = "site_content";
-const STORAGE_KEY = "noir_frame_cms_v1";
+const STORAGE_KEY = "phantom_labs_cms_v1";
 
 let detectedColumn = "data";
 

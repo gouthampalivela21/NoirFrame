@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { initScrollReveals, initParallax, killTriggers } from "../animations/scrollAnimations.js";
-import { scrollToId } from "../utils/helpers.js";
 
 export default function FirstFrame() {
   const sectionRef = useRef(null);
@@ -24,7 +24,7 @@ export default function FirstFrame() {
 
           <div className="first-frame__copy">
             <p className="body-lg first-frame__lead" style={{ color: "rgba(255,255,255,0.85)" }}>
-              &ldquo;Noir Frame is beginning with a simple idea &mdash; photography
+              &ldquo;Phantom Labs is beginning with a simple idea &mdash; photography
               should make you feel something before it tells you anything.&rdquo;
             </p>
             <p className="body-md first-frame__sub" style={{ color: "rgba(255,255,255,0.65)" }}>
@@ -34,15 +34,14 @@ export default function FirstFrame() {
           </div>
 
           <div className="first-frame__cta">
-            <button
-              type="button"
+            <Link
+              to="/contact"
               className="btn btn-white"
               data-cursor="button"
-              onClick={() => scrollToId("contact")}
             >
               <span>Create the first story</span>
               <span className="btn-arrow">&rarr;</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -58,7 +57,7 @@ export default function FirstFrame() {
 
           <p className="first-frame__aperture-text">One story at a time.</p>
           <span className="label-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-            NOIR FRAME / COMMISSIONS OPEN
+            PHANTOM LABS / COMMISSIONS OPEN
           </span>
         </div>
       </div>

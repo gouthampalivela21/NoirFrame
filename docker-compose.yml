@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  phantom-labs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-https://xgincurmlsbanyfrfaka.supabase.co}
+        - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY:-sb_publishable_e8AKK5MnPOjMD4hwvkYGzA_Co2p4bAC}
+    image: phantom-labs:latest
+    container_name: phantom-labs-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"

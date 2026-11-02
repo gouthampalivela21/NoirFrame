@@ -23,29 +23,29 @@ import {
 
 const DataContext = createContext(null);
 
-const STORAGE_KEY = "noir_frame_cms_v1";
+const STORAGE_KEY = "phantom_labs_cms_v1";
 
 export const defaultSiteSettings = {
-  studioName: "Noir Frame",
+  studioName: "Phantom Labs",
   eyebrow: "A New Visual Studio",
-  heroTitle: "NOIR FRAME",
+  heroTitle: "PHANTOM LABS",
   heroSubtitle:
-    "Visual stories, framed differently. A new visual studio focused on cinematic photography, intimate moments and distinctive visual storytelling.",
+    "Visual stories, framed differently. A creative visual studio specializing in cinematic photography, intimate moments, and timeless visual storytelling.",
   heroBadge: "The First Chapter — 2026",
   heroImage: "noir-hero-main",
-  heroAction1: "Explore Noir Frame",
+  heroAction1: "Explore Phantom Labs",
   heroAction2: "Start a Conversation",
   heroStats: [],
 };
 
 export const defaultAboutData = {
   eyebrow: "Studio Philosophy",
-  title: "WHY NOIR FRAME?",
+  title: "WHY PHANTOM LABS?",
   studioSubtitle: "The Philosophy",
   bio1:
-    "Noir Frame was created around a simple belief: the best photographs aren't simply seen — they're remembered.",
+    "Phantom Labs was created around a simple belief: the best photographs aren't simply seen — they're remembered.",
   bio2:
-    "Built at the intersection of photography, design and storytelling, Noir Frame aims to create images with atmosphere, emotion and intention.",
+    "Built at the intersection of photography, design and storytelling, Phantom Labs aims to create images with atmosphere, emotion and intention.",
   stats: [],
 };
 
@@ -53,8 +53,8 @@ export const defaultContactData = {
   eyebrow: "First Commissions",
   title: "LET’S CREATE THE FIRST STORY.",
   subtitle:
-    "Noir Frame is currently opening its first set of creative projects.",
-  inquiryEmail: "teamnoirframe@gmail.com",
+    "Phantom Labs is currently opening its first set of creative projects.",
+  inquiryEmail: "teamphantomlabs@gmail.com",
   location: "Available for Commissions",
 };
 
@@ -102,7 +102,7 @@ export const defaultVisualHero = {
       id: "el-title",
       type: "text",
       name: "Main Title",
-      content: "NOIR FRAME",
+      content: "PHANTOM LABS",
       x: 8,
       y: 40,
       width: 800,

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import SmartImage from "./SmartImage.jsx";
 import { scrollToId, prefersReducedMotion } from "../utils/helpers.js";
@@ -53,7 +54,7 @@ export default function Hero() {
               animate={{ y: "0%", opacity: 1 }}
               transition={{ duration: 0.85, delay: 0.18, ease: EASE_CINEMA }}
             >
-              NOIR FRAME
+              PHANTOM LABS
             </motion.h1>
           </div>
 
@@ -87,24 +88,22 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.48, ease: EASE_CINEMA }}
           >
-            <button
+            <Link
+              to="/work"
               ref={btn1Ref}
-              type="button"
               className="btn btn-primary"
-              onClick={() => scrollToId("beginning")}
             >
               <span>Explore Collection</span>
               <span className="btn-arrow">&rarr;</span>
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/contact"
               ref={btn2Ref}
-              type="button"
               className="btn btn-secondary"
-              onClick={() => scrollToId("contact")}
             >
               <span>Commission an Inquiry</span>
               <span className="btn-arrow">&rarr;</span>
-            </button>
+            </Link>
           </motion.div>
         </div>
 
@@ -129,7 +128,7 @@ export default function Hero() {
               aspect={4 / 5}
               widths={[600, 1000, 1400]}
               sizes="(max-width: 1024px) 100vw, 500px"
-              alt="Noir Frame Visual Study Composition"
+              alt="Phantom Labs Visual Study Composition"
               priority
             />
             <div className="hero-startup__placeholder-watermark">

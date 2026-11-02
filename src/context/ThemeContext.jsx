@@ -9,6 +9,7 @@ export function ThemeProvider({ children }) {
     if (typeof window === "undefined") return;
 
     try {
+      localStorage.removeItem("phantom-theme");
       localStorage.removeItem("noir-theme");
     } catch {
       // Storage unavailable

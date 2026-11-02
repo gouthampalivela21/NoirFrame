@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
 import { services } from "../data/services.js";
 
@@ -39,6 +40,13 @@ export default function Services() {
               <p className="service-card__desc">{service.description}</p>
             </div>
           ))}
+        </div>
+
+        <div className="services-section__cta-wrap reveal" style={{ marginTop: "48px", textAlign: "center" }}>
+          <Link to="/services" className="btn btn-secondary" data-cursor="button">
+            <span>DISCOVER ALL SERVICES</span>
+            <span className="btn-arrow" aria-hidden="true">&rarr;</span>
+          </Link>
         </div>
       </div>
     </section>

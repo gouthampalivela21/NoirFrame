@@ -355,7 +355,7 @@ export default function Gallery() {
 
                   {/* Top-Right Apple TV+ Style Brand Badge */}
                   <div className="gallery-section__item-brand">
-                    <span>✦ NOIR</span>
+                    <span>✦ PHANTOM</span>
                   </div>
 
                   {/* Apple TV+ Cinematic Content Overlay */}

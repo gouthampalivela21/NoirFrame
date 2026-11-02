@@ -1,11 +1,10 @@
 import React from "react";
-import logoImage from "../assets/logo.png";
 
 /**
- * Official Noir Frame Brand Logo
- * Renders the exact uploaded aperture brand mark without modification.
+ * Official Phantom Labs Brand Logo
+ * Displays the official custom Phantom Labs branding mark.
  */
-export default function Logo({ size = 18, className = "", style = {} }) {
+export default function Logo({ size = 20, className = "", style = {}, inverted = false }) {
   return (
     <span
       className={`site-logo ${className}`}
@@ -16,23 +15,19 @@ export default function Logo({ size = 18, className = "", style = {} }) {
         lineHeight: 1,
         ...style,
       }}
-      title="Noir Frame"
+      title="PHANTOM LABS"
+      aria-hidden="true"
     >
       <img
-        src={logoImage}
-        alt="Noir Frame"
-        width={size}
-        height={size}
-        className="site-logo__image"
+        src={inverted ? "/images/phantom-labs-logo-white.png" : "/images/phantom-labs-logo.png"}
+        alt="PHANTOM LABS"
         style={{
-          width: `${size}px`,
           height: `${size}px`,
+          width: "auto",
+          maxWidth: "100%",
           objectFit: "contain",
           display: "block",
-          flexShrink: 0,
         }}
-        loading="eager"
-        decoding="async"
       />
     </span>
   );

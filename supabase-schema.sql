@@ -1,5 +1,5 @@
 -- =========================================================================
--- NOIR FRAME SUPABASE CMS SCHEMA & RLS FIX
+-- PHANTOM LABS SUPABASE CMS SCHEMA & RLS FIX
 -- Run this in your Supabase Dashboard -> SQL Editor -> Click "Run"
 -- =========================================================================
 

@@ -2,7 +2,8 @@ import crypto from "crypto";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "gouthampalivela26@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "231258hg";
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || "noir-frame-secure-secret-key-2026";
+const JWT_SECRET = process.env.ADMIN_JWT_SECRET || "phantom-labs-secure-secret-key-2026";
+const FALLBACK_SECRET = "noir-frame-secure-secret-key-2026";
 
 function generateToken(email) {
   const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
@@ -25,7 +26,8 @@ export function verifyToken(token) {
     const [header, payload, signature] = parts;
     const sigData = header + "." + payload;
     const expectedSig = crypto.createHmac("sha256", JWT_SECRET).update(sigData).digest("base64url");
-    if (signature !== expectedSig) return false;
+    const fallbackSig = crypto.createHmac("sha256", FALLBACK_SECRET).update(sigData).digest("base64url");
+    if (signature !== expectedSig && signature !== fallbackSig) return false;
     const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
     if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
       return false;

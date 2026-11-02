@@ -8,7 +8,10 @@ import { DataProvider } from "./context/DataContext.jsx";
 import "./styles/globals.css";
 import "./styles/typography.css";
 import "./styles/glassmorphism.css";
+import "./styles/team.css";
+import "./styles/editorialPages.css";
 import "./styles/responsive.css";
+import "./admin/styles/admin.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

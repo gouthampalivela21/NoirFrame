@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "../utils/helpers.js";
@@ -18,9 +19,20 @@ const initialState = {
 
 export default function Contact() {
   const sectionRef = useRef(null);
+  const location = useLocation();
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (location?.search) {
+      const params = new URLSearchParams(location.search);
+      const serviceParam = params.get("service");
+      if (serviceParam && CATEGORIES.includes(serviceParam)) {
+        setForm((prev) => ({ ...prev, lookingFor: serviceParam }));
+      }
+    }
+  }, [location?.search]);
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -28,7 +40,7 @@ export default function Contact() {
     if (prefersReducedMotion()) {
       gsap.set(
         sectionRef.current.querySelectorAll(
-          ".contact-section__eyebrow, .contact-section__headline, .contact-section__sub, .contact-section__divider, .contact-section__direct, .contact-section__footnote, .editorial-field, .contact-editorial-form__submit"
+          ".contact-section__eyebrow, .contact-section__headline, .contact-section__sub, .contact-section__divider, .contact-section__direct, .contact-section__footnote, .contact-editorial-form, .editorial-field, .contact-editorial-form__submit"
         ),
         { autoAlpha: 1, y: 0 }
       );
@@ -73,20 +85,28 @@ export default function Contact() {
         "-=0.35"
       );
 
-      // 4. Form fields reveal sequentially
+      // 4. Form shadow card reveals smoothly
+      tl.fromTo(
+        ".contact-editorial-form",
+        { autoAlpha: 0, y: 22 },
+        { autoAlpha: 1, y: 0, duration: 0.7, ease: "power2.out" },
+        "-=0.4"
+      );
+
+      // 5. Form fields reveal
       tl.fromTo(
         ".editorial-field",
-        { autoAlpha: 0, y: 16 },
-        { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.07 },
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.05 },
         "-=0.45"
       );
 
-      // 5. CTA appears last
+      // 6. CTA appears last
       tl.fromTo(
         ".contact-editorial-form__submit",
-        { autoAlpha: 0, y: 12 },
-        { autoAlpha: 1, y: 0, duration: 0.5 },
-        "-=0.1"
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.45 },
+        "-=0.2"
       );
     }, sectionRef);
 
@@ -102,7 +122,7 @@ export default function Contact() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://formsubmit.co/ajax/teamnoirframe@gmail.com", {
+      const res = await fetch("https://formsubmit.co/ajax/teamphantomlabs@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +135,7 @@ export default function Contact() {
           lookingFor: form.lookingFor || "General Inquiry",
           preferredDate: form.preferredDate || "Flexible",
           message: form.message,
-          _subject: `New Noir Frame Inquiry from ${form.name}`,
+          _subject: `New Phantom Labs Inquiry from ${form.name}`,
           _template: "table",
           _captcha: "false",
         }),
@@ -135,7 +155,7 @@ export default function Contact() {
       const body = encodeURIComponent(
         `Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone || "N/A"}\nLooking For: ${form.lookingFor || "N/A"}\nPreferred Date: ${form.preferredDate || "Flexible"}\n\nMessage:\n${form.message}`
       );
-      window.location.href = `mailto:teamnoirframe@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:teamphantomlabs@gmail.com?subject=${subject}&body=${body}`;
       setSubmitted(true);
       setForm(initialState);
     } finally {
