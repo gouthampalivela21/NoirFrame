@@ -24,18 +24,20 @@ export default function AdminInquiriesPage() {
   });
 
   const filteredInquiries = useMemo(() => {
-    return inquiries.filter((inq) => {
+    return (inquiries || []).filter((inq) => {
+      const status = (inq.status || "New").toLowerCase();
       const matchTab =
         activeTab === "All" ||
-        inq.status.toLowerCase() === activeTab.toLowerCase();
+        status === activeTab.toLowerCase();
 
       const q = searchTerm.toLowerCase();
       const matchSearch =
         !searchTerm ||
-        inq.clientName.toLowerCase().includes(q) ||
-        inq.location.toLowerCase().includes(q) ||
-        inq.category.toLowerCase().includes(q) ||
-        inq.email.toLowerCase().includes(q);
+        (inq.clientName || "").toLowerCase().includes(q) ||
+        (inq.location || "").toLowerCase().includes(q) ||
+        (inq.category || "").toLowerCase().includes(q) ||
+        (inq.subCategory || "").toLowerCase().includes(q) ||
+        (inq.email || "").toLowerCase().includes(q);
 
       return matchTab && matchSearch;
     });
@@ -150,28 +152,72 @@ export default function AdminInquiriesPage() {
         </div>
       </div>
 
-      {/* Inquiries Table */}
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Client / Couple</th>
-              <th>Category</th>
-              <th>Location</th>
-              <th>Target Date</th>
-              <th>Budget</th>
-              <th>Status</th>
-              <th style={{ textAlign: "right" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInquiries.length === 0 ? (
+      {/* Inquiries Table or Clean Empty State */}
+      {inquiries.length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
+            style={{
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
+            }}
+          >
+            No inquiries received yet
+          </h3>
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Prospective clients submitting the public contact form will appear here in real time. You can also log manual inquiries.
+          </p>
+          <button
+            type="button"
+            className="admin-btn-black"
+            onClick={() => setIsAddOpen(true)}
+            style={{ display: "inline-flex", margin: "0 auto" }}
+          >
+            <IconPlus size={13} />
+            <span>+ Log New Inquiry</span>
+          </button>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "40px 16px", color: "var(--admin-text-secondary)" }}>
-                  No inquiries found matching criteria.
-                </td>
+                <th>Client / Couple</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Target Date</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
-            ) : (
+            </thead>
+            <tbody>
+              {filteredInquiries.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "40px 16px", color: "var(--admin-text-secondary)" }}>
+                    No inquiries found matching criteria.
+                  </td>
+                </tr>
+              ) : (
               filteredInquiries.map((inq) => (
                 <tr key={inq.id}>
                   <td>
@@ -214,6 +260,7 @@ export default function AdminInquiriesPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Inquiry Detail Modal */}
       {selectedInquiry && (

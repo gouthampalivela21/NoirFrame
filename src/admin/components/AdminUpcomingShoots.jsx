@@ -4,60 +4,54 @@ import { useAdmin } from "../context/AdminContext.jsx";
 
 export default function AdminUpcomingShoots() {
   const { bookings } = useAdmin();
-  const [selectedDay, setSelectedDay] = useState(31);
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(9); // 0-indexed: 9 = Oct
+  const today = new Date();
+  const [selectedDay, setSelectedDay] = useState(today.getDate());
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
   const monthNames = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
 
-  // Days row matching the reference screenshot: 26, 27, 28, 29, 30, 31, 1
-  const daysRow = [
-    { day: 26, isOtherMonth: true },
-    { day: 27, isOtherMonth: false },
-    { day: 28, isOtherMonth: false },
-    { day: 29, isOtherMonth: false },
-    { day: 30, isOtherMonth: false },
-    { day: 31, isOtherMonth: false, hasShoot: true },
-    { day: 1, isOtherMonth: true, hasShoot: true },
-  ];
-
   const handlePrevMonth = () => {
-    setCurrentMonthIndex((prev) => (prev === 0 ? 11 : prev - 1));
+    setCurrentMonthIndex((prev) => {
+      if (prev === 0) {
+        setCurrentYear((y) => y - 1);
+        return 11;
+      }
+      return prev - 1;
+    });
   };
 
   const handleNextMonth = () => {
-    setCurrentMonthIndex((prev) => (prev === 11 ? 0 : prev + 1));
+    setCurrentMonthIndex((prev) => {
+      if (prev === 11) {
+        setCurrentYear((y) => y + 1);
+        return 0;
+      }
+      return prev + 1;
+    });
   };
 
-  // Fallback default shoots from screenshot if empty
-  const displayShoots = bookings.length > 0 ? bookings.slice(0, 3) : [
-    {
-      id: "shoot-1",
-      title: "Pre-Wedding Shoot",
-      client: "Aditi & Rohan",
-      location: "Gokarna",
-      dateFormatted: "Nov 02, 2025 · 6:00 AM",
-      thumbnail: "/images/dashboard/shoot-1.png",
-    },
-    {
-      id: "shoot-2",
-      title: "Wedding Coverage",
-      client: "Priya & Karthik",
-      location: "Bangalore",
-      dateFormatted: "Nov 09, 2025 · 8:00 AM",
-      thumbnail: "/images/dashboard/shoot-2.png",
-    },
-    {
-      id: "shoot-3",
-      title: "Brand Shoot",
-      client: "The Grove Café",
-      location: "Bangalore",
-      dateFormatted: "Nov 12, 2025 · 9:00 AM",
-      thumbnail: "/images/dashboard/shoot-3.png",
-    },
-  ];
+  // Only display real upcoming shoots from database
+  const activeBookings = Array.isArray(bookings)
+    ? bookings.filter((b) => b.status !== "Cancelled")
+    : [];
+  const displayShoots = activeBookings.slice(0, 3);
+
+  // Generate 7-day display centered around selected day or today
+  const daysRow = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(currentYear, currentMonthIndex, today.getDate() - 3 + i);
+    const dayNum = d.getDate();
+    const isOtherMonth = d.getMonth() !== currentMonthIndex;
+    const hasShoot = activeBookings.some((b) => {
+      if (!b.date) return false;
+      const bDate = new Date(b.date);
+      return bDate.getDate() === dayNum && bDate.getMonth() === d.getMonth();
+    });
+    return { day: dayNum, isOtherMonth, hasShoot };
+  });
 
   return (
     <div className="admin-section-block">
@@ -73,7 +67,7 @@ export default function AdminUpcomingShoots() {
       <div className="admin-mini-calendar">
         <div className="admin-calendar-header">
           <span className="admin-calendar-month">
-            {monthNames[currentMonthIndex]} 2025
+            {monthNames[currentMonthIndex]} {currentYear}
           </span>
           <div className="admin-calendar-arrows">
             <button
@@ -128,28 +122,75 @@ export default function AdminUpcomingShoots() {
 
       {/* Upcoming Shoots List */}
       <div className="admin-shoots-list">
-        {displayShoots.map((shoot) => (
-          <div key={shoot.id} className="admin-shoot-card">
-            <img
-              src={shoot.thumbnail || "/images/dashboard/shoot-1.png"}
-              alt={shoot.title}
-              className="admin-shoot-thumb"
-              loading="lazy"
-              onError={(e) => {
-                e.currentTarget.src = "/images/dashboard/shoot-1.png";
+        {displayShoots.length === 0 ? (
+          <div
+            style={{
+              padding: "24px 16px",
+              textAlign: "center",
+              background: "#FFFFFF",
+              borderRadius: "10px",
+              border: "1px dashed var(--admin-border)",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: "13.5px",
+                fontWeight: 600,
+                color: "var(--admin-text-primary)",
               }}
-            />
-            <div className="admin-shoot-info">
-              <h3 className="admin-shoot-title">{shoot.title}</h3>
-              <span className="admin-shoot-client">
-                {shoot.client} &middot; {shoot.location}
-              </span>
-              <span className="admin-shoot-time">
-                {shoot.dateFormatted || `${shoot.date} · ${shoot.time}`}
-              </span>
-            </div>
+            >
+              No shoots scheduled
+            </p>
+            <p
+              style={{
+                margin: "4px 0 14px",
+                fontSize: "12px",
+                color: "var(--admin-text-secondary)",
+              }}
+            >
+              Confirmed shoot bookings will appear here on the calendar.
+            </p>
+            <Link
+              to="/admin/bookings"
+              className="admin-action-btn"
+              style={{
+                display: "inline-block",
+                padding: "6px 14px",
+                fontSize: "11.5px",
+                textDecoration: "none",
+                background: "#151515",
+                color: "#FFFFFF",
+                borderColor: "#151515",
+              }}
+            >
+              + Schedule Shoot
+            </Link>
           </div>
-        ))}
+        ) : (
+          displayShoots.map((shoot) => (
+            <div key={shoot.id} className="admin-shoot-card">
+              <img
+                src={shoot.thumbnail || "/images/dashboard/shoot-1.png"}
+                alt={shoot.title}
+                className="admin-shoot-thumb"
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/dashboard/shoot-1.png";
+                }}
+              />
+              <div className="admin-shoot-info">
+                <h3 className="admin-shoot-title">{shoot.title}</h3>
+                <span className="admin-shoot-client">
+                  {shoot.client || shoot.clientName || "Studio Patron"} &middot; {shoot.location}
+                </span>
+                <span className="admin-shoot-time">
+                  {shoot.dateFormatted || `${shoot.date} · ${shoot.time}`}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

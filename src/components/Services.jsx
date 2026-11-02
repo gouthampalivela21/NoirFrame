@@ -1,15 +1,24 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
-import { services } from "../data/services.js";
+import { services as defaultServices } from "../data/services.js";
+import { useData } from "../context/DataContext.jsx";
 
 export default function Services() {
   const sectionRef = useRef(null);
+  const { services: cmsServices } = useData();
+
+  const activeServices = useMemo(() => {
+    const raw = Array.isArray(cmsServices) && cmsServices.length > 0
+      ? cmsServices
+      : defaultServices;
+    return raw.filter((s) => s.active !== false && s.published !== false);
+  }, [cmsServices]);
 
   useEffect(() => {
     const triggers = initScrollReveals(sectionRef.current);
     return () => killTriggers(triggers);
-  }, []);
+  }, [activeServices]);
 
   return (
     <section className="section services-section" id="services" ref={sectionRef}>
@@ -23,7 +32,7 @@ export default function Services() {
         </div>
 
         <div className="services-grid">
-          {services.map((service) => (
+          {activeServices.map((service) => (
             <div
               key={service.id}
               className="service-card reveal"
@@ -37,7 +46,7 @@ export default function Services() {
               <p className="service-card__tagline font-serif-italic">
                 {service.tagline}
               </p>
-              <p className="service-card__desc">{service.description}</p>
+              <p className="service-card__desc">{service.description || service.subtitle}</p>
             </div>
           ))}
         </div>

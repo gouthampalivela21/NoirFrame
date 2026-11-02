@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { useData } from "../context/DataContext.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +21,7 @@ const initialState = {
 export default function Contact() {
   const sectionRef = useRef(null);
   const location = useLocation();
+  const { addInquiry } = useData();
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -120,6 +122,27 @@ export default function Contact() {
     if (!form.name || !form.email || !form.message) return;
 
     setLoading(true);
+
+    // Save inquiry directly into studio database & CMS for immediate two-way synchronization
+    if (typeof addInquiry === "function") {
+      try {
+        addInquiry({
+          clientName: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone?.trim() || "",
+          category: form.lookingFor || "General Inquiry",
+          subCategory: form.lookingFor || "General Inquiry",
+          location: "Online / Inquiry Form",
+          preferredDate: form.preferredDate || "Flexible",
+          budget: "Inquire",
+          message: form.message.trim(),
+          source: "Website Contact Form",
+          status: "New",
+        });
+      } catch (saveErr) {
+        console.warn("Could not save inquiry to local state:", saveErr);
+      }
+    }
 
     try {
       const res = await fetch("https://formsubmit.co/ajax/teamphantomlabs@gmail.com", {

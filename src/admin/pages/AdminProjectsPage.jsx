@@ -22,16 +22,27 @@ export default function AdminProjectsPage() {
   const [newDeliverable, setNewDeliverable] = useState("");
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
-      const matchStage = activeStage === "All" || p.stage === activeStage;
-      const q = searchTerm.toLowerCase();
-      const matchSearch =
-        !searchTerm ||
-        p.title.toLowerCase().includes(q) ||
-        p.client.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q);
-      return matchStage && matchSearch;
-    });
+    return (projects || [])
+      .map((p) => ({
+        ...p,
+        stage: p.stage || p.status || "Planning",
+        client: p.client || p.clientName || "Studio Client",
+        budget: typeof p.budget === "number" ? `₹${p.budget.toLocaleString("en-IN")}` : p.budget || "—",
+        deliverables: (p.deliverables || []).map((d) => ({
+          ...d,
+          done: d.done ?? d.completed ?? false,
+        })),
+      }))
+      .filter((p) => {
+        const matchStage = activeStage === "All" || (p.stage || "").toLowerCase() === activeStage.toLowerCase();
+        const q = searchTerm.toLowerCase();
+        const matchSearch =
+          !searchTerm ||
+          (p.title || "").toLowerCase().includes(q) ||
+          (p.client || "").toLowerCase().includes(q) ||
+          (p.category && p.category.toLowerCase().includes(q));
+        return matchStage && matchSearch;
+      });
   }, [projects, activeStage, searchTerm]);
 
   const handleOpenNewProject = () => {
@@ -149,29 +160,73 @@ export default function AdminProjectsPage() {
         </div>
       </div>
 
-      {/* Projects Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {filteredProjects.length === 0 ? (
-          <div
+      {/* Projects Grid or Clean Empty State */}
+      {(projects || []).length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
             style={{
-              gridColumn: "1 / -1",
-              padding: "48px 0",
-              textAlign: "center",
-              color: "var(--admin-text-secondary)",
-              background: "#FFFFFF",
-              borderRadius: "10px",
-              border: "1px solid var(--admin-border)",
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
             }}
           >
-            No projects in &quot;{activeStage}&quot; stage.
-          </div>
-        ) : (
+            No active production projects
+          </h3>
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Create a new studio project to begin tracking client deliverables, shoot milestones, and post-production phases.
+          </p>
+          <button
+            type="button"
+            className="admin-btn-black"
+            onClick={handleOpenNewProject}
+            style={{ display: "inline-flex", margin: "0 auto" }}
+          >
+            <IconPlus size={13} />
+            <span>+ Create First Project</span>
+          </button>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          {filteredProjects.length === 0 ? (
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                padding: "48px 0",
+                textAlign: "center",
+                color: "var(--admin-text-secondary)",
+                background: "#FFFFFF",
+                borderRadius: "10px",
+                border: "1px solid var(--admin-border)",
+              }}
+            >
+              No projects in &quot;{activeStage}&quot; stage.
+            </div>
+          ) : (
           filteredProjects.map((p) => {
             const deliverables = p.deliverables || [];
             const doneCount = deliverables.filter((d) => d.done).length;
@@ -287,6 +342,7 @@ export default function AdminProjectsPage() {
           })
         )}
       </div>
+      )}
 
       {/* Project Workflow Management Modal */}
       {selectedProject && (

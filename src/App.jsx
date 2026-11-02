@@ -150,11 +150,40 @@ export default function App() {
               <Route path="projects" element={<AdminProjectsPage />} />
               <Route path="bookings" element={<AdminBookingsPage />} />
               <Route path="portfolio" element={<AdminPortfolioPage />} />
-              <Route path="services" element={<AdminServicesPage />} />
-              <Route path="testimonials" element={<AdminTestimonialsPage />} />
+              <Route
+                path="services"
+                element={
+                  <AdminProtectedRoute requiredRole="Co-Founder">
+                    <AdminServicesPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="testimonials"
+                element={
+                  <AdminProtectedRoute requiredRole="Co-Founder">
+                    <AdminTestimonialsPage />
+                  </AdminProtectedRoute>
+                }
+              />
               <Route path="messages" element={<AdminMessagesPage />} />
-              <Route path="analytics" element={<AdminAnalyticsPage />} />
-              <Route path="settings" element={<AdminSettingsPage />} />
+              <Route
+                path="analytics"
+                element={
+                  <AdminProtectedRoute requiredRole="Co-Founder">
+                    <AdminAnalyticsPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="settings"
+                element={
+                  <AdminProtectedRoute requiredRole="Founder">
+                    <AdminSettingsPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route path="*" element={<AdminDashboardPage />} />
             </Route>
           </Routes>
         </Suspense>

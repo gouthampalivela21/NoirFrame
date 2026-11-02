@@ -7,10 +7,12 @@ export default function AdminRecentActivity() {
   const { activities } = useAdmin();
   const [activeTab, setActiveTab] = useState("All");
 
+  const activityList = Array.isArray(activities) ? activities : [];
+
   const filteredActivities = useMemo(() => {
-    if (activeTab === "All") return activities;
+    if (activeTab === "All") return activityList;
     const tabLower = activeTab.toLowerCase();
-    return activities.filter((act) => {
+    return activityList.filter((act) => {
       const type = (act.type || "").toLowerCase();
       if (tabLower === "inquiries") return type === "inquiry" || type === "inquiries";
       if (tabLower === "projects") return type === "project" || type === "projects";
@@ -18,10 +20,10 @@ export default function AdminRecentActivity() {
       if (tabLower === "payments") return type === "payment" || type === "payments";
       return true;
     });
-  }, [activities, activeTab]);
+  }, [activityList, activeTab]);
 
   const getPillClass = (status) => {
-    const s = (status || "").toLowerCase();
+    const s = String(status || "").toLowerCase();
     if (s.includes("new")) return "admin-status-pill--new";
     if (s.includes("progress")) return "admin-status-pill--progress";
     if (s.includes("confirm")) return "admin-status-pill--confirmed";
@@ -52,40 +54,76 @@ export default function AdminRecentActivity() {
 
       {/* Activity List */}
       <div className="admin-activity-list">
-        {filteredActivities.length === 0 ? (
-          <div style={{ padding: "30px 0", color: "var(--admin-text-secondary)", fontSize: "13px" }}>
-            No recent activity found for {activeTab}.
+        {activityList.length === 0 ? (
+          <div
+            style={{
+              padding: "36px 20px",
+              textAlign: "center",
+              background: "#FFFFFF",
+              borderRadius: "10px",
+              border: "1px dashed var(--admin-border)",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "var(--admin-text-primary)",
+              }}
+            >
+              No recent activity recorded
+            </p>
+            <p
+              style={{
+                margin: "6px 0 0",
+                fontSize: "12.5px",
+                color: "var(--admin-text-secondary)",
+              }}
+            >
+              Incoming website inquiries, confirmed shoots, and client updates will appear here automatically.
+            </p>
+          </div>
+        ) : filteredActivities.length === 0 ? (
+          <div style={{ padding: "30px 0", color: "var(--admin-text-secondary)", fontSize: "13px", textAlign: "center" }}>
+            No recent activity found for &ldquo;{activeTab}&rdquo;.
           </div>
         ) : (
-          filteredActivities.map((act) => (
-            <div key={act.id} className="admin-activity-item">
-              <div className="admin-activity-left">
-                <img
-                  src={act.thumbnail || "/images/dashboard/act-1.png"}
-                  alt={act.headline}
-                  className="admin-activity-thumb"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/dashboard/act-1.png";
-                  }}
-                />
-                <div className="admin-activity-info">
-                  <span className="admin-activity-headline">{act.headline}</span>
-                  <span className="admin-activity-sub">{act.subText}</span>
+          filteredActivities.map((act) => {
+            const headline = act.headline || act.title || "Studio Event";
+            const sub = act.subText || act.details || "";
+            const time = act.timeAgo || act.timestamp || "";
+            const status = act.status || act.statusBadge || "New";
+
+            return (
+              <div key={act.id} className="admin-activity-item">
+                <div className="admin-activity-left">
+                  <img
+                    src={act.thumbnail || "/images/dashboard/act-1.png"}
+                    alt={headline}
+                    className="admin-activity-thumb"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/dashboard/act-1.png";
+                    }}
+                  />
+                  <div className="admin-activity-info">
+                    <span className="admin-activity-headline">{headline}</span>
+                    <span className="admin-activity-sub">{sub}</span>
+                  </div>
+                </div>
+
+                <div className="admin-activity-right">
+                  <span className="admin-activity-time">{time}</span>
+                  <span className={`admin-status-pill ${getPillClass(status)}`}>
+                    {status}
+                  </span>
                 </div>
               </div>
-
-              <div className="admin-activity-right">
-                <span className="admin-activity-time">{act.timeAgo}</span>
-                <span className={`admin-status-pill ${getPillClass(act.status)}`}>
-                  {act.status}
-                </span>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
   );
 }
-

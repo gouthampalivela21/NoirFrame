@@ -3,13 +3,24 @@ import { useAdmin } from "../context/AdminContext.jsx";
 import { IconClose } from "../components/AdminIcons.jsx";
 
 export default function AdminServicesPage() {
-  const { services, updateService } = useAdmin();
+  const { services = [], updateService } = useAdmin();
   const [editingService, setEditingService] = useState(null);
 
   const handleSave = (e) => {
     e.preventDefault();
     if (!editingService) return;
-    updateService(editingService.id, editingService);
+    updateService(editingService.id, {
+      ...editingService,
+      title: editingService.title,
+      tagline: editingService.tagline,
+      description: editingService.description,
+      subtitle: editingService.description,
+      price: editingService.price || editingService.startingPrice,
+      startingPrice: editingService.startingPrice || editingService.price,
+      turnaround: editingService.turnaround,
+      active: editingService.active,
+      published: editingService.active,
+    });
     setEditingService(null);
   };
 
@@ -25,73 +36,135 @@ export default function AdminServicesPage() {
         </div>
       </div>
 
-      {/* Services List */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
-        {services.map((srv) => (
-          <div
-            key={srv.id}
-            className="admin-card"
+      {/* Services List or Clean Empty State */}
+      {(services || []).length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
             style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              gap: "20px",
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
             }}
           >
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "12px",
-                }}
-              >
-                <span className="admin-status-pill admin-status-pill--new">
-                  {srv.active ? "Active Offering" : "Paused"}
-                </span>
-                <span style={{ fontSize: "12px", color: "var(--admin-text-secondary)" }}>
-                  Lead Time: {srv.turnaround}
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 6px", color: "var(--admin-text-primary)" }}>
-                {srv.title}
-              </h3>
-              <p style={{ fontSize: "13px", color: "var(--admin-text-secondary)", margin: 0, lineHeight: "1.5" }}>
-                {srv.subtitle}
-              </p>
-            </div>
-
+            No studio services found
+          </h3>
+          <p
+            style={{
+              margin: "0",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Studio packages defined in the database will appear here for customization and public visibility toggling.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+          {services.map((srv) => (
             <div
+              key={srv.id}
+              className="admin-card"
               style={{
-                borderTop: "1px solid var(--admin-border-subtle)",
-                paddingTop: "14px",
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "space-between",
-                alignItems: "center",
+                gap: "20px",
               }}
             >
               <div>
-                <span style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--admin-text-secondary)", display: "block" }}>
-                  Starting at
-                </span>
-                <span style={{ fontSize: "18px", fontWeight: 600, color: "var(--admin-text-primary)" }}>
-                  {srv.startingPrice}
-                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <span
+                    className={`admin-status-pill ${
+                      srv.active !== false && srv.published !== false
+                        ? "admin-status-pill--confirmed"
+                        : "admin-status-pill--new"
+                    }`}
+                  >
+                    {srv.active !== false && srv.published !== false ? "Active Offering" : "Paused"}
+                  </span>
+                  <span style={{ fontSize: "12px", color: "var(--admin-text-secondary)" }}>
+                    Lead Time: {srv.turnaround || srv.duration || "Custom"}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--admin-text-secondary)", marginBottom: "4px" }}>
+                  {srv.number ? `SERVICE ${srv.number}` : "COMMISSION"}
+                </div>
+
+                <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 6px", color: "var(--admin-text-primary)" }}>
+                  {srv.title}
+                </h3>
+
+                {srv.tagline && (
+                  <p style={{ fontSize: "12.5px", fontStyle: "italic", color: "var(--admin-text-primary)", margin: "0 0 8px 0" }}>
+                    &ldquo;{srv.tagline}&rdquo;
+                  </p>
+                )}
+
+                <p style={{ fontSize: "13px", color: "var(--admin-text-secondary)", margin: 0, lineHeight: "1.5" }}>
+                  {srv.description || srv.subtitle || ""}
+                </p>
               </div>
 
-              <button
-                type="button"
-                className="admin-action-btn"
-                onClick={() => setEditingService(srv)}
+              <div
+                style={{
+                  borderTop: "1px solid var(--admin-border-subtle)",
+                  paddingTop: "14px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
-                Edit Package
-              </button>
+                <div>
+                  <span style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--admin-text-secondary)", display: "block" }}>
+                    Starting at
+                  </span>
+                  <span style={{ fontSize: "17px", fontWeight: 600, color: "var(--admin-text-primary)" }}>
+                    {srv.startingPrice || srv.price || "Inquire"}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="admin-action-btn"
+                  onClick={() =>
+                    setEditingService({
+                      ...srv,
+                      startingPrice: srv.startingPrice || srv.price || "",
+                      tagline: srv.tagline || "",
+                      description: srv.description || srv.subtitle || "",
+                      turnaround: srv.turnaround || srv.duration || "2-3 Weeks",
+                      active: srv.active !== false && srv.published !== false,
+                    })
+                  }
+                >
+                  Edit Package
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Edit Service Modal */}
       {editingService && (
@@ -118,12 +191,22 @@ export default function AdminServicesPage() {
                 </div>
 
                 <div className="admin-form-group">
-                  <label className="admin-form-label">Overview &amp; Deliverables</label>
+                  <label className="admin-form-label">Tagline (Editorial Quote)</label>
+                  <input
+                    type="text"
+                    className="admin-form-input"
+                    value={editingService.tagline || ""}
+                    onChange={(e) => setEditingService({ ...editingService, tagline: e.target.value })}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Description &amp; Scope</label>
                   <textarea
                     rows={3}
                     className="admin-form-textarea"
-                    value={editingService.subtitle}
-                    onChange={(e) => setEditingService({ ...editingService, subtitle: e.target.value })}
+                    value={editingService.description || ""}
+                    onChange={(e) => setEditingService({ ...editingService, description: e.target.value })}
                   />
                 </div>
 
@@ -133,7 +216,7 @@ export default function AdminServicesPage() {
                     <input
                       type="text"
                       className="admin-form-input"
-                      value={editingService.startingPrice}
+                      value={editingService.startingPrice || ""}
                       onChange={(e) => setEditingService({ ...editingService, startingPrice: e.target.value })}
                     />
                   </div>
@@ -142,14 +225,14 @@ export default function AdminServicesPage() {
                     <input
                       type="text"
                       className="admin-form-input"
-                      value={editingService.turnaround}
+                      value={editingService.turnaround || ""}
                       onChange={(e) => setEditingService({ ...editingService, turnaround: e.target.value })}
                     />
                   </div>
                 </div>
 
                 <div className="admin-form-group">
-                  <label className="admin-form-label">Status</label>
+                  <label className="admin-form-label">Public Status</label>
                   <select
                     className="admin-form-select"
                     value={editingService.active ? "active" : "paused"}
@@ -160,8 +243,8 @@ export default function AdminServicesPage() {
                       })
                     }
                   >
-                    <option value="active">Active (Visible on public booking)</option>
-                    <option value="paused">Paused / Waitlist Only</option>
+                    <option value="active">Active (Visible on public booking &amp; website)</option>
+                    <option value="paused">Paused / Hidden</option>
                   </select>
                 </div>
               </div>
@@ -185,4 +268,3 @@ export default function AdminServicesPage() {
     </div>
   );
 }
-

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { routeTransition } from "../animations/pageTransitions.js";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
-import { services } from "../data/services.js";
+import { services as defaultServices } from "../data/services.js";
+import { useData } from "../context/DataContext.jsx";
 
 const SERVICE_DETAILS = {
   Portraits: [
@@ -40,6 +41,14 @@ const SERVICE_DETAILS = {
 
 export default function ServicesPage() {
   const pageRef = useRef(null);
+  const { services: cmsServices } = useData();
+
+  const activeServices = useMemo(() => {
+    const raw = Array.isArray(cmsServices) && cmsServices.length > 0
+      ? cmsServices
+      : defaultServices;
+    return raw.filter((s) => s.active !== false && s.published !== false);
+  }, [cmsServices]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -104,8 +113,10 @@ export default function ServicesPage() {
       <section className="section services-page__list-section">
         <div className="container-max">
           <div className="services-page__grid">
-            {services.map((service, index) => {
-              const details = SERVICE_DETAILS[service.title] || [];
+            {activeServices.map((service, index) => {
+              const details = (Array.isArray(service.deliverables) && service.deliverables.length > 0)
+                ? service.deliverables
+                : SERVICE_DETAILS[service.title] || [];
               return (
                 <div
                   key={service.id || index}
@@ -126,7 +137,7 @@ export default function ServicesPage() {
                     </p>
 
                     <p className="services-page__item-desc body-md">
-                      {service.description}
+                      {service.description || service.subtitle}
                     </p>
 
                     {details.length > 0 && (

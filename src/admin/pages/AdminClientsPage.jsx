@@ -22,14 +22,14 @@ export default function AdminClientsPage() {
   const categories = ["All", "Commercial", "Couples", "Events", "Editorial", "Personal"];
 
   const filteredClients = useMemo(() => {
-    return clients.filter((c) => {
+    return (clients || []).filter((c) => {
       const matchCat = categoryFilter === "All" || c.category === categoryFilter;
       const q = searchTerm.toLowerCase();
       const matchSearch =
         !searchTerm ||
-        c.name.toLowerCase().includes(q) ||
+        (c.name || "").toLowerCase().includes(q) ||
         (c.company && c.company.toLowerCase().includes(q)) ||
-        c.email.toLowerCase().includes(q);
+        (c.email || "").toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
   }, [clients, categoryFilter, searchTerm]);
@@ -60,10 +60,10 @@ export default function AdminClientsPage() {
 
   // Find projects belonging to selected client
   const clientProjects = selectedClient
-    ? projects.filter(
+    ? (projects || []).filter(
         (p) =>
-          p.client.toLowerCase() === selectedClient.name.toLowerCase() ||
-          (selectedClient.company && p.client.toLowerCase() === selectedClient.company.toLowerCase())
+          (p.client || "").toLowerCase() === (selectedClient.name || "").toLowerCase() ||
+          (selectedClient.company && (p.client || "").toLowerCase() === selectedClient.company.toLowerCase())
       )
     : [];
 
@@ -134,28 +134,72 @@ export default function AdminClientsPage() {
         </div>
       </div>
 
-      {/* Clients Table */}
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Client</th>
-              <th>Category</th>
-              <th>Contact</th>
-              <th>Total Projects</th>
-              <th>Total Spend</th>
-              <th>Tier</th>
-              <th style={{ textAlign: "right" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClients.length === 0 ? (
+      {/* Clients Table or Clean Empty State */}
+      {clients.length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
+            style={{
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
+            }}
+          >
+            No client records found
+          </h3>
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Clients will be automatically created when inquiries are converted, or you can add a client profile manually.
+          </p>
+          <button
+            type="button"
+            className="admin-btn-black"
+            onClick={() => setIsAddOpen(true)}
+            style={{ display: "inline-flex", margin: "0 auto" }}
+          >
+            <IconPlus size={13} />
+            <span>+ Add Client</span>
+          </button>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "40px 16px", color: "var(--admin-text-secondary)" }}>
-                  No clients found.
-                </td>
+                <th>Client</th>
+                <th>Category</th>
+                <th>Contact</th>
+                <th>Total Projects</th>
+                <th>Total Spend</th>
+                <th>Tier</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
-            ) : (
+            </thead>
+            <tbody>
+              {filteredClients.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "40px 16px", color: "var(--admin-text-secondary)" }}>
+                    No clients found matching filter.
+                  </td>
+                </tr>
+              ) : (
               filteredClients.map((client) => (
                 <tr key={client.id}>
                   <td>
@@ -186,7 +230,9 @@ export default function AdminClientsPage() {
                     </div>
                   </td>
                   <td>{client.projectsCount ?? 1}</td>
-                  <td style={{ fontWeight: 500 }}>{client.totalSpend || "—"}</td>
+                  <td style={{ fontWeight: 500 }}>
+                    {client.totalSpend || (client.totalSpent ? `₹${Number(client.totalSpent).toLocaleString("en-IN")}` : "—")}
+                  </td>
                   <td>
                     <span className="admin-status-pill admin-status-pill--client">
                       {client.tier || "Standard"}
@@ -207,6 +253,7 @@ export default function AdminClientsPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Client Dossier Modal */}
       {selectedClient && (

@@ -3,22 +3,30 @@ import AdminHero from "../components/AdminHero.jsx";
 import AdminStats from "../components/AdminStats.jsx";
 import AdminRecentActivity from "../components/AdminRecentActivity.jsx";
 import AdminUpcomingShoots from "../components/AdminUpcomingShoots.jsx";
+import AdminErrorBoundary from "../components/AdminErrorBoundary.jsx";
 
 export default function AdminDashboardPage() {
   return (
     <div className="admin-content">
       {/* 1. Hero Section (Greeting + Panorama + Date + New Project) */}
-      <AdminHero />
+      <AdminErrorBoundary>
+        <AdminHero />
+      </AdminErrorBoundary>
 
       {/* 2. 6-Column Metrics Row */}
-      <AdminStats />
+      <AdminErrorBoundary>
+        <AdminStats />
+      </AdminErrorBoundary>
 
       {/* 3. 2-Column Lower Section: Recent Activity (left) & Upcoming Shoots (right) */}
       <div className="admin-bottom-grid">
-        <AdminRecentActivity />
-        <AdminUpcomingShoots />
+        <AdminErrorBoundary>
+          <AdminRecentActivity />
+        </AdminErrorBoundary>
+        <AdminErrorBoundary>
+          <AdminUpcomingShoots />
+        </AdminErrorBoundary>
       </div>
     </div>
   );
 }
-

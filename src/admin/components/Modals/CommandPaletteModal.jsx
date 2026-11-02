@@ -30,7 +30,14 @@ export default function CommandPaletteModal({ isOpen, onClose }) {
     if (!query.trim()) {
       return [
         { type: "shortcut", label: "Studio Overview", path: "/admin", sub: "Go to Dashboard" },
-        { type: "shortcut", label: "All Inquiries", path: "/admin/inquiries", sub: "View 12 studio leads" },
+        {
+          type: "shortcut",
+          label: "All Inquiries",
+          path: "/admin/inquiries",
+          sub: (inquiries && inquiries.length > 0)
+            ? `View ${inquiries.length} studio lead${inquiries.length === 1 ? "" : "s"}`
+            : "Studio leads & submissions",
+        },
         { type: "shortcut", label: "Active Clients", path: "/admin/clients", sub: "Client directory" },
         { type: "shortcut", label: "Ongoing Projects", path: "/admin/projects", sub: "Studio production pipeline" },
         { type: "shortcut", label: "Upcoming Shoots", path: "/admin/bookings", sub: "Calendar & schedule" },
@@ -43,30 +50,34 @@ export default function CommandPaletteModal({ isOpen, onClose }) {
     const matches = [];
 
     // Search Inquiries
-    inquiries.forEach((inq) => {
+    (inquiries || []).forEach((inq) => {
       if (
-        inq.clientName.toLowerCase().includes(q) ||
-        inq.category.toLowerCase().includes(q) ||
-        inq.location.toLowerCase().includes(q) ||
-        inq.subCategory?.toLowerCase().includes(q)
+        (inq.clientName || "").toLowerCase().includes(q) ||
+        (inq.category || "").toLowerCase().includes(q) ||
+        (inq.location || "").toLowerCase().includes(q) ||
+        (inq.subCategory && inq.subCategory.toLowerCase().includes(q))
       ) {
         matches.push({
           type: "inquiry",
-          label: inq.clientName,
-          sub: `${inq.subCategory || inq.category} · ${inq.location}`,
-          badge: inq.status,
+          label: inq.clientName || "Inquiry",
+          sub: `${inq.subCategory || inq.category || "General"} · ${inq.location || "Online"}`,
+          badge: inq.status || "New",
           path: "/admin/inquiries",
         });
       }
     });
 
     // Search Clients
-    clients.forEach((c) => {
-      if (c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.company?.toLowerCase().includes(q)) {
+    (clients || []).forEach((c) => {
+      if (
+        (c.name || "").toLowerCase().includes(q) ||
+        (c.category || "").toLowerCase().includes(q) ||
+        (c.company && c.company.toLowerCase().includes(q))
+      ) {
         matches.push({
           type: "client",
-          label: c.name,
-          sub: `${c.company || c.category} · ${c.email}`,
+          label: c.name || "Client",
+          sub: `${c.company || c.category || "Studio Client"} · ${c.email || ""}`,
           badge: "Client",
           path: "/admin/clients",
         });
@@ -74,13 +85,17 @@ export default function CommandPaletteModal({ isOpen, onClose }) {
     });
 
     // Search Projects
-    projects.forEach((p) => {
-      if (p.title.toLowerCase().includes(q) || p.client.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)) {
+    (projects || []).forEach((p) => {
+      if (
+        (p.title || "").toLowerCase().includes(q) ||
+        (p.client || "").toLowerCase().includes(q) ||
+        (p.category && p.category.toLowerCase().includes(q))
+      ) {
         matches.push({
           type: "project",
-          label: p.title,
-          sub: `${p.client} · Stage: ${p.stage}`,
-          badge: p.status,
+          label: p.title || "Project",
+          sub: `${p.client || "Client"} · Stage: ${p.stage || p.status || "In Progress"}`,
+          badge: p.status || "Active",
           path: "/admin/projects",
         });
       }

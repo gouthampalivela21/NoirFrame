@@ -21,9 +21,10 @@ import {
 } from "./AdminIcons.jsx";
 import CommandPaletteModal from "./Modals/CommandPaletteModal.jsx";
 import NewProjectModal from "./Modals/NewProjectModal.jsx";
+import AdminErrorBoundary from "./AdminErrorBoundary.jsx";
 
 export default function AdminLayout() {
-  const { user, inquiries, messages, logout } = useAdmin();
+  const { user, inquiries, messages, activities, logout } = useAdmin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -59,11 +60,23 @@ export default function AdminLayout() {
     return () => window.removeEventListener("admin:new-project", handleOpenProject);
   }, []);
 
-  // Inquiries count (match 12 from screenshot or dynamic)
-  const inquiryCount = inquiries.length > 0 ? inquiries.length : 12;
-  // Messages count (match 3 from screenshot or dynamic unread)
-  const unreadMessagesCount = messages.filter((m) => m.unread).length || 3;
+  // Real, dynamic Inquiries count (no mock default)
+  const pendingInquiries = (inquiries || []).filter(
+    (i) => i.status === "New" || i.status === "Pending"
+  );
+  const inquiryCount = pendingInquiries.length > 0
+    ? pendingInquiries.length
+    : inquiries.length > 0
+    ? inquiries.length
+    : undefined;
 
+  // Real, dynamic Messages count (no mock default)
+  const unreadMessagesCount = (messages || []).filter((m) => m.unread).length || undefined;
+
+  // Notification items derived from real activity records
+  const notificationItems = (activities || []).slice(0, 5);
+
+  // Navigation Links with Role-Based Access Control
   const navLinks = [
     { label: "Overview", to: "/admin", icon: IconOverview, end: true },
     { label: "Inquiries", to: "/admin/inquiries", icon: IconInquiries, badge: inquiryCount },
@@ -71,12 +84,19 @@ export default function AdminLayout() {
     { label: "Projects", to: "/admin/projects", icon: IconProjects },
     { label: "Bookings", to: "/admin/bookings", icon: IconBookings },
     { label: "Portfolio", to: "/admin/portfolio", icon: IconPortfolio },
-    { label: "Services", to: "/admin/services", icon: IconServices },
-    { label: "Testimonials", to: "/admin/testimonials", icon: IconTestimonials },
+    { label: "Services", to: "/admin/services", icon: IconServices, requiredRole: "Co-Founder" },
+    { label: "Testimonials", to: "/admin/testimonials", icon: IconTestimonials, requiredRole: "Co-Founder" },
     { label: "Messages", to: "/admin/messages", icon: IconMessages, badge: unreadMessagesCount },
-    { label: "Analytics", to: "/admin/analytics", icon: IconAnalytics },
-    { label: "Settings", to: "/admin/settings", icon: IconSettings },
+    { label: "Analytics", to: "/admin/analytics", icon: IconAnalytics, requiredRole: "Co-Founder" },
+    { label: "Settings", to: "/admin/settings", icon: IconSettings, requiredRole: "Founder" },
   ];
+
+  const visibleNavLinks = navLinks.filter((item) => {
+    if (!item.requiredRole) return true;
+    if (user?.role === "Founder") return true;
+    if (user?.role === "Co-Founder") return item.requiredRole !== "Founder";
+    return false;
+  });
 
   return (
     <div className="admin-shell">
@@ -109,7 +129,7 @@ export default function AdminLayout() {
 
           {/* Navigation Links */}
           <nav className="admin-sidebar__nav">
-            {navLinks.map((item) => {
+            {visibleNavLinks.map((item) => {
               const Icon = item.icon;
               return (
                 <NavLink
@@ -136,20 +156,100 @@ export default function AdminLayout() {
           </nav>
         </div>
 
-        {/* Sidebar Footer User Profile */}
+        {/* Sidebar Footer Administrator Profile */}
         <div className="admin-sidebar__footer">
           {isProfileOpen && (
-            <div className="admin-profile-menu">
-              <button
-                type="button"
-                className="admin-profile-menu__item"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  navigate("/admin/settings");
+            <div className="admin-profile-menu" style={{ padding: "12px", minWidth: "230px" }}>
+              {/* Authenticated Profile Dossier */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "4px 4px 12px",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  marginBottom: "6px",
                 }}
               >
-                Studio Settings
-              </button>
+                <img
+                  src={user?.avatar || "/images/admin-avatar.png"}
+                  alt={user?.name || "Admin"}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    background: "#222",
+                    border: "1.5px solid rgba(255, 255, 255, 0.2)",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/admin-avatar.png";
+                  }}
+                />
+                <div style={{ overflow: "hidden" }}>
+                  <div
+                    style={{
+                      fontSize: "13.5px",
+                      fontWeight: 600,
+                      color: "#FFFFFF",
+                      lineHeight: "1.2",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.name || "Studio Administrator"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--admin-sidebar-text)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {user?.email}
+                  </div>
+                  <div style={{ marginTop: "4px" }}>
+                    <span
+                      style={{
+                        fontSize: "9.5px",
+                        padding: "2px 6px",
+                        borderRadius: "3px",
+                        background:
+                          user?.role === "Founder"
+                            ? "rgba(255, 255, 255, 0.2)"
+                            : user?.role === "Co-Founder"
+                            ? "rgba(100, 160, 255, 0.25)"
+                            : "rgba(180, 180, 180, 0.15)",
+                        color: "#FFFFFF",
+                        fontWeight: 600,
+                        letterSpacing: "0.04em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {user?.role || "Admin"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Founder Access to Studio Settings */}
+              {user?.role === "Founder" && (
+                <button
+                  type="button"
+                  className="admin-profile-menu__item"
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    navigate("/admin/settings");
+                  }}
+                >
+                  <span>Studio Settings</span>
+                </button>
+              )}
+
               <a
                 href="/"
                 target="_blank"
@@ -157,18 +257,20 @@ export default function AdminLayout() {
                 className="admin-profile-menu__item"
                 onClick={() => setIsProfileOpen(false)}
               >
-                View Public Site ↗
+                <span>View Public Site ↗</span>
               </a>
+
+              {/* Sign Out Action */}
               <button
                 type="button"
                 className="admin-profile-menu__item admin-profile-menu__item--danger"
-                onClick={() => {
+                onClick={async () => {
                   setIsProfileOpen(false);
-                  logout();
+                  await logout();
                   navigate("/admin/login");
                 }}
               >
-                Sign Out
+                <span>Sign Out</span>
               </button>
             </div>
           )}
@@ -182,11 +284,19 @@ export default function AdminLayout() {
             <div className="admin-sidebar__profile-left">
               <img
                 src={user?.avatar || "/images/admin-avatar.png"}
-                alt={user?.name || "Studio Admin"}
+                alt={user?.name || "Admin"}
                 className="admin-sidebar__avatar"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/admin-avatar.png";
+                }}
               />
-              <div>
-                <div className="admin-sidebar__profile-name">{user?.name || "Studio Admin"}</div>
+              <div style={{ overflow: "hidden", maxWidth: "145px" }}>
+                <div
+                  className="admin-sidebar__profile-name"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                >
+                  {user?.name || "Studio Admin"}
+                </div>
                 <div className="admin-sidebar__profile-role">{user?.role || "Administrator"}</div>
               </div>
             </div>
@@ -240,7 +350,9 @@ export default function AdminLayout() {
                 aria-label="View notifications"
               >
                 <IconBell size={18} />
-                <span className="admin-notify-badge" />
+                {(notificationItems.length > 0 || (pendingInquiries && pendingInquiries.length > 0)) && (
+                  <span className="admin-notify-badge" />
+                )}
               </button>
 
               {isNotifyOpen && (
@@ -270,29 +382,38 @@ export default function AdminLayout() {
                   >
                     <span style={{ fontSize: "13px", fontWeight: 600 }}>Notifications</span>
                     <span style={{ fontSize: "11px", color: "var(--admin-text-secondary)" }}>
-                      3 unread
+                      {notificationItems.length > 0 ? `${notificationItems.length} recent` : "All caught up"}
                     </span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "12.5px" }}>
-                    <div style={{ padding: "6px 0", borderBottom: "1px solid #F0EFEB" }}>
-                      <strong>New Inquiry</strong> from Aditi & Rohan (Pre-Wedding)
-                      <div style={{ fontSize: "11px", color: "var(--admin-text-muted)", marginTop: "2px" }}>
-                        10 min ago
-                      </div>
+
+                  {notificationItems.length === 0 ? (
+                    <div
+                      style={{
+                        padding: "20px 0",
+                        textAlign: "center",
+                        color: "var(--admin-text-secondary)",
+                        fontSize: "12.5px",
+                      }}
+                    >
+                      No new notifications.
                     </div>
-                    <div style={{ padding: "6px 0", borderBottom: "1px solid #F0EFEB" }}>
-                      <strong>Payment Received</strong> ₹50,000 from The Grove Café
-                      <div style={{ fontSize: "11px", color: "var(--admin-text-muted)", marginTop: "2px" }}>
-                        5 hrs ago
-                      </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "12.5px" }}>
+                      {notificationItems.map((act) => (
+                        <div key={act.id} style={{ padding: "6px 0", borderBottom: "1px solid #F0EFEB" }}>
+                          <strong>{act.headline || act.title || "Studio Event"}</strong>
+                          {act.subText && (
+                            <div style={{ fontSize: "11.5px", color: "var(--admin-text-secondary)", marginTop: "2px" }}>
+                              {act.subText}
+                            </div>
+                          )}
+                          <div style={{ fontSize: "10.5px", color: "var(--admin-text-muted)", marginTop: "3px" }}>
+                            {act.timeAgo || act.timestamp || "Recently"}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div style={{ padding: "6px 0" }}>
-                      <strong>Shoot Confirmed</strong> Priya & Karthik Wedding
-                      <div style={{ fontSize: "11px", color: "var(--admin-text-muted)", marginTop: "2px" }}>
-                        4 hrs ago
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -300,15 +421,27 @@ export default function AdminLayout() {
             {/* Topbar Avatar */}
             <img
               src={user?.avatar || "/images/admin-avatar.png"}
-              alt="Admin"
+              alt={user?.name || "Admin"}
+              title={user?.name ? `${user.name} (${user.role || "Admin"})` : "Studio Admin"}
               className="admin-topbar__avatar"
-              onClick={() => navigate("/admin/settings")}
+              onError={(e) => {
+                e.currentTarget.src = "/images/admin-avatar.png";
+              }}
+              onClick={() => {
+                if (user?.role === "Founder") {
+                  navigate("/admin/settings");
+                } else {
+                  setIsProfileOpen((prev) => !prev);
+                }
+              }}
             />
           </div>
         </header>
 
         {/* Dynamic Nested Page Content */}
-        <Outlet />
+        <AdminErrorBoundary>
+          <Outlet />
+        </AdminErrorBoundary>
       </div>
 
       {/* Global Modals */}

@@ -1,21 +1,31 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
-import { portfolioItems, categories } from "../data/portfolio.js";
+import { portfolioItems as defaultPortfolioItems, categories } from "../data/portfolio.js";
+import { useData } from "../context/DataContext.jsx";
 import PortfolioCard from "./PortfolioCard.jsx";
 
 export default function Portfolio({ limit }) {
   const sectionRef = useRef(null);
   const location = useLocation();
+  const { portfolioItems: cmsPortfolioItems } = useData();
   const [activeCategory, setActiveCategory] = useState("All");
+
+  const sourceItems = useMemo(() => {
+    const raw = Array.isArray(cmsPortfolioItems) && cmsPortfolioItems.length > 0
+      ? cmsPortfolioItems
+      : defaultPortfolioItems;
+    // Only display published items on the public website
+    return raw.filter((item) => item.published !== false && item.status !== "Draft" && item.status !== "Archived");
+  }, [cmsPortfolioItems]);
 
   const filtered = useMemo(() => {
     const list =
       activeCategory === "All"
-        ? portfolioItems
-        : portfolioItems.filter((item) => item.category === activeCategory);
+        ? sourceItems
+        : sourceItems.filter((item) => item.category === activeCategory);
     return limit ? list.slice(0, limit) : list;
-  }, [activeCategory, limit]);
+  }, [sourceItems, activeCategory, limit]);
 
   useEffect(() => {
     const triggers = initScrollReveals(sectionRef.current);

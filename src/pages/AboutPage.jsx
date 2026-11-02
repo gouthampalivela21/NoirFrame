@@ -1,13 +1,19 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { routeTransition } from "../animations/pageTransitions.js";
 import { initScrollReveals, killTriggers } from "../animations/scrollAnimations.js";
+import { useData } from "../context/DataContext.jsx";
 import About from "../components/About.jsx";
 import Process from "../components/Process.jsx";
 
 export default function AboutPage() {
   const pageRef = useRef(null);
+  const { testimonials = [] } = useData();
+
+  const publishedTestimonials = useMemo(() => {
+    return (testimonials || []).filter((t) => t.published !== false && t.quote?.trim());
+  }, [testimonials]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -127,6 +133,87 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Client Endorsements / Testimonials (when published) */}
+      {publishedTestimonials.length > 0 && (
+        <section className="section about-page__testimonials-section">
+          <div className="container-max">
+            <div className="about-page__testimonials-header reveal">
+              <span className="eyebrow">WORDS FROM CLIENTS</span>
+              <h2 className="heading-lg">Endorsements &amp; Perspectives</h2>
+            </div>
+            <div
+              className="about-page__testimonials-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "24px",
+                marginTop: "36px",
+              }}
+            >
+              {publishedTestimonials.map((t) => (
+                <div
+                  key={t.id}
+                  className="testimonial-card reveal"
+                  style={{
+                    padding: "32px",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.02)",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <blockquote
+                    className="font-serif-italic"
+                    style={{
+                      fontSize: "18px",
+                      lineHeight: "1.6",
+                      margin: "0 0 20px",
+                      color: "var(--color-fg-primary)",
+                    }}
+                  >
+                    &ldquo;{t.quote}&rdquo;
+                  </blockquote>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                      paddingTop: "14px",
+                    }}
+                  >
+                    <div>
+                      <strong
+                        style={{
+                          display: "block",
+                          fontSize: "14px",
+                          color: "var(--color-fg-primary)",
+                        }}
+                      >
+                        {t.author || t.clientName}
+                      </strong>
+                      <span style={{ fontSize: "12px", color: "var(--color-fg-muted)" }}>
+                        {t.role || t.company}
+                      </span>
+                    </div>
+                    {t.rating && (
+                      <span
+                        style={{
+                          letterSpacing: "2px",
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {"★".repeat(t.rating)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Final Inquiry CTA */}
       <section className="section about-page__cta-section">

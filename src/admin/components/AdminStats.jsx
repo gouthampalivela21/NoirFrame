@@ -1,39 +1,51 @@
 import React from "react";
 import { useAdmin } from "../context/AdminContext.jsx";
 
+function extractStatValue(stat, fallback = 0) {
+  if (stat === null || stat === undefined) return fallback;
+  if (typeof stat === "object") return stat.value ?? fallback;
+  return stat;
+}
+
+function extractStatTrend(stat, explicitTrend, fallback = "—") {
+  if (explicitTrend) return explicitTrend;
+  if (typeof stat === "object" && stat !== null) return stat.change ?? stat.trend ?? fallback;
+  return fallback;
+}
+
 export default function AdminStats() {
   const { stats } = useAdmin();
 
   const statItems = [
     {
-      value: stats.totalInquiries ?? 128,
+      value: extractStatValue(stats?.totalInquiries, 0),
       label: "Total Inquiries",
-      trend: stats.inquiriesTrend ?? "+12% ↗",
+      trend: extractStatTrend(stats?.totalInquiries, stats?.inquiriesTrend, "—"),
     },
     {
-      value: stats.activeClients ?? 46,
+      value: extractStatValue(stats?.activeClients, 0),
       label: "Active Clients",
-      trend: stats.clientsTrend ?? "+8% ↗",
+      trend: extractStatTrend(stats?.activeClients, stats?.clientsTrend, "—"),
     },
     {
-      value: stats.ongoingProjects ?? 18,
+      value: extractStatValue(stats?.ongoingProjects, 0),
       label: "Ongoing Projects",
-      trend: stats.projectsTrend ?? "+20% ↗",
+      trend: extractStatTrend(stats?.ongoingProjects, stats?.projectsTrend, "—"),
     },
     {
-      value: stats.upcomingShoots ?? 6,
+      value: extractStatValue(stats?.upcomingShoots, 0),
       label: "Upcoming Shoots",
-      trend: stats.shootsTrend ?? "+50% ↗",
+      trend: extractStatTrend(stats?.upcomingShoots, stats?.shootsTrend, "—"),
     },
     {
-      value: stats.completedProjects ?? 92,
+      value: extractStatValue(stats?.completedProjects, 0),
       label: "Completed Projects",
-      trend: stats.completedTrend ?? "+14% ↗",
+      trend: extractStatTrend(stats?.completedProjects, stats?.completedTrend, "—"),
     },
     {
-      value: stats.monthlyRevenue ?? "₹12.8L",
+      value: extractStatValue(stats?.monthlyRevenue, "₹0"),
       label: "Monthly Revenue",
-      trend: stats.revenueTrend ?? "+27% ↗",
+      trend: extractStatTrend(stats?.monthlyRevenue, stats?.revenueTrend, "—"),
     },
   ];
 
@@ -49,4 +61,3 @@ export default function AdminStats() {
     </section>
   );
 }
-

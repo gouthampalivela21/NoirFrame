@@ -8,11 +8,13 @@ export default function AdminBookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [conflictWarning, setConflictWarning] = useState("");
 
+  const todayStr = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     title: "",
     client: "",
     location: "Bangalore",
-    date: "2025-11-15",
+    date: todayStr,
     time: "07:00 AM",
     crew: "Lead Photographer, 1 Assistant",
     equipment: "Sony A7IV, 24-70mm GM, Profoto B10X",
@@ -46,7 +48,7 @@ export default function AdminBookingsPage() {
         title: "",
         client: "",
         location: "Bangalore",
-        date: "2025-11-15",
+        date: todayStr,
         time: "07:00 AM",
         crew: "Lead Photographer, 1 Assistant",
         equipment: "Sony A7IV, 24-70mm GM, Profoto B10X",
@@ -79,29 +81,69 @@ export default function AdminBookingsPage() {
         </button>
       </div>
 
-      {/* Shoots Table */}
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Shoot Title</th>
-              <th>Client</th>
-              <th>Date &amp; Call Time</th>
-              <th>Location</th>
-              <th>Crew</th>
-              <th>Status</th>
-              <th style={{ textAlign: "right" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.length === 0 ? (
+      {/* Shoots Table or Clean Empty State */}
+      {(bookings || []).length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
+            style={{
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
+            }}
+          >
+            No upcoming shoots scheduled
+          </h3>
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Confirmed client sessions, on-location call times, and gear allocations will appear here on your production calendar.
+          </p>
+          <button
+            type="button"
+            className="admin-btn-black"
+            onClick={() => {
+              setConflictWarning("");
+              setIsAddOpen(true);
+            }}
+            style={{ display: "inline-flex", margin: "0 auto" }}
+          >
+            <IconPlus size={13} />
+            <span>+ Schedule First Shoot</span>
+          </button>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "40px 16px", color: "var(--admin-text-secondary)" }}>
-                  No scheduled shoots on the calendar.
-                </td>
+                <th>Shoot Title</th>
+                <th>Client</th>
+                <th>Date &amp; Call Time</th>
+                <th>Location</th>
+                <th>Crew</th>
+                <th>Status</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
-            ) : (
-              bookings.map((b) => (
+            </thead>
+            <tbody>
+              {bookings.map((b) => (
                 <tr key={b.id}>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -153,11 +195,11 @@ export default function AdminBookingsPage() {
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Call Sheet / Shoot Modal */}
       {selectedBooking && (

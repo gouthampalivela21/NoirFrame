@@ -56,83 +56,128 @@ export default function AdminTestimonialsPage() {
         </button>
       </div>
 
-      {/* Testimonials List */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "20px" }}>
-        {testimonials.map((t) => (
-          <div
-            key={t.id}
-            className="admin-card"
+      {/* Testimonials List or Clean Empty State */}
+      {(testimonials || []).length === 0 ? (
+        <div
+          style={{
+            padding: "54px 24px",
+            textAlign: "center",
+            background: "#FFFFFF",
+            borderRadius: "10px",
+            border: "1px dashed var(--admin-border)",
+            margin: "12px 0",
+          }}
+        >
+          <h3
             style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              gap: "16px",
+              margin: "0 0 6px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--admin-text-primary)",
             }}
           >
-            <div>
+            No client reviews recorded yet
+          </h3>
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: "13px",
+              color: "var(--admin-text-secondary)",
+              maxWidth: "460px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Add authentic client testimonials, client reviews, and published endorsements to showcase on your public website.
+          </p>
+          <button
+            type="button"
+            className="admin-btn-black"
+            onClick={() => setIsAddOpen(true)}
+            style={{ display: "inline-flex", margin: "0 auto" }}
+          >
+            <IconPlus size={13} />
+            <span>+ Add First Review</span>
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "20px" }}>
+          {testimonials.map((t) => (
+            <div
+              key={t.id}
+              className="admin-card"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: "16px",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <span className="admin-status-pill admin-status-pill--new">
+                    {t.published ? "Published" : "Hidden"}
+                  </span>
+                  <span style={{ fontSize: "13px", color: "#151515", letterSpacing: "2px" }}>
+                    {"★".repeat(t.rating || 5)}
+                  </span>
+                </div>
+
+                <blockquote
+                  style={{
+                    fontFamily: "var(--admin-font-serif)",
+                    fontSize: "17px",
+                    lineHeight: "1.45",
+                    color: "var(--admin-text-primary)",
+                    margin: "0 0 16px 0",
+                    fontStyle: "italic",
+                  }}
+                >
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+
+                <div style={{ fontSize: "13px", fontWeight: 600 }}>{t.author || t.clientName || "Studio Client"}</div>
+                <div style={{ fontSize: "11.5px", color: "var(--admin-text-secondary)" }}>
+                  {t.company ? `${t.company} · ` : ""}{t.role || t.shootType || "Client"}
+                </div>
+              </div>
+
               <div
                 style={{
+                  borderTop: "1px solid var(--admin-border-subtle)",
+                  paddingTop: "12px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: "12px",
                 }}
               >
-                <span className="admin-status-pill admin-status-pill--new">
-                  {t.published ? "Published" : "Hidden"}
-                </span>
-                <span style={{ fontSize: "13px", color: "#151515", letterSpacing: "2px" }}>
-                  {"★".repeat(t.rating || 5)}
-                </span>
-              </div>
+                <button
+                  type="button"
+                  className="admin-action-btn"
+                  onClick={() => handleToggle(t.id, t.published)}
+                >
+                  {t.published ? "Hide from Site" : "Publish to Site"}
+                </button>
 
-              <blockquote
-                style={{
-                  fontFamily: "var(--admin-font-serif)",
-                  fontSize: "17px",
-                  lineHeight: "1.45",
-                  color: "var(--admin-text-primary)",
-                  margin: "0 0 16px 0",
-                  fontStyle: "italic",
-                }}
-              >
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-
-              <div style={{ fontSize: "13px", fontWeight: 600 }}>{t.author}</div>
-              <div style={{ fontSize: "11.5px", color: "var(--admin-text-secondary)" }}>
-                {t.company ? `${t.company} · ` : ""}{t.role}
+                <button
+                  type="button"
+                  style={{ background: "transparent", border: "none", color: "#DC3545", fontSize: "12px", cursor: "pointer" }}
+                  onClick={() => deleteTestimonial(t.id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
-
-            <div
-              style={{
-                borderTop: "1px solid var(--admin-border-subtle)",
-                paddingTop: "12px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <button
-                type="button"
-                className="admin-action-btn"
-                onClick={() => handleToggle(t.id, t.published)}
-              >
-                {t.published ? "Hide from Site" : "Publish to Site"}
-              </button>
-
-              <button
-                type="button"
-                style={{ background: "transparent", border: "none", color: "#DC3545", fontSize: "12px", cursor: "pointer" }}
-                onClick={() => deleteTestimonial(t.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Add Modal */}
       {isAddOpen && (
