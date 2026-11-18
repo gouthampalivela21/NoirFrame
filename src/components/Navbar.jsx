@@ -6,9 +6,10 @@ import { attachMagnetic } from "../animations/hoverAnimations.js";
 import Logo from "./Logo.jsx";
 
 const NAV_LINKS = [
-  { label: "Work", to: "/work", match: ["/work", "/portfolio", "/project"] },
-  { label: "Services", to: "/services", match: ["/services"] },
-  { label: "About", to: "/about", match: ["/about"] },
+  { label: "Home", to: "/", match: ["/"] },
+  { label: "Stories", to: "/stories", match: ["/stories"] },
+  { label: "Journeys", to: "/journeys", match: ["/journeys"] },
+  { label: "The Studio", to: "/studio", match: ["/studio"] },
   { label: "Contact", to: "/contact", match: ["/contact"] },
 ];
 
@@ -66,7 +67,8 @@ export default function Navbar() {
 
   useEffect(() => {
     let ticking = false;
-    let lastScrolled = false;
+    let lastScrolled = window.scrollY > 20;
+    setScrolled(lastScrolled);
     const onScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
@@ -87,6 +89,7 @@ export default function Navbar() {
   // Close mobile menu on route change & restore scroll
   useEffect(() => {
     setMenuOpen(false);
+    setScrolled(window.scrollY > 20);
     if (typeof document !== "undefined") {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
@@ -125,12 +128,17 @@ export default function Navbar() {
   };
 
   const isReduced = prefersReducedMotion();
-  const isDarkPage = location.pathname.startsWith("/team");
+  const isHome = location.pathname === "/";
+  const isExperienceDark =
+    location.pathname.startsWith("/experiences") ||
+    location.pathname.startsWith("/book") ||
+    location.pathname.startsWith("/contact");
+  const isEditorial = location.pathname.startsWith("/explore") || location.pathname.startsWith("/stories/portraits");
 
   return (
     <>
       <motion.header
-        className={`navbar ${scrolled ? "is-scrolled" : ""} ${isDarkPage ? "navbar--dark" : ""} ${menuOpen ? "navbar--open" : ""}`}
+        className={`navbar ${scrolled ? "is-scrolled" : ""} ${isHome ? "navbar--home" : ""} ${isExperienceDark ? "navbar--dark" : ""} ${isEditorial ? "navbar--editorial" : ""} ${menuOpen ? "navbar--open" : ""}`}
         initial={isReduced ? false : { opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2, ease: APPLE_EASE }}

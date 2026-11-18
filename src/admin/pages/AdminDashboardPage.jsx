@@ -1,6 +1,7 @@
 import React from "react";
 import AdminHero from "../components/AdminHero.jsx";
 import AdminStats from "../components/AdminStats.jsx";
+import AdminBookingSummary from "../components/AdminBookingSummary.jsx";
 import AdminRecentActivity from "../components/AdminRecentActivity.jsx";
 import AdminUpcomingShoots from "../components/AdminUpcomingShoots.jsx";
 import AdminErrorBoundary from "../components/AdminErrorBoundary.jsx";
@@ -18,7 +19,12 @@ export default function AdminDashboardPage() {
         <AdminStats />
       </AdminErrorBoundary>
 
-      {/* 3. 2-Column Lower Section: Recent Activity (left) & Upcoming Shoots (right) */}
+      {/* 3. Booking Requests Breakdown by Status & Category */}
+      <AdminErrorBoundary>
+        <AdminBookingSummary />
+      </AdminErrorBoundary>
+
+      {/* 4. 2-Column Lower Section: Recent Activity (left) & Upcoming Shoots (right) */}
       <div className="admin-bottom-grid">
         <AdminErrorBoundary>
           <AdminRecentActivity />

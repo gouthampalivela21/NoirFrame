@@ -3,11 +3,29 @@ import { useAdmin } from "../context/AdminContext.jsx";
 
 const TABS = ["All", "Inquiries", "Projects", "Bookings", "Payments"];
 
-export default function AdminRecentActivity() {
-  const { activities } = useAdmin();
+function AdminRecentActivity() {
+  const { activities, inquiries } = useAdmin();
   const [activeTab, setActiveTab] = useState("All");
 
-  const activityList = Array.isArray(activities) ? activities : [];
+  const activityList = useMemo(() => {
+    const rawActs = Array.isArray(activities) ? [...activities] : [];
+    (inquiries || []).forEach((inq) => {
+      const actId = `act_inq_${inq.id}`;
+      if (!rawActs.some((a) => a.id === actId || a.id === inq.id)) {
+        rawActs.push({
+          id: actId,
+          type: "inquiry",
+          headline: `New Commission Brief — ${inq.category || "Inquiry"}`,
+          details: `${inq.contact?.name || inq.clientName || "Patron"} · ${inq.schedule?.location || inq.location || "Studio"}`,
+          timeAgo: inq.createdAt ? "Recently" : "Just now",
+          status: inq.status || "New",
+          createdAt: inq.createdAt,
+        });
+      }
+    });
+    rawActs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    return rawActs;
+  }, [activities, inquiries]);
 
   const filteredActivities = useMemo(() => {
     if (activeTab === "All") return activityList;
@@ -102,7 +120,10 @@ export default function AdminRecentActivity() {
                     src={act.thumbnail || "/images/dashboard/act-1.png"}
                     alt={headline}
                     className="admin-activity-thumb"
+                    width={44}
+                    height={44}
                     loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.currentTarget.src = "/images/dashboard/act-1.png";
                     }}
@@ -127,3 +148,5 @@ export default function AdminRecentActivity() {
     </div>
   );
 }
+
+export default React.memo(AdminRecentActivity);

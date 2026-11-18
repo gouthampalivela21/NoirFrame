@@ -398,6 +398,17 @@
    03. DASHBOARD HERO SECTION
    -------------------------------------------------------------------------- */
 
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .admin-content {
   padding: 10px 40px 60px;
   display: flex;
@@ -405,6 +416,7 @@
   gap: 36px;
   max-width: 1400px;
   box-sizing: border-box;
+  animation: adminFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .admin-hero {
@@ -981,7 +993,8 @@
   background: #FFFFFF;
   border: 1px solid var(--admin-border);
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
@@ -1203,13 +1216,165 @@
   }
 }
 
-@media (max-width: 640px) {
-  .admin-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .admin-search-wrap {
-    display: none;
-  }
+/* --------------------------------------------------------------------------
+   07. INQUIRIES & BOOKING REQUESTS HUB ENHANCEMENTS
+   -------------------------------------------------------------------------- */
+.admin-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
 }
+
+.admin-summary-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.admin-summary-card:hover {
+  border-color: #151515;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.admin-summary-card.is-active {
+  border-color: #151515;
+  background: #FAFAF8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.admin-summary-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--admin-text-secondary);
+}
+
+.admin-summary-val-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.admin-summary-val {
+  font-family: var(--admin-font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--admin-text-primary);
+  line-height: 1;
+}
+
+.admin-summary-sub {
+  font-size: 11.5px;
+  color: var(--admin-text-muted);
+}
+
+.admin-unread-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #E5A93C;
+  box-shadow: 0 0 0 2px rgba(229, 169, 60, 0.25);
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.admin-status-pill--new {
+  background: rgba(229, 169, 60, 0.15);
+  color: #925807;
+  border: 1px solid rgba(229, 169, 60, 0.35);
+  font-weight: 600;
+}
+
+.admin-status-pill--in-progress {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1D4ED8;
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  font-weight: 600;
+}
+
+.admin-status-pill--responded {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  font-weight: 600;
+}
+
+.admin-status-pill--closed {
+  background: #E5E5E3;
+  color: #666666;
+  border: 1px solid #D5D5D2;
+}
+
+.admin-category-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #ECEAE4;
+  color: #2D2B28;
+}
+
+.admin-qa-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.admin-qa-card {
+  padding: 12px 14px;
+  background: #FAFAF8;
+  border: 1px solid var(--admin-border-subtle);
+  border-radius: 8px;
+}
+
+.admin-qa-question {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text-secondary);
+  margin-bottom: 4px;
+}
+
+.admin-qa-answer {
+  font-size: 13.5px;
+  color: var(--admin-text-primary);
+  line-height: 1.5;
+}
+
+.admin-file-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--admin-text-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-file-attachment:hover {
+  border-color: #151515;
+  background: #F4F3EE;
+}
+
 

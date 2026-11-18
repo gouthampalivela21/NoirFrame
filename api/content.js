@@ -135,11 +135,10 @@ export default async function handler(req, res) {
       const authHeader = req.headers["authorization"] || req.headers["x-admin-token"];
       const token = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
 
-      // Validate authorization (token or emergency secret matching admin password)
-      const isTokenValid = verifyToken(token);
-      const isDirectSecretValid = token === "231258hg" || token === process.env.ADMIN_PASSWORD;
+      // Validate server-side JWT authorization token (Founder / Admin only)
+      const isTokenValid = verifyToken(token, ["Founder", "Admin"]);
 
-      if (!isTokenValid && !isDirectSecretValid) {
+      if (!isTokenValid) {
         return res.status(401).json({
           success: false,
           error: "Unauthorized. Valid admin credentials or session required.",

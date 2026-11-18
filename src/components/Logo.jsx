@@ -1,5 +1,4 @@
 import React from "react";
-
 /**
  * Official Phantom Labs Brand Logo
  * Displays the official custom Phantom Labs branding mark.
@@ -32,3 +31,4 @@ export default function Logo({ size = 20, className = "", style = {}, inverted =
     </span>
   );
 }
+

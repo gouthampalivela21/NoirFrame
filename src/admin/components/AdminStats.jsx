@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAdmin } from "../context/AdminContext.jsx";
 
 function extractStatValue(stat, fallback = 0) {
@@ -13,46 +13,55 @@ function extractStatTrend(stat, explicitTrend, fallback = "—") {
   return fallback;
 }
 
-export default function AdminStats() {
+function AdminStats() {
   const { stats } = useAdmin();
 
-  const statItems = [
-    {
-      value: extractStatValue(stats?.totalInquiries, 0),
-      label: "Total Inquiries",
-      trend: extractStatTrend(stats?.totalInquiries, stats?.inquiriesTrend, "—"),
-    },
-    {
-      value: extractStatValue(stats?.activeClients, 0),
-      label: "Active Clients",
-      trend: extractStatTrend(stats?.activeClients, stats?.clientsTrend, "—"),
-    },
-    {
-      value: extractStatValue(stats?.ongoingProjects, 0),
-      label: "Ongoing Projects",
-      trend: extractStatTrend(stats?.ongoingProjects, stats?.projectsTrend, "—"),
-    },
-    {
-      value: extractStatValue(stats?.upcomingShoots, 0),
-      label: "Upcoming Shoots",
-      trend: extractStatTrend(stats?.upcomingShoots, stats?.shootsTrend, "—"),
-    },
-    {
-      value: extractStatValue(stats?.completedProjects, 0),
-      label: "Completed Projects",
-      trend: extractStatTrend(stats?.completedProjects, stats?.completedTrend, "—"),
-    },
-    {
-      value: extractStatValue(stats?.monthlyRevenue, "₹0"),
-      label: "Monthly Revenue",
-      trend: extractStatTrend(stats?.monthlyRevenue, stats?.revenueTrend, "—"),
-    },
-  ];
+  const statItems = useMemo(
+    () => [
+      {
+        id: "inquiries",
+        value: extractStatValue(stats?.totalInquiries, 0),
+        label: "Total Inquiries",
+        trend: extractStatTrend(stats?.totalInquiries, stats?.inquiriesTrend, "—"),
+      },
+      {
+        id: "clients",
+        value: extractStatValue(stats?.activeClients, 0),
+        label: "Active Clients",
+        trend: extractStatTrend(stats?.activeClients, stats?.clientsTrend, "—"),
+      },
+      {
+        id: "projects",
+        value: extractStatValue(stats?.ongoingProjects, 0),
+        label: "Ongoing Projects",
+        trend: extractStatTrend(stats?.ongoingProjects, stats?.projectsTrend, "—"),
+      },
+      {
+        id: "shoots",
+        value: extractStatValue(stats?.upcomingShoots, 0),
+        label: "Upcoming Shoots",
+        trend: extractStatTrend(stats?.upcomingShoots, stats?.shootsTrend, "—"),
+      },
+      {
+        id: "completed",
+        value: extractStatValue(stats?.completedProjects, 0),
+        label: "Completed Projects",
+        trend: extractStatTrend(stats?.completedProjects, stats?.completedTrend, "—"),
+      },
+      {
+        id: "revenue",
+        value: extractStatValue(stats?.monthlyRevenue, "₹0"),
+        label: "Monthly Revenue",
+        trend: extractStatTrend(stats?.monthlyRevenue, stats?.revenueTrend, "—"),
+      },
+    ],
+    [stats]
+  );
 
   return (
     <section className="admin-stats-grid" aria-label="Studio Statistics">
-      {statItems.map((item, index) => (
-        <div key={index} className="admin-stat-col">
+      {statItems.map((item) => (
+        <div key={item.id} className="admin-stat-col">
           <div className="admin-stat-number">{item.value}</div>
           <div className="admin-stat-label">{item.label}</div>
           <div className="admin-stat-trend">{item.trend}</div>
@@ -61,3 +70,5 @@ export default function AdminStats() {
     </section>
   );
 }
+
+export default React.memo(AdminStats);

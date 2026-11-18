@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext.jsx";
 import {
@@ -13,6 +13,7 @@ import {
   IconMessages,
   IconAnalytics,
   IconSettings,
+  IconTeam,
   IconSearch,
   IconBell,
   IconMenu,
@@ -22,9 +23,34 @@ import {
 import CommandPaletteModal from "./Modals/CommandPaletteModal.jsx";
 import NewProjectModal from "./Modals/NewProjectModal.jsx";
 import AdminErrorBoundary from "./AdminErrorBoundary.jsx";
+import AdminContentSkeleton from "./AdminContentSkeleton.jsx";
+
+// Route preload registry for instantaneous 0ms transitions
+const routePreloaders = {
+  "/admin": () => import("../pages/AdminDashboardPage.jsx"),
+  "/admin/inquiries": () => import("../pages/AdminInquiriesPage.jsx"),
+  "/admin/clients": () => import("../pages/AdminClientsPage.jsx"),
+  "/admin/projects": () => import("../pages/AdminProjectsPage.jsx"),
+  "/admin/bookings": () => import("../pages/AdminBookingsPage.jsx"),
+  "/admin/portfolio": () => import("../pages/AdminPortfolioPage.jsx"),
+  "/admin/services": () => import("../pages/AdminServicesPage.jsx"),
+  "/admin/testimonials": () => import("../pages/AdminTestimonialsPage.jsx"),
+  "/admin/messages": () => import("../pages/AdminMessagesPage.jsx"),
+  "/admin/analytics": () => import("../pages/AdminAnalyticsPage.jsx"),
+  "/admin/team": () => import("../pages/AdminTeamPage.jsx"),
+  "/admin/settings": () => import("../pages/AdminSettingsPage.jsx"),
+};
+
+const preloadRoute = (path) => {
+  if (routePreloaders[path]) {
+    try {
+      routePreloaders[path]();
+    } catch (e) {}
+  }
+};
 
 export default function AdminLayout() {
-  const { user, inquiries, messages, activities, logout } = useAdmin();
+  const { user, inquiries, bookingsSummary, messages, activities, logout } = useAdmin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,6 +59,25 @@ export default function AdminLayout() {
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+
+  // Background idle prefetching: load all admin modules in background so tab switches are instant
+  useEffect(() => {
+    const prefetchAll = () => {
+      Object.values(routePreloaders).forEach((loader) => {
+        try {
+          loader();
+        } catch (e) {}
+      });
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const handle = window.requestIdleCallback(prefetchAll, { timeout: 1500 });
+      return () => window.cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(prefetchAll, 200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -60,43 +105,50 @@ export default function AdminLayout() {
     return () => window.removeEventListener("admin:new-project", handleOpenProject);
   }, []);
 
-  // Real, dynamic Inquiries count (no mock default)
-  const pendingInquiries = (inquiries || []).filter(
-    (i) => i.status === "New" || i.status === "Pending"
-  );
-  const inquiryCount = pendingInquiries.length > 0
-    ? pendingInquiries.length
-    : inquiries.length > 0
-    ? inquiries.length
-    : undefined;
+  // Memoized dynamic badge counts
+  const inquiryCount = useMemo(() => {
+    if (bookingsSummary && typeof bookingsSummary.unread === "number" && bookingsSummary.unread > 0) {
+      return bookingsSummary.unread;
+    }
+    const unread = (inquiries || []).filter(
+      (i) => i.isRead === false || (i.status || "").toLowerCase() === "new"
+    );
+    if (unread.length > 0) return unread.length;
+    return undefined;
+  }, [bookingsSummary, inquiries]);
 
-  // Real, dynamic Messages count (no mock default)
-  const unreadMessagesCount = (messages || []).filter((m) => m.unread).length || undefined;
+  const unreadMessagesCount = useMemo(() => {
+    return (messages || []).filter((m) => m.unread).length || undefined;
+  }, [messages]);
 
-  // Notification items derived from real activity records
-  const notificationItems = (activities || []).slice(0, 5);
+  const notificationItems = useMemo(() => {
+    return (activities || []).slice(0, 5);
+  }, [activities]);
 
-  // Navigation Links with Role-Based Access Control
-  const navLinks = [
-    { label: "Overview", to: "/admin", icon: IconOverview, end: true },
-    { label: "Inquiries", to: "/admin/inquiries", icon: IconInquiries, badge: inquiryCount },
-    { label: "Clients", to: "/admin/clients", icon: IconClients },
-    { label: "Projects", to: "/admin/projects", icon: IconProjects },
-    { label: "Bookings", to: "/admin/bookings", icon: IconBookings },
-    { label: "Portfolio", to: "/admin/portfolio", icon: IconPortfolio },
-    { label: "Services", to: "/admin/services", icon: IconServices, requiredRole: "Co-Founder" },
-    { label: "Testimonials", to: "/admin/testimonials", icon: IconTestimonials, requiredRole: "Co-Founder" },
-    { label: "Messages", to: "/admin/messages", icon: IconMessages, badge: unreadMessagesCount },
-    { label: "Analytics", to: "/admin/analytics", icon: IconAnalytics, requiredRole: "Co-Founder" },
-    { label: "Settings", to: "/admin/settings", icon: IconSettings, requiredRole: "Founder" },
-  ];
+  // Navigation Links with Role-Based Access Control (Founder / Admin / Viewer)
+  const visibleNavLinks = useMemo(() => {
+    const navLinks = [
+      { label: "Overview", to: "/admin", icon: IconOverview, end: true },
+      { label: "Inquiries", to: "/admin/inquiries", icon: IconInquiries, badge: inquiryCount },
+      { label: "Clients", to: "/admin/clients", icon: IconClients },
+      { label: "Projects", to: "/admin/projects", icon: IconProjects },
+      { label: "Bookings", to: "/admin/bookings", icon: IconBookings },
+      { label: "Portfolio", to: "/admin/portfolio", icon: IconPortfolio },
+      { label: "Services", to: "/admin/services", icon: IconServices, requiredRole: "Founder" },
+      { label: "Testimonials", to: "/admin/testimonials", icon: IconTestimonials, requiredRole: "Admin" },
+      { label: "Messages", to: "/admin/messages", icon: IconMessages, badge: unreadMessagesCount },
+      { label: "Analytics", to: "/admin/analytics", icon: IconAnalytics, requiredRole: "Admin" },
+      { label: "Team", to: "/admin/team", icon: IconTeam, requiredRole: "Founder" },
+      { label: "Settings", to: "/admin/settings", icon: IconSettings, requiredRole: "Founder" },
+    ];
 
-  const visibleNavLinks = navLinks.filter((item) => {
-    if (!item.requiredRole) return true;
-    if (user?.role === "Founder") return true;
-    if (user?.role === "Co-Founder") return item.requiredRole !== "Founder";
-    return false;
-  });
+    return navLinks.filter((item) => {
+      if (!item.requiredRole) return true;
+      if (user?.role === "Founder") return true;
+      if (user?.role === "Admin") return item.requiredRole === "Admin";
+      return false;
+    });
+  }, [inquiryCount, unreadMessagesCount, user?.role]);
 
   return (
     <div className="admin-shell">
@@ -123,6 +175,10 @@ export default function AdminLayout() {
                 src="/images/phantom-labs-logo-white.png"
                 alt="Phantom Labs"
                 className="admin-sidebar__logo-img"
+                width={170}
+                height={22}
+                loading="eager"
+                decoding="async"
               />
             </Link>
           </div>
@@ -136,6 +192,7 @@ export default function AdminLayout() {
                   key={item.to}
                   to={item.to}
                   end={item.end}
+                  onMouseEnter={() => preloadRoute(item.to)}
                   className={({ isActive }) =>
                     `admin-sidebar__link ${isActive ? "is-active" : ""}`
                   }
@@ -220,34 +277,46 @@ export default function AdminLayout() {
                         borderRadius: "3px",
                         background:
                           user?.role === "Founder"
-                            ? "rgba(255, 255, 255, 0.2)"
-                            : user?.role === "Co-Founder"
+                            ? "rgba(197, 164, 126, 0.28)"
+                            : user?.role === "Admin"
                             ? "rgba(100, 160, 255, 0.25)"
-                            : "rgba(180, 180, 180, 0.15)",
+                            : "rgba(180, 180, 180, 0.18)",
                         color: "#FFFFFF",
                         fontWeight: 600,
                         letterSpacing: "0.04em",
                         textTransform: "uppercase",
                       }}
                     >
-                      {user?.role || "Admin"}
+                      {user?.role || "Viewer"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Founder Access to Studio Settings */}
+              {/* Founder Access to Team & Studio Settings */}
               {user?.role === "Founder" && (
-                <button
-                  type="button"
-                  className="admin-profile-menu__item"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    navigate("/admin/settings");
-                  }}
-                >
-                  <span>Studio Settings</span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className="admin-profile-menu__item"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate("/admin/team");
+                    }}
+                  >
+                    <span>Team &amp; Access Control</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-profile-menu__item"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate("/admin/settings");
+                    }}
+                  >
+                    <span>Studio Settings</span>
+                  </button>
+                </>
               )}
 
               <a
@@ -350,7 +419,7 @@ export default function AdminLayout() {
                 aria-label="View notifications"
               >
                 <IconBell size={18} />
-                {(notificationItems.length > 0 || (pendingInquiries && pendingInquiries.length > 0)) && (
+                {(notificationItems.length > 0 || Boolean(inquiryCount)) && (
                   <span className="admin-notify-badge" />
                 )}
               </button>
@@ -438,9 +507,11 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* Dynamic Nested Page Content */}
+        {/* Dynamic Nested Page Content with scoped Suspense to keep sidebar permanently mounted */}
         <AdminErrorBoundary>
-          <Outlet />
+          <Suspense fallback={<AdminContentSkeleton />}>
+            <Outlet />
+          </Suspense>
         </AdminErrorBoundary>
       </div>
 

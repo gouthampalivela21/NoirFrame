@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const LINKS = [
-  { label: "Work", to: "/work" },
-  { label: "Services", to: "/services" },
-  { label: "About", to: "/about" },
+  { label: "Stories", to: "/stories" },
+  { label: "Journeys", to: "/journeys" },
+  { label: "The Studio", to: "/studio" },
   { label: "Contact", to: "/contact" },
 ];
 

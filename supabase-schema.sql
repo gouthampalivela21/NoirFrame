@@ -50,5 +50,138 @@ INSERT INTO public.site_content (id, data, content, updated_at)
 VALUES (1, '{}'::jsonb, '{}'::jsonb, now())
 ON CONFLICT (id) DO UPDATE SET updated_at = now();
 
--- 8. Refresh Supabase PostgREST Schema Cache
+-- =========================================================================
+-- 8. TEAM MEMBERS & ROLE-BASED ACCESS CONTROL (FOUNDER / ADMIN / VIEWER)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.team_members (
+  id text PRIMARY KEY,
+  email text NOT NULL UNIQUE,
+  name text NOT NULL,
+  role text NOT NULL CHECK (role IN ('Founder', 'Admin', 'Viewer')),
+  status text NOT NULL DEFAULT 'Invited' CHECK (status IN ('Active', 'Invited', 'Revoked')),
+  is_primary_founder boolean NOT NULL DEFAULT false,
+  invited_by jsonb,
+  invited_at timestamp with time zone,
+  invite_expires_at timestamp with time zone,
+  accepted_at timestamp with time zone,
+  last_login_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+
+-- Only an active Founder can view or manage team members (and primary Founder is protected)
+DROP POLICY IF EXISTS "Founder Can Manage Team Members" ON public.team_members;
+CREATE POLICY "Founder Can Manage Team Members"
+  ON public.team_members
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.role = 'Founder'
+        AND tm.status = 'Active'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.role = 'Founder'
+        AND tm.status = 'Active'
+    )
+    AND is_primary_founder = false
+  );
+
+-- =========================================================================
+-- 9. PRIVATE CLIENT BOOKING REQUESTS TABLE, AUDIT LOG & ROLE-BASED RLS
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.booking_requests (
+  id text PRIMARY KEY,
+  category text NOT NULL,
+  kicker text,
+  sub_category text,
+  contact jsonb NOT NULL DEFAULT '{}'::jsonb,
+  schedule jsonb NOT NULL DEFAULT '{}'::jsonb,
+  brief jsonb NOT NULL DEFAULT '{}'::jsonb,
+  references_data jsonb NOT NULL DEFAULT '{}'::jsonb,
+  client_message text,
+  budget text DEFAULT 'Bespoke Creative Brief',
+  status text NOT NULL DEFAULT 'New' CHECK (status IN ('New', 'In progress', 'Responded', 'Closed')),
+  is_read boolean NOT NULL DEFAULT false,
+  notes jsonb NOT NULL DEFAULT '[]'::jsonb,
+  audit_log jsonb NOT NULL DEFAULT '[]'::jsonb,
+  last_edited_by jsonb,
+  last_edited_at timestamp with time zone,
+  source text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE public.booking_requests ENABLE ROW LEVEL SECURITY;
+
+-- Public visitors can ONLY submit (INSERT) new booking requests
+DROP POLICY IF EXISTS "Public Can Submit Booking Requests" ON public.booking_requests;
+CREATE POLICY "Public Can Submit Booking Requests"
+  ON public.booking_requests
+  FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+
+-- Active Founder, Admin, and Viewer can READ booking requests
+DROP POLICY IF EXISTS "Admins Can Manage Booking Requests" ON public.booking_requests;
+DROP POLICY IF EXISTS "Team Members Can Read Booking Requests" ON public.booking_requests;
+CREATE POLICY "Team Members Can Read Booking Requests"
+  ON public.booking_requests
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.status = 'Active'
+        AND tm.role IN ('Founder', 'Admin', 'Viewer')
+    )
+  );
+
+-- Only Active Founder and Admin can UPDATE or DELETE booking requests (Viewer is strictly read-only)
+DROP POLICY IF EXISTS "Founder And Admin Can Modify Booking Requests" ON public.booking_requests;
+CREATE POLICY "Founder And Admin Can Modify Booking Requests"
+  ON public.booking_requests
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.status = 'Active'
+        AND tm.role IN ('Founder', 'Admin')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.status = 'Active'
+        AND tm.role IN ('Founder', 'Admin')
+    )
+  );
+
+DROP POLICY IF EXISTS "Founder And Admin Can Delete Booking Requests" ON public.booking_requests;
+CREATE POLICY "Founder And Admin Can Delete Booking Requests"
+  ON public.booking_requests
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members tm
+      WHERE lower(tm.email) = lower(auth.jwt() ->> 'email')
+        AND tm.status = 'Active'
+        AND tm.role IN ('Founder', 'Admin')
+    )
+  );
+
+-- 10. Refresh Supabase PostgREST Schema Cache
 NOTIFY pgrst, 'reload schema';

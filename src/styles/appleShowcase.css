@@ -1,0 +1,682 @@
+/* ==========================================================================
+   PHANTOM LABS — APPLE SHOWCASE HOMEPAGE STYLES
+   Curated visual showcase architecture for luxury editorial photography.
+   ========================================================================== */
+
+/* ==========================================================================
+   01. HERO SHOWCASE (SECTION 01) — FULL-SCREEN EDITORIAL PHOTOGRAPH
+   ========================================================================== */
+
+/* Progressive perceptual gradient interpolation helper */
+:root {
+  --in-oklab: ;
+}
+
+@supports (linear-gradient(in oklab, white, black)) {
+  :root {
+    --in-oklab: in oklab;
+  }
+}
+
+/* Minimal Warm Off-White Header over Sunset Villa Hero */
+.navbar--home:not(.is-scrolled):not(.navbar--open) {
+  background: rgba(245, 244, 241, 0.92);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom-color: rgba(17, 17, 17, 0.08);
+}
+
+.navbar--home:not(.is-scrolled):not(.navbar--open) .navbar__cta-btn {
+  background: transparent;
+  color: #111111;
+  border: 1px solid rgba(17, 17, 17, 0.24);
+  box-shadow: none;
+}
+
+.navbar--home:not(.is-scrolled):not(.navbar--open) .navbar__cta-btn:hover {
+  background: #111111;
+  color: #FFFFFF;
+  border-color: #111111;
+}
+
+.hero-showcase {
+  position: relative;
+  width: 100%;
+  margin-top: var(--nav-height);
+  height: calc(100vh - var(--nav-height));
+  height: calc(100svh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height));
+  min-height: 540px;
+  background: #1B1B1E;
+  overflow: hidden;
+}
+
+.hero-showcase__media-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hero-showcase__picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-showcase__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 52%;
+}
+
+/* Subtle left atmospheric dusk scrim preserving bright sunset clouds and villa */
+.hero-showcase__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg var(--in-oklab),
+    rgba(12, 14, 17, 0.42) 0%,
+    rgba(12, 14, 17, 0.22) 26%,
+    rgba(12, 14, 17, 0) 46%
+  );
+}
+
+.hero-showcase__copy-layer {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+.hero-showcase__copy-block {
+  pointer-events: auto;
+  position: absolute;
+  left: clamp(32px, 6.2vw, 108px);
+  top: 52%;
+  transform: translateY(-50%);
+  max-width: min(38vw, 520px);
+  text-shadow: 0 2px 18px rgba(8, 10, 14, 0.34);
+}
+
+.hero-showcase__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 1.05rem + 2.15vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  word-spacing: 0.06em;
+  line-height: 1.05;
+  color: #FFFFFF;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.hero-showcase__tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.0625rem, 0.72rem + 0.65vw, 1.3125rem);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 22px 0;
+}
+
+.hero-showcase__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: clamp(0.84375rem, 0.76rem + 0.16vw, 0.90625rem);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: #FFFFFF;
+  text-decoration: none;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.56);
+  transition: opacity 0.25s ease, border-color 0.25s ease;
+}
+
+@media (pointer: coarse) {
+  .hero-showcase__cta::after {
+    content: "";
+    position: absolute;
+    inset: -11px -10px;
+  }
+}
+
+.hero-showcase__cta:hover {
+  opacity: 0.8;
+  border-bottom-color: #FFFFFF;
+}
+
+.hero-showcase__cta-arrow {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-showcase__cta:hover .hero-showcase__cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Intermediate Tablet Landscapes: Guard horizontal clearance from villa edge */
+@media (max-width: 1120px) and (min-aspect-ratio: 1/1) {
+  .hero-showcase__image {
+    object-position: 66% 52%;
+  }
+
+  .hero-showcase__copy-block {
+    max-width: 44vw;
+  }
+}
+
+/* Portrait Viewports (Phones & Portrait Tablets): Adapt copy into upper twilight sky */
+@media (max-aspect-ratio: 1/1) {
+  .hero-showcase {
+    background: #1B1E26;
+  }
+
+  .hero-showcase__image {
+    object-position: 56% 58%;
+  }
+
+  /* Subtle atmospheric dusk scrim behind upper-middle sky typography above villa roof */
+  .hero-showcase__scrim {
+    background: linear-gradient(
+      180deg var(--in-oklab),
+      rgba(12, 16, 24, 0.18) 0%,
+      rgba(12, 16, 24, 0.42) 31%,
+      rgba(12, 16, 24, 0.26) 44%,
+      rgba(12, 16, 24, 0) 58%
+    );
+  }
+
+  .hero-showcase__copy-block {
+    left: 0;
+    right: 0;
+    top: clamp(150px, 27%, 260px);
+    transform: none;
+    max-width: 100%;
+    padding: 0 clamp(24px, 6vw, 48px);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-showcase__title {
+    font-size: clamp(1.75rem, 1rem + 4vw, 2.75rem);
+    color: #FFFFFF;
+    margin-bottom: 10px;
+  }
+
+  .hero-showcase__tagline {
+    font-size: clamp(1rem, 0.72rem + 1.5vw, 1.3125rem);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 18px;
+  }
+
+  .hero-showcase__cta {
+    color: #FFFFFF;
+    border-bottom-color: rgba(255, 255, 255, 0.56);
+  }
+}
+
+@media (forced-colors: active) {
+  .hero-showcase__copy-block {
+    background: Canvas;
+    color: CanvasText;
+    padding: 16px;
+    text-shadow: none;
+  }
+
+  .hero-showcase__title,
+  .hero-showcase__tagline {
+    color: CanvasText;
+  }
+
+  .hero-showcase__cta {
+    color: LinkText;
+    border-bottom-color: LinkText;
+  }
+}
+
+/* ==========================================================================
+   01B. WEBSITES SHOWCASE (SECTION 02) — APPLE MACBOOK PRO INSPIRED KEYNOTE
+   ========================================================================== */
+
+.websites-showcase {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
+  background: #000000;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: calc(var(--nav-height) + clamp(18px, 3dvh, 32px)) clamp(16px, 4vw, 64px) clamp(20px, 3.2dvh, 36px);
+  overflow-x: clip;
+  overflow-y: hidden;
+}
+
+.websites-showcase__copy {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  margin-bottom: clamp(14px, 2dvh, 22px);
+}
+
+.websites-showcase__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.15rem + 2.75vw, 3.625rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+}
+
+.websites-showcase__subtitle {
+  font-family: var(--font-sans);
+  font-size: clamp(1.0625rem, 0.72rem + 0.8vw, 1.375rem);
+  font-weight: 400;
+  letter-spacing: -0.014em;
+  line-height: 1.3;
+  color: rgba(245, 245, 247, 0.86);
+  margin: 0;
+}
+
+.websites-showcase__visual-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(82%, 1140px, 126dvh);
+  aspect-ratio: 1056 / 616;
+  overflow: visible;
+}
+
+.websites-showcase__interactive-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 16px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.websites-showcase__stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.websites-showcase__picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.websites-showcase__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.websites-showcase__interactive-link:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 8px;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .websites-showcase {
+    min-height: clamp(460px, 68svh, 720px);
+    justify-content: center;
+    padding: clamp(52px, 8dvh, 88px) clamp(16px, 4vw, 32px) clamp(48px, 8dvh, 84px);
+  }
+
+  .websites-showcase__copy {
+    margin-bottom: clamp(18px, 3dvh, 32px);
+  }
+
+  .websites-showcase__title {
+    margin-bottom: 8px;
+  }
+
+  .websites-showcase__subtitle {
+    max-width: 340px;
+  }
+
+  .websites-showcase__visual-wrap {
+    width: 100%;
+    max-width: min(92vw, 680px);
+    aspect-ratio: 1056 / 616;
+  }
+}
+
+/* ==========================================================================
+   10. CATEGORY SHOWCASE GRID (SECTION 03) — APPLE 2×3 PROMO ARCHITECTURE
+   ========================================================================== */
+
+.promo-grid-section {
+  width: 100%;
+  background: #FFFFFF;
+  padding: clamp(10px, 0.85vw, 12px);
+}
+
+.promo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: clamp(10px, 0.85vw, 12px);
+  width: 100%;
+}
+
+.promo-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  inline-size: 100%;
+  aspect-ratio: 16 / 10;
+  min-block-size: clamp(350px, 31vw, 456px);
+  border-radius: 0;
+  overflow: clip;
+  text-align: center;
+  padding-block-start: clamp(26px, 2.7vw, 40px);
+  padding-inline: clamp(20px, 3vw, 44px);
+}
+
+.promo-tile--light {
+  background: #F5F4F1;
+  color: #1D1D1F;
+}
+
+.promo-tile--dark {
+  background: #000000;
+  color: #F5F5F7;
+}
+
+.promo-tile__picture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.promo-tile__img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .promo-tile__img {
+    transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .promo-tile:has(a.promo-tile__primary-link:hover) .promo-tile__img,
+  .promo-tile:hover .promo-tile__img {
+    transform: scale(1.035);
+  }
+}
+
+/* Split Layout (Row 3 Desktop/Tablet: Left-Centered Copy beside Right Visual) */
+@media (min-width: 680px) {
+  .promo-tile--split {
+    align-items: flex-start;
+    padding-block-start: clamp(32px, 5vw, 76px);
+    padding-inline-start: clamp(18px, 3.6vw, 68px);
+  }
+
+  .promo-tile--split .promo-tile__header,
+  .promo-tile--split .promo-tile__actions {
+    inline-size: min(49%, 272px);
+    text-align: center;
+    justify-content: center;
+  }
+
+  .promo-tile--split .promo-tile__img {
+    object-position: right center;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 1080px) {
+  .promo-tile--split .promo-tile__header,
+  .promo-tile--split .promo-tile__actions {
+    inline-size: 48%;
+  }
+
+  .promo-tile--split .promo-tile__actions {
+    gap: 6px;
+  }
+
+  .promo-tile__title {
+    font-size: clamp(1.45rem, 2.3vw, 1.9rem);
+  }
+
+  .promo-tile__tagline {
+    font-size: clamp(0.8125rem, 1.25vw, 0.95rem);
+  }
+
+  .promo-tile__btn {
+    padding: 5px 11px;
+    font-size: 11.5px;
+    min-block-size: 28px;
+  }
+}
+
+.promo-tile__header {
+  position: relative;
+  z-index: 2;
+  max-inline-size: 460px;
+  pointer-events: none;
+}
+
+.promo-tile__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1rem + 1.4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1.06;
+  color: inherit;
+  margin: 0;
+}
+
+.promo-tile__tagline {
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 0.72rem + 0.36vw, 1.125rem);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  margin: 6px 0 0 0;
+}
+
+.promo-tile--light .promo-tile__tagline {
+  color: rgba(29, 29, 31, 0.86);
+}
+
+.promo-tile--dark .promo-tile__tagline {
+  color: rgba(245, 245, 247, 0.88);
+}
+
+.promo-tile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-block-start: clamp(12px, 1.1vw, 16px);
+}
+
+.promo-tile__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  min-block-size: 32px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.008em;
+  text-decoration: none;
+  z-index: 2;
+  transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+}
+
+/* Primary Link Stretched Overlay Anchored to .promo-tile */
+.promo-tile__primary-link {
+  position: static;
+}
+
+.promo-tile__primary-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Elevate Independent Secondary Action above Primary Stretched Overlay */
+.promo-tile a:not(.promo-tile__primary-link) {
+  position: relative;
+  z-index: 3;
+}
+
+@media (pointer: coarse) {
+  .promo-tile a:not(.promo-tile__primary-link)::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
+}
+
+.promo-tile--light .promo-tile__btn--primary {
+  background: #111111;
+  color: #FFFFFF;
+  border: 1px solid #111111;
+}
+
+.promo-tile--light .promo-tile__btn--primary:hover {
+  background: #2C2C2E;
+  border-color: #2C2C2E;
+}
+
+.promo-tile--light .promo-tile__btn--secondary {
+  background: transparent;
+  color: #111111;
+  border: 1px solid rgba(17, 17, 17, 0.65);
+}
+
+.promo-tile--light .promo-tile__btn--secondary:hover {
+  background: #111111;
+  color: #FFFFFF;
+  border-color: #111111;
+}
+
+.promo-tile--dark .promo-tile__btn--primary {
+  background: #F5F5F7;
+  color: #0A0A0A;
+  border: 1px solid #F5F5F7;
+}
+
+.promo-tile--dark .promo-tile__btn--primary:hover {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+.promo-tile--dark .promo-tile__btn--secondary {
+  background: transparent;
+  color: #F5F5F7;
+  border: 1px solid rgba(245, 245, 247, 0.72);
+}
+
+.promo-tile--dark .promo-tile__btn--secondary:hover {
+  background: #FFFFFF;
+  color: #0A0A0A;
+  border-color: #FFFFFF;
+}
+
+.promo-tile:has(a.promo-tile__primary-link:focus-visible) {
+  outline: 2px solid #0071E3;
+  outline-offset: -3px;
+}
+
+.promo-tile__primary-link:focus-visible {
+  outline: none;
+}
+
+.promo-tile a:not(.promo-tile__primary-link):focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile Single-Column Responsive Stacking */
+@media (max-width: 679px) {
+  .promo-grid-section {
+    padding: 10px;
+  }
+
+  .promo-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .promo-tile {
+    aspect-ratio: auto;
+    min-block-size: clamp(390px, 102vw, 450px);
+    padding-block-start: 28px;
+  }
+
+  .promo-tile--split .promo-tile__picture {
+    inset: auto 0 0 0;
+    block-size: 66%;
+  }
+
+  .promo-tile--split .promo-tile__img {
+    object-fit: contain;
+    object-position: center bottom;
+  }
+}
+
+

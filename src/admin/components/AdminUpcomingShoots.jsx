@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext.jsx";
 
-export default function AdminUpcomingShoots() {
+function AdminUpcomingShoots() {
   const { bookings } = useAdmin();
   const today = new Date();
   const [selectedDay, setSelectedDay] = useState(today.getDate());
@@ -174,7 +174,10 @@ export default function AdminUpcomingShoots() {
                 src={shoot.thumbnail || "/images/dashboard/shoot-1.png"}
                 alt={shoot.title}
                 className="admin-shoot-thumb"
+                width={44}
+                height={44}
                 loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.src = "/images/dashboard/shoot-1.png";
                 }}
@@ -195,4 +198,6 @@ export default function AdminUpcomingShoots() {
     </div>
   );
 }
+
+export default React.memo(AdminUpcomingShoots);
 
