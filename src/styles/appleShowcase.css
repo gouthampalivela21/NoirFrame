@@ -451,31 +451,45 @@
 
 /* Split Layout (Row 3 Desktop/Tablet: Left-Centered Copy beside Right Visual) */
 @media (min-width: 680px) {
-  .promo-tile--split {
+  .promo-tile--split,
+  .promo-tile--commercial,
+  .promo-tile--editorial {
     align-items: flex-start;
     padding-block-start: clamp(32px, 5vw, 76px);
-    padding-inline-start: clamp(18px, 3.6vw, 68px);
+    padding-inline-start: clamp(24px, 4vw, 60px);
   }
 
   .promo-tile--split .promo-tile__header,
-  .promo-tile--split .promo-tile__actions {
-    inline-size: min(49%, 272px);
+  .promo-tile--split .promo-tile__actions,
+  .promo-tile--commercial .promo-tile__header,
+  .promo-tile--commercial .promo-tile__actions,
+  .promo-tile--editorial .promo-tile__header,
+  .promo-tile--editorial .promo-tile__actions {
+    inline-size: min(48%, 280px);
     text-align: center;
     justify-content: center;
   }
 
-  .promo-tile--split .promo-tile__img {
+  .promo-tile--split .promo-tile__img,
+  .promo-tile--commercial .promo-tile__img,
+  .promo-tile--editorial .promo-tile__img {
     object-position: right center;
   }
 }
 
 @media (min-width: 680px) and (max-width: 1080px) {
   .promo-tile--split .promo-tile__header,
-  .promo-tile--split .promo-tile__actions {
+  .promo-tile--split .promo-tile__actions,
+  .promo-tile--commercial .promo-tile__header,
+  .promo-tile--commercial .promo-tile__actions,
+  .promo-tile--editorial .promo-tile__header,
+  .promo-tile--editorial .promo-tile__actions {
     inline-size: 48%;
   }
 
-  .promo-tile--split .promo-tile__actions {
+  .promo-tile--split .promo-tile__actions,
+  .promo-tile--commercial .promo-tile__actions,
+  .promo-tile--editorial .promo-tile__actions {
     gap: 6px;
   }
 
@@ -492,6 +506,45 @@
     font-size: 11.5px;
     min-block-size: 28px;
   }
+}
+
+/* Editorial Tile Light Theme & Text Visibility Guarantee */
+.promo-tile--editorial,
+.promo-tile--editorial.promo-tile--dark,
+.promo-tile--editorial.promo-tile--light {
+  background: #F5F4F1;
+  color: #1D1D1F;
+}
+
+.promo-tile--editorial .promo-tile__title {
+  color: #1D1D1F;
+}
+
+.promo-tile--editorial .promo-tile__tagline {
+  color: rgba(29, 29, 31, 0.86);
+}
+
+.promo-tile--editorial .promo-tile__btn--primary {
+  background: #111111;
+  color: #FFFFFF;
+  border: 1px solid #111111;
+}
+
+.promo-tile--editorial .promo-tile__btn--primary:hover {
+  background: #2C2C2E;
+  border-color: #2C2C2E;
+}
+
+.promo-tile--editorial .promo-tile__btn--secondary {
+  background: transparent;
+  color: #111111;
+  border: 1px solid rgba(17, 17, 17, 0.65);
+}
+
+.promo-tile--editorial .promo-tile__btn--secondary:hover {
+  background: #111111;
+  color: #FFFFFF;
+  border-color: #111111;
 }
 
 .promo-tile__header {
@@ -668,12 +721,16 @@
     padding-block-start: 28px;
   }
 
-  .promo-tile--split .promo-tile__picture {
+  .promo-tile--split .promo-tile__picture,
+  .promo-tile--commercial .promo-tile__picture,
+  .promo-tile--editorial .promo-tile__picture {
     inset: auto 0 0 0;
     block-size: 66%;
   }
 
-  .promo-tile--split .promo-tile__img {
+  .promo-tile--split .promo-tile__img,
+  .promo-tile--commercial .promo-tile__img,
+  .promo-tile--editorial .promo-tile__img {
     object-fit: contain;
     object-position: center bottom;
   }

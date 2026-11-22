@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supabase } from "../lib/supabase.js";
 
 const LiveCmsContext = createContext(null);
-const STORAGE_KEY = "phantom_labs_live_cms_v2";
+const STORAGE_KEY = "phantom_labs_live_cms_v3";
 
 export function LiveCmsProvider({ children }) {
   const [cms, setCms] = useState(() => {

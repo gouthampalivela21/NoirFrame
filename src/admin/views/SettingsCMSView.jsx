@@ -331,8 +331,33 @@ export default function SettingsCMSView() {
                   CATEGORY 0{idx + 1} &middot; {cat.id}
                 </span>
                 <span style={{ fontSize: "11px", color: "var(--studio-text-muted)" }}>
-                  Theme: {cat.theme || "light"}
+                  {cat.theme === "dark" ? "Dark Theme" : "Light Theme"} &middot; {cat.layout === "split" ? "Split Layout" : "Stacked Layout"}
                 </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="studio-form-group">
+                  <label className="studio-form-label">Theme Mode</label>
+                  <select
+                    className="studio-input"
+                    value={cat.theme || "light"}
+                    onChange={(e) => handleCategoryChange(idx, "theme", e.target.value)}
+                  >
+                    <option value="light">Light (Charcoal Text / High Contrast)</option>
+                    <option value="dark">Dark (White Text)</option>
+                  </select>
+                </div>
+                <div className="studio-form-group">
+                  <label className="studio-form-label">Showcase Layout</label>
+                  <select
+                    className="studio-input"
+                    value={cat.layout || "stacked"}
+                    onChange={(e) => handleCategoryChange(idx, "layout", e.target.value)}
+                  >
+                    <option value="stacked">Stacked (Centered Top Copy)</option>
+                    <option value="split">Split (Left Copy, Right Visual)</option>
+                  </select>
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "12px" }}>

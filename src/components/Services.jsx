@@ -25,7 +25,8 @@ export default function Services() {
           return (
             <motion.article
               key={tile.id || idx}
-              className={`promo-tile promo-tile--${tile.theme || "light"} promo-tile--${tile.layout || "stacked"}`}
+              className={`promo-tile promo-tile--${tile.id || idx} promo-tile--${tile.theme || "light"} promo-tile--${tile.layout || "stacked"}`}
+              data-category={tile.id}
               initial={isReduced ? false : { opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.08 }}
