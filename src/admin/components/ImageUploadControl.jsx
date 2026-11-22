@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Upload, Image as ImageIcon, X, Check, Loader2 } from "lucide-react";
+import { adminApiFetch } from "../auth/adminApi.js";
 
 export default function ImageUploadControl({
   label = "Image Media",
@@ -28,7 +29,7 @@ export default function ImageUploadControl({
       reader.onload = async (e) => {
         const base64Data = e.target.result;
 
-        const res = await fetch("/api/admin/upload-image", {
+        const res = await adminApiFetch("/api/admin/upload-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

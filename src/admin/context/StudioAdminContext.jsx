@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import { supabase } from "../../lib/supabase.js";
+import { adminApiFetch } from "../auth/adminApi.js";
 
 const StudioAdminContext = createContext(null);
 
@@ -126,13 +127,13 @@ export function StudioAdminProvider({ children }) {
         cmsRes,
         teamRes,
       ] = await Promise.all([
-        fetch("/api/admin/bookings").then((r) => (r.ok ? r.json() : { bookings: [] })),
-        fetch("/api/admin/projects").then((r) => (r.ok ? r.json() : { projects: [] })),
-        fetch("/api/admin/clients").then((r) => (r.ok ? r.json() : { clients: [] })),
-        fetch("/api/admin/calendar").then((r) => (r.ok ? r.json() : { bookings: [] })),
-        fetch("/api/admin/invoices").then((r) => (r.ok ? r.json() : { invoices: [] })),
-        fetch("/api/admin/cms").then((r) => (r.ok ? r.json() : { cms: null })),
-        fetch("/api/admin/team").then((r) => (r.ok ? r.json() : { team: [] })),
+        adminApiFetch("/api/admin/bookings").then((r) => (r.ok ? r.json() : { bookings: [] })),
+        adminApiFetch("/api/admin/projects").then((r) => (r.ok ? r.json() : { projects: [] })),
+        adminApiFetch("/api/admin/clients").then((r) => (r.ok ? r.json() : { clients: [] })),
+        adminApiFetch("/api/admin/calendar").then((r) => (r.ok ? r.json() : { bookings: [] })),
+        adminApiFetch("/api/admin/invoices").then((r) => (r.ok ? r.json() : { invoices: [] })),
+        adminApiFetch("/api/admin/cms").then((r) => (r.ok ? r.json() : { cms: null })),
+        adminApiFetch("/api/admin/team").then((r) => (r.ok ? r.json() : { team: [] })),
       ]);
 
       if (inquiriesRes && Array.isArray(inquiriesRes.bookings)) {
@@ -371,7 +372,7 @@ export function StudioAdminProvider({ children }) {
       );
 
       try {
-        const res = await fetch(`/api/admin/bookings/${inquiryId}`, {
+        const res = await adminApiFetch(`/api/admin/bookings/${inquiryId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
@@ -391,7 +392,7 @@ export function StudioAdminProvider({ children }) {
       setInquiries((prev) => prev.filter((i) => i.id !== inquiryId));
 
       try {
-        const res = await fetch(`/api/admin/bookings/${inquiryId}`, {
+        const res = await adminApiFetch(`/api/admin/bookings/${inquiryId}`, {
           method: "DELETE",
         });
         if (!res.ok) throw new Error("Failed to delete booking");
@@ -411,7 +412,7 @@ export function StudioAdminProvider({ children }) {
       const advance = Number(projectPayload.advance) || 0;
 
       try {
-        const res = await fetch("/api/admin/projects", {
+        const res = await adminApiFetch("/api/admin/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -457,7 +458,7 @@ export function StudioAdminProvider({ children }) {
       );
 
       try {
-        const res = await fetch(`/api/admin/projects/${projectId}`, {
+        const res = await adminApiFetch(`/api/admin/projects/${projectId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ stage }),
@@ -478,7 +479,7 @@ export function StudioAdminProvider({ children }) {
       if (numAmount <= 0) return;
 
       try {
-        const res = await fetch(`/api/admin/projects/${projectId}`, {
+        const res = await adminApiFetch(`/api/admin/projects/${projectId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -513,7 +514,7 @@ export function StudioAdminProvider({ children }) {
       setProjects((prev) => prev.filter((p) => p.id !== projectId));
 
       try {
-        const res = await fetch(`/api/admin/projects/${projectId}`, {
+        const res = await adminApiFetch(`/api/admin/projects/${projectId}`, {
           method: "DELETE",
         });
         if (!res.ok) throw new Error("Failed to delete project");
@@ -555,7 +556,7 @@ export function StudioAdminProvider({ children }) {
   const createClient = useCallback(
     async (clientPayload) => {
       try {
-        const res = await fetch("/api/admin/clients", {
+        const res = await adminApiFetch("/api/admin/clients", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(clientPayload),
@@ -579,7 +580,7 @@ export function StudioAdminProvider({ children }) {
     async (clientId) => {
       setClients((prev) => prev.filter((c) => c.id !== clientId));
       try {
-        await fetch(`/api/admin/clients/${clientId}`, { method: "DELETE" });
+        await adminApiFetch(`/api/admin/clients/${clientId}`, { method: "DELETE" });
         showToast("Client removed from directory.");
       } catch {
         fetchLiveAdminData();
@@ -592,7 +593,7 @@ export function StudioAdminProvider({ children }) {
   const addInvoice = useCallback(
     async (invoiceData) => {
       try {
-        const res = await fetch("/api/admin/invoices", {
+        const res = await adminApiFetch("/api/admin/invoices", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(invoiceData),
@@ -615,7 +616,7 @@ export function StudioAdminProvider({ children }) {
   const markInvoicePaid = useCallback(
     async (invoiceId) => {
       try {
-        const res = await fetch(`/api/admin/invoices/${invoiceId}`, {
+        const res = await adminApiFetch(`/api/admin/invoices/${invoiceId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "Paid" }),
@@ -706,7 +707,7 @@ export function StudioAdminProvider({ children }) {
 
   const saveCMSChanges = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/cms", {
+      const res = await adminApiFetch("/api/admin/cms", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cmsData),
@@ -723,7 +724,7 @@ export function StudioAdminProvider({ children }) {
   const addTeamMember = useCallback(
     async (member) => {
       try {
-        const res = await fetch("/api/admin/team", {
+        const res = await adminApiFetch("/api/admin/team", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(member),

@@ -23,6 +23,7 @@ import {
   getLiveSummary,
 } from "./db.js";
 import { saveUploadedFile, handleFileDownload, saveCmsImage } from "./uploads.js";
+import { verifyFounderRequest } from "./adminAuth.js";
 
 function parseJsonBody(req) {
   return new Promise((resolve) => {
@@ -53,12 +54,6 @@ function sendJson(res, statusCode, payload) {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, Accept"
-  );
   res.end(JSON.stringify(payload));
 }
 
@@ -68,15 +63,36 @@ export async function handleApiRequest(req, res) {
 
   // Handle CORS Preflight
   if (req.method === "OPTIONS") {
-    res.statusCode = 200;
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Accept"
-    );
+    res.statusCode = 204;
     res.end();
     return true;
+  }
+
+  const publicCmsRead = pathname === "/api/cms" && req.method === "GET";
+  const publicBookingSubmission = pathname === "/api/bookings" && req.method === "POST";
+  const publicReferenceUpload = pathname === "/api/uploads" && req.method === "POST";
+  const requiresFounder =
+    pathname === "/api/admin" ||
+    pathname.startsWith("/api/admin/") ||
+    pathname === "/api/bookings" ||
+    pathname.startsWith("/api/bookings/") ||
+    pathname.startsWith("/api/uploads/") ||
+    (pathname === "/api/cms" && !publicCmsRead);
+
+  if (
+    requiresFounder &&
+    !publicCmsRead &&
+    !publicBookingSubmission &&
+    !publicReferenceUpload
+  ) {
+    const authorization = await verifyFounderRequest(req);
+    if (!authorization.ok) {
+      sendJson(res, authorization.status, {
+        success: false,
+        error: authorization.error,
+      });
+      return true;
+    }
   }
 
   // -------------------------------------------------------------------------

@@ -10,7 +10,12 @@ import {
   SITE_CONTENT_TABLE,
   TEAM_TABLE,
 } from "./supabaseAdmin.js";
-import { defaultLiveCmsCategories } from "../src/data/liveCmsDefaults.js";
+import {
+  defaultLiveCmsCategories,
+  defaultLiveCmsJourneys,
+  defaultLiveCmsStories,
+  defaultLiveCmsStudio,
+} from "../src/data/liveCmsDefaults.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -631,6 +636,9 @@ export async function getCMSContent() {
     },
     portfolio: [],
     categories: defaultLiveCmsCategories,
+    stories: defaultLiveCmsStories,
+    journeys: defaultLiveCmsJourneys,
+    studio: defaultLiveCmsStudio,
     services: [],
     testimonials: [],
   });

@@ -86,7 +86,11 @@ export function getServiceRoleKey() {
 }
 
 export function getFounderEmails() {
-  const raw = getServerEnv("FOUNDER_EMAIL") || getServerEnv("ADMIN_EMAIL") || "";
+  const raw =
+    getServerEnv("FOUNDER_EMAIL") ||
+    getServerEnv("ADMIN_EMAIL") ||
+    getServerEnv("VITE_ADMIN_EMAIL") ||
+    "";
   return raw
     .split(",")
     .map((e) => e.trim().toLowerCase())
@@ -95,7 +99,13 @@ export function getFounderEmails() {
 
 export function getFounderEmail() {
   const emails = getFounderEmails();
-  return emails[0] || (getServerEnv("FOUNDER_EMAIL") || getServerEnv("ADMIN_EMAIL") || "").trim().toLowerCase();
+  return emails[0] ||
+    (
+      getServerEnv("FOUNDER_EMAIL") ||
+      getServerEnv("ADMIN_EMAIL") ||
+      getServerEnv("VITE_ADMIN_EMAIL") ||
+      ""
+    ).trim().toLowerCase();
 }
 
 export function isFounderEmail(email) {

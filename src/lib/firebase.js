@@ -19,12 +19,12 @@ const env = getEnv();
 // Production Firebase Configuration
 // Environment variables are loaded securely via Vite (VITE_*)
 const firebaseConfig = {
-  apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSy_MOCK_KEY_FOR_DEV_BUILD",
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "phantom-labs-studio.firebaseapp.com",
-  projectId: env.VITE_FIREBASE_PROJECT_ID || "phantom-labs-studio",
-  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || "phantom-labs-studio.appspot.com",
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
-  appId: env.VITE_FIREBASE_APP_ID || "1:000000000000:web:0000000000000000000000",
+  apiKey: env.VITE_FIREBASE_API_KEY || "",
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: env.VITE_FIREBASE_APP_ID || "",
 };
 
 // Initialize Firebase App singleton safely
@@ -40,17 +40,15 @@ export const ADMIN_UID =
   env.NEXT_PUBLIC_ADMIN_UID ||
   "YOUR_EXACT_FIREBASE_UID";
 
-const rawAdminEmails =
-  env.VITE_ADMIN_EMAIL ||
-  env.FOUNDER_EMAIL ||
-  "founder@phantomlabs.in,gouthampalivela21@gmail.com,gouthampalivela26@gmail.com";
+const rawAdminEmails = env.VITE_ADMIN_EMAIL || env.FOUNDER_EMAIL || "";
 
 export const ALLOWED_ADMIN_EMAILS = rawAdminEmails
   .split(",")
   .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
+  .filter(Boolean)
+  .slice(0, 1);
 
-export const ADMIN_EMAIL = ALLOWED_ADMIN_EMAILS[0] || "founder@phantomlabs.in";
+export const ADMIN_EMAIL = ALLOWED_ADMIN_EMAILS[0] || "";
 
 /**
  * Validates whether the given user object matches the designated single-owner admin.
