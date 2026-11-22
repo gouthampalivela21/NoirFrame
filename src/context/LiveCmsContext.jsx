@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase.js";
+import { defaultLiveCmsCategories } from "../data/liveCmsDefaults.js";
 
 const LiveCmsContext = createContext(null);
 const STORAGE_KEY = "phantom_labs_live_cms_v3";
@@ -11,14 +12,20 @@ export function LiveCmsProvider({ children }) {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && typeof parsed === "object" && parsed.hero) {
-          return parsed;
+          return {
+            ...parsed,
+            categories:
+              Array.isArray(parsed.categories) && parsed.categories.length > 0
+                ? parsed.categories
+                : defaultLiveCmsCategories,
+          };
         }
       }
     } catch {}
     return {
       hero: {},
       websiteSection: {},
-      categories: [],
+      categories: defaultLiveCmsCategories,
       studio: {},
       journeys: { packages: [] },
       stories: [],
@@ -35,7 +42,13 @@ export function LiveCmsProvider({ children }) {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.cms) {
-          setCms(data.cms);
+          setCms({
+            ...data.cms,
+            categories:
+              Array.isArray(data.cms.categories) && data.cms.categories.length > 0
+                ? data.cms.categories
+                : defaultLiveCmsCategories,
+          });
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data.cms));
           } catch {}

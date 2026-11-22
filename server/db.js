@@ -10,10 +10,15 @@ import {
   SITE_CONTENT_TABLE,
   TEAM_TABLE,
 } from "./supabaseAdmin.js";
+import { defaultLiveCmsCategories } from "../src/data/liveCmsDefaults.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_DIR = path.resolve(__dirname, "data");
+// Vercel's deployed function bundle is read-only. Keep its transient fallback
+// records in /tmp; local development continues to use server/data.
+const DATA_DIR = process.env.VERCEL
+  ? path.join("/tmp", "phantom-labs-data")
+  : path.resolve(__dirname, "data");
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -625,6 +630,7 @@ export async function getCMSContent() {
       seoDescription: "Fine art portraits, editorial campaigns, and bespoke creative production.",
     },
     portfolio: [],
+    categories: defaultLiveCmsCategories,
     services: [],
     testimonials: [],
   });

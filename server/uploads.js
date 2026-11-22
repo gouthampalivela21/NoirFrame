@@ -10,7 +10,11 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PUBLIC_UPLOADS_DIR = path.resolve(__dirname, "../public/images/uploads");
+// The deployment bundle cannot be written to on Vercel. Use its writable
+// temporary directory for local upload fallback files.
+const PUBLIC_UPLOADS_DIR = process.env.VERCEL
+  ? path.join("/tmp", "phantom-labs-uploads")
+  : path.resolve(__dirname, "../public/images/uploads");
 
 if (!fs.existsSync(PUBLIC_UPLOADS_DIR)) {
   fs.mkdirSync(PUBLIC_UPLOADS_DIR, { recursive: true });
