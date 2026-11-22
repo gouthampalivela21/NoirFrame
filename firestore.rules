@@ -1,0 +1,563 @@
+rules_version = '2';
+
+// ===============================================================
+// Cloud Firestore Security Rules — Phantom Labs / Studio OS
+// ===============================================================
+// Architecture: Single-Owner Creative Production Studio OS
+// Model: Single Founder/Owner Administration with Public Inquiries
+//
+// Assumed Data Models:
+//
+// 1. /stories/{storyId} & /portfolio/{portfolioId}
+//    - id: string (optional, matches storyId)
+//    - title / headline: string (required, 1-200 chars)
+//    - slug: string (optional, 1-100 chars)
+//    - category: string (optional, 1-50 chars)
+//    - status: string (required, 'published' | 'draft' | 'archived')
+//    - deck: string (optional, 1-1000 chars)
+//    - byline: string (optional, 1-100 chars)
+//    - leadImage: map or string (optional)
+//    - images: list (optional, <= 50 items)
+//    - tags: list (optional, <= 30 items)
+//    - content: string or map (optional, <= 100000 chars)
+//    - order: number (optional)
+//    - featured: bool (optional)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 2. /pages/{pageId} & /site_content/{contentId}
+//    - id: string or number (optional)
+//    - data: map (optional, CMS section configuration)
+//    - content: map (optional, visual layout blocks)
+//    - siteSettings: map (optional)
+//    - hero: map (optional)
+//    - websiteSection: map (optional)
+//    - portfolioItems: list (optional, <= 100 items)
+//    - aboutData: map (optional)
+//    - updatedAt: timestamp or ISO string (optional)
+//    - updatedBy: string (optional, <= 100 chars)
+//
+// 3. /inquiries/{inquiryId} & /booking_requests/{inquiryId}
+//    - id: string (optional, <= 100 chars)
+//    - name or clientName: string (required, 1-120 chars)
+//    - email: string (required, valid RFC format, 3-150 chars)
+//    - message or client_message: string (required, 1-5000 chars)
+//    - phone: string (optional, <= 30 chars)
+//    - category: string (optional, <= 100 chars)
+//    - subCategory: string (optional, <= 100 chars)
+//    - location: string (optional, <= 200 chars)
+//    - preferredDate: string (optional, <= 100 chars)
+//    - schedule: map or string (optional)
+//    - budget: string (optional, <= 100 chars)
+//    - status: string (optional, 'New' | 'In progress' | 'Responded' | 'Closed')
+//    - source: string (optional, <= 100 chars)
+//    - timeAgo: string (optional, <= 50 chars)
+//    - notes: list or string (optional)
+//    - references_data: map or list (optional)
+//    - brief: map or string (optional)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 4. /projects/{projectId}
+//    - id: string (optional)
+//    - name: string (required, 1-200 chars)
+//    - client: string (required, 1-200 chars)
+//    - category: string (optional, <= 100 chars)
+//    - quote: number (required, >= 0)
+//    - advance: number (optional, >= 0)
+//    - due: number (optional, >= 0)
+//    - status: string (optional, <= 50 chars)
+//    - shootDate: string (optional, <= 100 chars)
+//    - location: string (optional, <= 200 chars)
+//    - deliverables: string (optional, <= 2000 chars)
+//    - notes: string (optional, <= 5000 chars)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 5. /clients/{clientId}
+//    - id: string (optional)
+//    - name: string (required, 1-200 chars)
+//    - email: string (optional, valid email <= 150 chars)
+//    - phone: string (optional, <= 50 chars)
+//    - organization: string (optional, <= 200 chars)
+//    - status: string (optional, <= 50 chars)
+//    - notes: string (optional, <= 5000 chars)
+//    - source_booking_id: string (optional, <= 100 chars)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 6. /invoices/{invoiceId}
+//    - id: string (optional)
+//    - projectId: string (required, 1-100 chars)
+//    - client: string (required, 1-200 chars)
+//    - project: string (optional, <= 200 chars)
+//    - amount: number (required, >= 0)
+//    - dueDate: string (optional, <= 50 chars)
+//    - status: string (required, <= 50 chars)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 7. /team/{memberId}
+//    - id: string (optional)
+//    - name: string (required, 1-150 chars)
+//    - role: string (required, 1-100 chars)
+//    - email: string (optional, valid email <= 150 chars)
+//    - phone: string (optional, <= 50 chars)
+//    - status: string (optional, <= 50 chars)
+//    - is_primary_founder: bool (optional)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 8. /calendar_bookings/{bookingId}
+//    - id: string (optional)
+//    - title: string (required, 1-200 chars)
+//    - date: string or timestamp (required)
+//    - time: string (optional, <= 50 chars)
+//    - client: string (optional, <= 200 chars)
+//    - location: string (optional, <= 200 chars)
+//    - notes: string (optional, <= 2000 chars)
+//    - status: string (optional, <= 50 chars)
+//    - createdAt: timestamp or ISO string (required, immutable)
+//    - updatedAt: timestamp or ISO string (optional)
+//
+// 9. /messages/{messageId} & /activities/{activityId}
+//    - Studio operational correspondence and activity feed (Owner Only)
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =============================================================
+    // Helper Functions
+    // =============================================================
+
+    // Check if the request is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Single-owner security model:
+    // Strictly verifies owner identity via UID placeholders or verified founder email.
+    function isOwner() {
+      return isAuthenticated()
+        && (
+          request.auth.uid == "9lpAd2In1jflWSMmRxsnX6EJfSk2" ||
+          request.auth.uid == "YOUR_EXACT_FIREBASE_UID" ||
+          request.auth.uid == "<MY_ADMIN_UID>" ||
+          (request.auth.token.email != null && (
+            request.auth.token.email == "founder@phantomlabs.in" ||
+            request.auth.token.email == "admin@phantomlabs.in" ||
+            request.auth.token.email == "studio@phantomlabs.in" ||
+            request.auth.token.email == "gouthampalivela21@gmail.com" ||
+            request.auth.token.email == "gouthampalivela26@gmail.com"
+          ))
+        )
+        && request.auth.token.email_verified == true;
+    }
+
+    // Check required fields exist in request payload
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Check payload contains ONLY allowed schema fields (anti-pollution)
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Validate that immutable keys have not been modified on update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Strict email format validation
+    function isValidEmail(email) {
+      return email is string
+        && email.size() >= 3
+        && email.size() <= 150
+        && email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');
+    }
+
+    // Validate date/timestamp field (either Firestore timestamp or ISO string)
+    function isValidDateTime(field) {
+      return (request.resource.data[field] is timestamp)
+        || (
+          request.resource.data[field] is string
+          && request.resource.data[field].size() > 0
+          && request.resource.data[field].size() <= 60
+        );
+    }
+
+    // Validate optional string type and length boundaries
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data)
+        || (
+          data[field] is string
+          && data[field].size() >= minLen
+          && data[field].size() <= maxLen
+        );
+    }
+
+    // Validate optional non-negative number
+    function isValidOptionalNumber(data, field) {
+      return !(field in data)
+        || (
+          (data[field] is int || data[field] is float)
+          && data[field] >= 0
+        );
+    }
+
+    // =============================================================
+    // Domain Validators
+    // =============================================================
+
+    // Inquiry Validator (Public Create)
+    function isValidInquiryCreate(data) {
+      let allowedFields = [
+        'id', 'name', 'clientName', 'email', 'phone', 'category', 'subCategory',
+        'location', 'preferredDate', 'schedule', 'budget', 'message', 'client_message',
+        'status', 'source', 'timeAgo', 'notes', 'references_data', 'brief',
+        'createdAt', 'updatedAt'
+      ];
+
+      let hasValidName = (('name' in data) || ('clientName' in data))
+        && (!('name' in data) || (data.name is string && data.name.size() > 0 && data.name.size() < 120))
+        && (!('clientName' in data) || (data.clientName is string && data.clientName.size() > 0 && data.clientName.size() < 120));
+
+      let hasValidEmail = 'email' in data && isValidEmail(data.email);
+
+      let hasValidMessage = (('message' in data) || ('client_message' in data))
+        && (!('message' in data) || (data.message is string && data.message.size() > 0 && data.message.size() < 5000))
+        && (!('client_message' in data) || (data.client_message is string && data.client_message.size() > 0 && data.client_message.size() < 5000));
+
+      let hasValidCreatedAt = 'createdAt' in data && isValidDateTime('createdAt');
+
+      // Public submission must be default 'New' status (cannot fabricate closed/responded statuses)
+      let isDefaultStatus = !('status' in data) || data.status == 'New';
+
+      return data.keys().hasOnly(allowedFields)
+        && hasValidName
+        && hasValidEmail
+        && hasValidMessage
+        && hasValidCreatedAt
+        && isDefaultStatus
+        && isValidOptionalString(data, 'id', 0, 100)
+        && isValidOptionalString(data, 'phone', 0, 30)
+        && isValidOptionalString(data, 'category', 0, 100)
+        && isValidOptionalString(data, 'subCategory', 0, 100)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && isValidOptionalString(data, 'preferredDate', 0, 100)
+        && isValidOptionalString(data, 'budget', 0, 100)
+        && isValidOptionalString(data, 'source', 0, 100)
+        && isValidOptionalString(data, 'timeAgo', 0, 50)
+        && (!('notes' in data) || data.notes is list || data.notes is string)
+        && (!('references_data' in data) || data.references_data is map || data.references_data is list)
+        && (!('schedule' in data) || data.schedule is map || data.schedule is string)
+        && (!('brief' in data) || data.brief is map || data.brief is string);
+    }
+
+    // Inquiry Validator (Owner Update)
+    function isValidInquiryUpdate(data) {
+      let allowedFields = [
+        'id', 'name', 'clientName', 'email', 'phone', 'category', 'subCategory',
+        'location', 'preferredDate', 'schedule', 'budget', 'message', 'client_message',
+        'status', 'source', 'timeAgo', 'notes', 'references_data', 'brief',
+        'createdAt', 'updatedAt'
+      ];
+
+      let hasValidName = (('name' in data) || ('clientName' in data))
+        && (!('name' in data) || (data.name is string && data.name.size() > 0 && data.name.size() < 120))
+        && (!('clientName' in data) || (data.clientName is string && data.clientName.size() > 0 && data.clientName.size() < 120));
+
+      let hasValidEmail = 'email' in data && isValidEmail(data.email);
+
+      let hasValidMessage = (('message' in data) || ('client_message' in data))
+        && (!('message' in data) || (data.message is string && data.message.size() > 0 && data.message.size() < 5000))
+        && (!('client_message' in data) || (data.client_message is string && data.client_message.size() > 0 && data.client_message.size() < 5000));
+
+      let validStatus = !('status' in data)
+        || (data.status is string && data.status in ['New', 'In progress', 'Responded', 'Closed']);
+
+      return data.keys().hasOnly(allowedFields)
+        && hasValidName
+        && hasValidEmail
+        && hasValidMessage
+        && validStatus
+        && isValidOptionalString(data, 'id', 0, 100)
+        && isValidOptionalString(data, 'phone', 0, 30)
+        && isValidOptionalString(data, 'category', 0, 100)
+        && isValidOptionalString(data, 'subCategory', 0, 100)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && isValidOptionalString(data, 'preferredDate', 0, 100)
+        && isValidOptionalString(data, 'budget', 0, 100)
+        && isValidOptionalString(data, 'source', 0, 100)
+        && isValidOptionalString(data, 'timeAgo', 0, 50)
+        && (!('notes' in data) || data.notes is list || data.notes is string)
+        && (!('references_data' in data) || data.references_data is map || data.references_data is list)
+        && (!('schedule' in data) || data.schedule is map || data.schedule is string)
+        && (!('brief' in data) || data.brief is map || data.brief is string);
+    }
+
+    function areInquiryImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Story / Portfolio Validator
+    function isValidStory(data) {
+      let allowedFields = [
+        'id', 'title', 'headline', 'slug', 'category', 'status', 'deck', 'byline',
+        'leadImage', 'images', 'openingEssay', 'essaySubheadings', 'subject',
+        'content', 'tags', 'featured', 'order', 'createdAt', 'updatedAt'
+      ];
+
+      let hasValidTitle = (('title' in data && data.title is string && data.title.size() > 0 && data.title.size() <= 200)
+        || ('headline' in data && data.headline is string && data.headline.size() > 0 && data.headline.size() <= 200));
+
+      let hasValidStatus = 'status' in data && data.status is string && data.status in ['published', 'draft', 'archived'];
+
+      return data.keys().hasOnly(allowedFields)
+        && hasValidTitle
+        && hasValidStatus
+        && isValidOptionalString(data, 'slug', 0, 100)
+        && isValidOptionalString(data, 'category', 0, 50)
+        && isValidOptionalString(data, 'deck', 0, 1000)
+        && isValidOptionalString(data, 'byline', 0, 100)
+        && (!('images' in data) || (data.images is list && data.images.size() <= 50))
+        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 30))
+        && (!('featured' in data) || data.featured is bool)
+        && (!('order' in data) || data.order is int || data.order is float);
+    }
+
+    function areStoryImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Page / Site Content Validator
+    function isValidPage(data) {
+      let allowedFields = [
+        'id', 'data', 'content', 'siteSettings', 'portfolioItems', 'aboutData',
+        'hero', 'websiteSection', 'updatedAt', 'updatedBy'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && (!('data' in data) || data.data is map)
+        && (!('content' in data) || data.content is map)
+        && (!('siteSettings' in data) || data.siteSettings is map)
+        && (!('portfolioItems' in data) || (data.portfolioItems is list && data.portfolioItems.size() <= 100))
+        && (!('aboutData' in data) || data.aboutData is map)
+        && isValidOptionalString(data, 'updatedBy', 0, 100);
+    }
+
+    // Project Validator
+    function isValidProject(data) {
+      let allowedFields = [
+        'id', 'name', 'client', 'category', 'quote', 'advance', 'due', 'status',
+        'shootDate', 'location', 'deliverables', 'notes', 'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && ('name' in data && data.name is string && data.name.size() > 0 && data.name.size() <= 200)
+        && ('client' in data && data.client is string && data.client.size() > 0 && data.client.size() <= 200)
+        && ('quote' in data && (data.quote is int || data.quote is float) && data.quote >= 0)
+        && isValidOptionalString(data, 'category', 0, 100)
+        && isValidOptionalNumber(data, 'advance')
+        && isValidOptionalNumber(data, 'due')
+        && isValidOptionalString(data, 'status', 0, 50)
+        && isValidOptionalString(data, 'shootDate', 0, 100)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && isValidOptionalString(data, 'deliverables', 0, 2000)
+        && isValidOptionalString(data, 'notes', 0, 5000);
+    }
+
+    function areProjectImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Client Validator
+    function isValidClient(data) {
+      let allowedFields = [
+        'id', 'name', 'email', 'phone', 'organization', 'status', 'notes',
+        'source_booking_id', 'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && ('name' in data && data.name is string && data.name.size() > 0 && data.name.size() <= 200)
+        && (!('email' in data) || isValidEmail(data.email))
+        && isValidOptionalString(data, 'phone', 0, 50)
+        && isValidOptionalString(data, 'organization', 0, 200)
+        && isValidOptionalString(data, 'status', 0, 50)
+        && isValidOptionalString(data, 'notes', 0, 5000)
+        && isValidOptionalString(data, 'source_booking_id', 0, 100);
+    }
+
+    function areClientImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Invoice Validator
+    function isValidInvoice(data) {
+      let allowedFields = [
+        'id', 'projectId', 'client', 'project', 'amount', 'dueDate', 'status',
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && ('projectId' in data && data.projectId is string && data.projectId.size() > 0 && data.projectId.size() <= 100)
+        && ('client' in data && data.client is string && data.client.size() > 0 && data.client.size() <= 200)
+        && ('amount' in data && (data.amount is int || data.amount is float) && data.amount >= 0)
+        && ('status' in data && data.status is string && data.status.size() > 0 && data.status.size() <= 50)
+        && isValidOptionalString(data, 'project', 0, 200)
+        && isValidOptionalString(data, 'dueDate', 0, 50);
+    }
+
+    function areInvoiceImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Team Member Validator
+    function isValidTeamMember(data) {
+      let allowedFields = [
+        'id', 'name', 'role', 'email', 'phone', 'status', 'is_primary_founder',
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && ('name' in data && data.name is string && data.name.size() > 0 && data.name.size() <= 150)
+        && ('role' in data && data.role is string && data.role.size() > 0 && data.role.size() <= 100)
+        && (!('email' in data) || isValidEmail(data.email))
+        && isValidOptionalString(data, 'phone', 0, 50)
+        && isValidOptionalString(data, 'status', 0, 50)
+        && (!('is_primary_founder' in data) || data.is_primary_founder is bool);
+    }
+
+    function areTeamMemberImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // Calendar Booking Validator
+    function isValidCalendarBooking(data) {
+      let allowedFields = [
+        'id', 'title', 'date', 'time', 'client', 'location', 'notes', 'status',
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasOnly(allowedFields)
+        && ('title' in data && data.title is string && data.title.size() > 0 && data.title.size() <= 200)
+        && ('date' in data && isValidDateTime('date'))
+        && isValidOptionalString(data, 'time', 0, 50)
+        && isValidOptionalString(data, 'client', 0, 200)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && isValidOptionalString(data, 'notes', 0, 2000)
+        && isValidOptionalString(data, 'status', 0, 50);
+    }
+
+    function areCalendarBookingImmutableFieldsUnchanged() {
+      return areImmutableFieldsUnchanged(['id', 'createdAt']);
+    }
+
+    // =============================================================
+    // Security Rules Definitions
+    // =============================================================
+
+    // -------------------------------------------------------------
+    // 1. Stories / Portfolio
+    //    Public read ONLY IF published; Founder/Owner full access.
+    // -------------------------------------------------------------
+    match /stories/{storyId} {
+      allow read: if (resource.data.status == "published") || isOwner();
+      allow create: if isOwner() && isValidStory(request.resource.data);
+      allow update: if isOwner() && isValidStory(request.resource.data) && areStoryImmutableFieldsUnchanged();
+      allow delete: if isOwner();
+    }
+
+    match /portfolio/{portfolioId} {
+      allow read: if (resource.data.status == "published") || isOwner();
+      allow create: if isOwner() && isValidStory(request.resource.data);
+      allow update: if isOwner() && isValidStory(request.resource.data) && areStoryImmutableFieldsUnchanged();
+      allow delete: if isOwner();
+    }
+
+    // -------------------------------------------------------------
+    // 2. Pages / Site Content
+    //    Public read allowed; Founder/Owner full write access.
+    // -------------------------------------------------------------
+    match /pages/{pageId} {
+      allow read: if true;
+      allow create: if isOwner() && isValidPage(request.resource.data);
+      allow update: if isOwner() && isValidPage(request.resource.data);
+      allow delete: if isOwner();
+    }
+
+    match /site_content/{contentId} {
+      allow read: if true;
+      allow create: if isOwner() && isValidPage(request.resource.data);
+      allow update: if isOwner() && isValidPage(request.resource.data);
+      allow delete: if isOwner();
+    }
+
+    // -------------------------------------------------------------
+    // 3. Inquiries / Booking Requests
+    //    Public create with strict schema & size limits; Owner-only read/update/delete.
+    // -------------------------------------------------------------
+    match /inquiries/{inquiryId} {
+      allow read, delete: if isOwner();
+      allow create: if isValidInquiryCreate(request.resource.data);
+      allow update: if isOwner() && isValidInquiryUpdate(request.resource.data) && areInquiryImmutableFieldsUnchanged();
+    }
+
+    match /booking_requests/{inquiryId} {
+      allow read, delete: if isOwner();
+      allow create: if isValidInquiryCreate(request.resource.data);
+      allow update: if isOwner() && isValidInquiryUpdate(request.resource.data) && areInquiryImmutableFieldsUnchanged();
+    }
+
+    // -------------------------------------------------------------
+    // 4. Private Studio Operations (Owner Only Access)
+    // -------------------------------------------------------------
+    match /projects/{projectId} {
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && isValidProject(request.resource.data);
+      allow update: if isOwner() && isValidProject(request.resource.data) && areProjectImmutableFieldsUnchanged();
+    }
+
+    match /clients/{clientId} {
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && isValidClient(request.resource.data);
+      allow update: if isOwner() && isValidClient(request.resource.data) && areClientImmutableFieldsUnchanged();
+    }
+
+    match /invoices/{invoiceId} {
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && isValidInvoice(request.resource.data);
+      allow update: if isOwner() && isValidInvoice(request.resource.data) && areInvoiceImmutableFieldsUnchanged();
+    }
+
+    match /team/{memberId} {
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && isValidTeamMember(request.resource.data);
+      allow update: if isOwner() && isValidTeamMember(request.resource.data) && areTeamMemberImmutableFieldsUnchanged();
+    }
+
+    match /calendar_bookings/{bookingId} {
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && isValidCalendarBooking(request.resource.data);
+      allow update: if isOwner() && isValidCalendarBooking(request.resource.data) && areCalendarBookingImmutableFieldsUnchanged();
+    }
+
+    // Studio Internal Feed & Correspondence (Owner Only)
+    match /messages/{messageId} {
+      allow read, write: if isOwner();
+    }
+
+    match /activities/{activityId} {
+      allow read, write: if isOwner();
+    }
+
+    // -------------------------------------------------------------
+    // 5. Default Deny Fallthrough
+    // -------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

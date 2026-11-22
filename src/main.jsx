@@ -12,7 +12,6 @@ import "./styles/appleShowcase.css";
 import "./styles/experienceShowcase.css";
 import "./styles/editorialMagazine.css";
 import "./styles/responsive.css";
-import "./admin/styles/admin.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -2,11 +2,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { useLiveCms } from "../context/LiveCmsContext.jsx";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
 export default function HeroShowcase() {
   const isReduced = prefersReducedMotion();
+  const { home, isLoading } = useLiveCms();
+  const hero = home.hero || {};
+
+  const heroWide = hero.heroImageWide || hero.bannerImage || "/images/hero-villa-wide.jpg";
+  const heroMobile = hero.heroImageMobile || hero.bannerImage || "/images/hero-villa-mobile.jpg";
+  const headline = hero.headline || "PHANTOM LABS";
+  const subheadline = hero.subheadline || "Photography. Framed Differently.";
+  const ctaTo = hero.secondaryButtonLink || "/stories";
+  const ctaLabel = hero.secondaryButtonText || "Explore Our Work";
+  const altText = hero.altText || "Architectural landscape and photography showcase by Phantom Labs";
 
   return (
     <section
@@ -14,7 +25,7 @@ export default function HeroShowcase() {
       id="hero"
       aria-label="Phantom Labs — Photography Showcase"
     >
-      {/* Full-Viewport Edge-to-Edge Sunset Villa & Mountain Architectural Canvas */}
+      {/* Full-Viewport Photographic Architectural Canvas */}
       <motion.div
         className="hero-showcase__media-wrap"
         initial={isReduced ? false : { opacity: 0, scale: 1.018 }}
@@ -24,40 +35,33 @@ export default function HeroShowcase() {
         <picture className="hero-showcase__picture">
           <source
             media="(max-aspect-ratio: 1/1)"
-            type="image/webp"
-            srcSet="/images/hero-villa-mobile.webp"
+            srcSet={heroMobile}
             width="768"
             height="1376"
           />
           <source
-            media="(max-aspect-ratio: 1/1)"
-            srcSet="/images/hero-villa-mobile.jpg"
-            width="768"
-            height="1376"
-          />
-          <source
-            type="image/webp"
-            srcSet="/images/hero-villa-wide.webp"
+            media="(min-aspect-ratio: 1/1)"
+            srcSet={heroWide}
             width="1376"
             height="768"
           />
           <img
-            src="/images/hero-villa-wide.jpg"
-            alt="Modern glass-and-concrete luxury villa overlooking misty mountains and an infinity pool at sunset, photographed by Phantom Labs"
+            src={heroWide}
+            alt={altText}
             className="hero-showcase__image"
             width="1376"
             height="768"
             loading="eager"
             decoding="async"
-            fetchpriority="high"
+            fetchPriority="high"
           />
         </picture>
 
-        {/* Subtle left atmospheric scrim to guarantee white typography readability */}
+        {/* Subtle atmospheric scrim */}
         <div className="hero-showcase__scrim" aria-hidden="true" />
       </motion.div>
 
-      {/* Typography positioned naturally within unoccupied negative space */}
+      {/* Typography positioned within unoccupied negative space */}
       <div className="hero-showcase__copy-layer">
         <motion.div
           className="hero-showcase__copy-block"
@@ -65,16 +69,14 @@ export default function HeroShowcase() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.22, ease: APPLE_EASE }}
         >
-          <h1 className="hero-showcase__title">PHANTOM LABS</h1>
-          <p className="hero-showcase__tagline">
-            Photography. Framed Differently.
-          </p>
+          <h1 className="hero-showcase__title">{headline}</h1>
+          <p className="hero-showcase__tagline">{subheadline}</p>
           <Link
-            to="/work"
+            to={ctaTo}
             className="hero-showcase__cta"
             data-cursor="pointer"
           >
-            <span>Explore Our Work</span>
+            <span>{ctaLabel}</span>
             <span className="hero-showcase__cta-arrow" aria-hidden="true">
               &rarr;
             </span>

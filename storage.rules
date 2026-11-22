@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Cloud Storage Security Rules for Phantom Labs / Studio OS
+// Single-Owner Administrative Lock with Public Media Delivery.
+// - Public: Anyone can read published website photos and media assets.
+// - Admin: Only the verified owner/admin UID or authorized founder email can upload, modify, or delete files.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper: Validates request comes from the verified single-owner admin account
+    function isOwner() {
+      return request.auth != null
+        && (
+          request.auth.uid == "9lpAd2In1jflWSMmRxsnX6EJfSk2" ||
+          request.auth.uid == "YOUR_EXACT_FIREBASE_UID" ||
+          request.auth.uid == "<MY_ADMIN_UID>" ||
+          (request.auth.token.email != null && (
+            request.auth.token.email == "founder@phantomlabs.in" ||
+            request.auth.token.email == "admin@phantomlabs.in" ||
+            request.auth.token.email == "studio@phantomlabs.in" ||
+            request.auth.token.email == "gouthampalivela21@gmail.com" ||
+            request.auth.token.email == "gouthampalivela26@gmail.com"
+          ))
+        )
+        && request.auth.token.email_verified == true;
+    }
+
+    // Public website assets, hero photos, story plates, and CMS imagery
+    match /media/{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /cms/{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Creative brief reference files submitted by clients:
+    // Unauthenticated visitors can create an upload under 25MB (images/PDFs only).
+    // Only the verified Owner can read, list, or delete client briefs and attachments.
+    match /inquiry-attachments/{inquiryId}/{fileName} {
+      allow create: if request.resource.size < 25 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*')
+            || request.resource.contentType.matches('application/pdf'));
+      allow read, delete: if isOwner();
+    }
+
+    // Global Fallback: Public read, owner-only write, deny everything else
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+  }
+}

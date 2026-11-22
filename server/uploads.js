@@ -2,115 +2,236 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { authenticateAdminRequest } from "./auth.js";
+import {
+  getSupabaseAdminClient,
+  ATTACHMENTS_TABLE,
+  STORAGE_BUCKET,
+} from "./supabaseAdmin.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PUBLIC_UPLOADS_DIR = path.resolve(__dirname, "../public/images/uploads");
 
-const UPLOADS_DIR = path.resolve(__dirname, "uploads");
-const META_FILE = path.join(UPLOADS_DIR, "_files_meta.json");
-
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(PUBLIC_UPLOADS_DIR)) {
+  fs.mkdirSync(PUBLIC_UPLOADS_DIR, { recursive: true });
 }
 
-function loadMeta() {
-  try {
-    if (fs.existsSync(META_FILE)) {
-      return JSON.parse(fs.readFileSync(META_FILE, "utf8"));
-    }
-  } catch {}
-  return {};
+const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB per file
+
+const ALLOWED_MIME_PREFIXES = [
+  "image/",
+  "application/pdf",
+  "text/plain",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.",
+];
+
+function isAllowedMime(mime) {
+  const m = String(mime || "").toLowerCase();
+  if (!m) return false;
+  return ALLOWED_MIME_PREFIXES.some((prefix) => m.startsWith(prefix));
 }
 
-function saveMeta(meta) {
-  try {
-    fs.writeFileSync(META_FILE, JSON.stringify(meta, null, 2), "utf8");
-  } catch (e) {
-    console.error("[Uploads] Error saving files metadata:", e);
-  }
+function sanitizeFilename(name) {
+  const base = path.basename(String(name || "attachment"));
+  return base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 160) || "attachment";
 }
 
 /**
- * Save an uploaded file securely. Accepts base64 encoded payload.
+ * Public CMS image upload — saves to public/images/uploads and optionally Supabase storage
  */
-export async function saveUploadedFile({ name, type, size, base64Data }) {
-  if (!base64Data) {
-    throw new Error("Missing file content");
+export async function saveCmsImage({ name, type, base64Data }) {
+  if (!base64Data || typeof base64Data !== "string") {
+    const err = new Error("Missing image content.");
+    err.statusCode = 400;
+    throw err;
   }
 
-  const fileId = `att_${Date.now()}_${crypto.randomBytes(8).toString("hex")}`;
-  const ext = path.extname(name || "") || ".bin";
-  const diskFilename = `${fileId}${ext}`;
-  const filePath = path.join(UPLOADS_DIR, diskFilename);
+  const mimeType = String(type || "image/jpeg").trim().toLowerCase();
+  if (!mimeType.startsWith("image/")) {
+    const err = new Error("Only image uploads are permitted for website media.");
+    err.statusCode = 400;
+    throw err;
+  }
 
-  // Strip data URL scheme if present (e.g. data:image/jpeg;base64,...)
   const pureBase64 = base64Data.replace(/^data:[^;]+;base64,/, "");
   const buffer = Buffer.from(pureBase64, "base64");
 
-  fs.writeFileSync(filePath, buffer);
+  if (!buffer.length) {
+    const err = new Error("Uploaded image is empty.");
+    err.statusCode = 400;
+    throw err;
+  }
 
-  const fileInfo = {
-    fileId,
-    name: name || "attachment",
-    type: type || "application/octet-stream",
-    size: size || `${(buffer.length / 1024 / 1024).toFixed(2)} MB`,
-    diskFilename,
-    uploadedAt: new Date().toISOString(),
-    url: `/api/uploads/${fileId}`,
+  if (buffer.length > MAX_UPLOAD_BYTES) {
+    const err = new Error("Image exceeds the 15 MB upload limit.");
+    err.statusCode = 413;
+    throw err;
+  }
+
+  const cleanName = sanitizeFilename(name || "image.jpg");
+  const ext = path.extname(cleanName) || ".jpg";
+  const uniquePrefix = `img_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+  const filename = `${uniquePrefix}${ext}`;
+  const localFilePath = path.join(PUBLIC_UPLOADS_DIR, filename);
+
+  // Write file to public/images/uploads for instant local serving
+  fs.writeFileSync(localFilePath, buffer);
+  const publicUrl = `/images/uploads/${filename}`;
+
+  // If Supabase Storage is configured, also push to cloud storage bucket
+  try {
+    const supabase = getSupabaseAdminClient();
+    await supabase.storage
+      .from("public-media")
+      .upload(`cms/${filename}`, buffer, {
+        contentType: mimeType,
+        upsert: true,
+      });
+  } catch {}
+
+  return {
+    success: true,
+    url: publicUrl,
+    filename,
+    sizeBytes: buffer.length,
+    mimeType,
   };
-
-  const meta = loadMeta();
-  meta[fileId] = fileInfo;
-  saveMeta(meta);
-
-  return fileInfo;
 }
 
 /**
- * Handle private file download with server-side authentication check
+ * Store client-uploaded reference files in private Supabase Storage (`booking-attachments`)
+ * and record metadata in RLS-protected `public.booking_attachments`.
+ */
+export async function saveUploadedFile({ name, type, size, base64Data, bookingId = null }) {
+  if (!base64Data || typeof base64Data !== "string") {
+    const err = new Error("Missing file content.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const mimeType = String(type || "application/octet-stream").trim().toLowerCase();
+  if (!isAllowedMime(mimeType)) {
+    const err = new Error("Unsupported file type. Upload images, PDFs, or document files only.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const pureBase64 = base64Data.replace(/^data:[^;]+;base64,/, "");
+  const buffer = Buffer.from(pureBase64, "base64");
+
+  if (!buffer.length) {
+    const err = new Error("Uploaded file is empty.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (buffer.length > MAX_UPLOAD_BYTES) {
+    const err = new Error("File exceeds the 15 MB upload limit.");
+    err.statusCode = 413;
+    throw err;
+  }
+
+  const fileId = `att_${Date.now()}_${crypto.randomBytes(8).toString("hex")}`;
+  const cleanName = sanitizeFilename(name);
+  const ext = path.extname(cleanName) || ".bin";
+  const storagePath = `submissions/${fileId}${ext}`;
+  const uploadedAt = new Date().toISOString();
+
+  const supabase = getSupabaseAdminClient();
+
+  // 1. Upload to private Supabase Storage bucket
+  const { error: uploadError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(storagePath, buffer, {
+      contentType: mimeType,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    const err = new Error("Failed to store uploaded attachment securely.");
+    err.statusCode = 502;
+    throw err;
+  }
+
+  const humanSize = size || `${(buffer.length / 1024 / 1024).toFixed(2)} MB`;
+
+  // 2. Insert metadata record into RLS-protected booking_attachments table
+  const { error: metaError } = await supabase.from(ATTACHMENTS_TABLE).insert({
+    id: fileId,
+    booking_id: bookingId,
+    storage_path: storagePath,
+    file_name: cleanName,
+    mime_type: mimeType,
+    size_bytes: buffer.length,
+    uploaded_at: uploadedAt,
+  });
+
+  if (metaError) {
+    try {
+      await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
+    } catch {}
+    const err = new Error("Failed to record attachment metadata.");
+    err.statusCode = 502;
+    throw err;
+  }
+
+  return {
+    fileId,
+    name: cleanName,
+    type: mimeType,
+    size: humanSize,
+    uploadedAt,
+    url: `/api/uploads/${fileId}`,
+  };
+}
+
+/**
+ * Private attachment download — strictly authorized Founder Google identity only.
  */
 export async function handleFileDownload(req, res, fileId) {
-  // 1. Enforce Server-Side Admin Authentication Check
-  const admin = authenticateAdminRequest(req);
-  if (!admin) {
-    res.statusCode = 401;
-    res.setHeader("Content-Type", "application/json");
-    res.end(
-      JSON.stringify({
-        success: false,
-        error: "Unauthorized",
-        message: "Access to private client attachments is restricted to authorized studio administrators.",
-      })
+  try {
+    const supabase = getSupabaseAdminClient();
+
+    const { data: fileMeta, error: metaErr } = await supabase
+      .from(ATTACHMENTS_TABLE)
+      .select("id, storage_path, file_name, mime_type")
+      .eq("id", fileId)
+      .maybeSingle();
+
+    if (!fileMeta || metaErr) {
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ success: false, error: "Attachment not found." }));
+      return;
+    }
+
+    const { data: blob, error: dlErr } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .download(fileMeta.storage_path);
+
+    if (dlErr || !blob) {
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ success: false, error: "Attachment file unavailable." }));
+      return;
+    }
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.statusCode = 200;
+    res.setHeader("Content-Type", fileMeta.mime_type || "application/octet-stream");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(fileMeta.file_name || "attachment")}"`
     );
-    return;
-  }
-
-  // 2. Lookup metadata
-  const meta = loadMeta();
-  const fileInfo = meta[fileId];
-
-  if (!fileInfo) {
-    res.statusCode = 404;
+    res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.end(buffer);
+  } catch {
+    res.statusCode = 502;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ success: false, error: "File not found" }));
-    return;
+    res.end(JSON.stringify({ success: false, error: "Unable to retrieve private attachment." }));
   }
-
-  const filePath = path.join(UPLOADS_DIR, fileInfo.diskFilename);
-  if (!fs.existsSync(filePath)) {
-    res.statusCode = 404;
-    res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ success: false, error: "File asset missing on disk" }));
-    return;
-  }
-
-  // 3. Stream file to authenticated admin
-  res.statusCode = 200;
-  res.setHeader("Content-Type", fileInfo.type || "application/octet-stream");
-  res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(fileInfo.name)}"`);
-  res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
-
-  const stream = fs.createReadStream(filePath);
-  stream.pipe(res);
 }

@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: "Stories", to: "/stories", match: ["/stories"] },
   { label: "Journeys", to: "/journeys", match: ["/journeys"] },
   { label: "The Studio", to: "/studio", match: ["/studio"] },
+  { label: "Studio OS", to: "/admin", match: ["/admin"] },
   { label: "Contact", to: "/contact", match: ["/contact"] },
 ];
 

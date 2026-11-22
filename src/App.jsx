@@ -7,8 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
-import { AdminProvider } from "./admin/context/AdminContext.jsx";
-import AdminProtectedRoute from "./admin/components/AdminProtectedRoute.jsx";
+import { LiveCmsProvider } from "./context/LiveCmsContext.jsx";
 
 import { prefersReducedMotion, isTouchDevice } from "./utils/helpers.js";
 
@@ -16,35 +15,28 @@ import { prefersReducedMotion, isTouchDevice } from "./utils/helpers.js";
 const Home = lazy(() => import("./pages/Home.jsx"));
 const WebsiteExperiencePage = lazy(() => import("./pages/WebsiteExperiencePage.jsx"));
 const EditorialFeaturePage = lazy(() => import("./pages/EditorialFeaturePage.jsx"));
-const PortraitExplorePage = lazy(() => import("./pages/PortraitExplorePage.jsx"));
 const BookingPage = lazy(() => import("./pages/BookingPage.jsx"));
-const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage.jsx"));
+const StoriesPage = lazy(() => import("./pages/StoriesPage.jsx"));
+const JourneysPage = lazy(() => import("./pages/JourneysPage.jsx"));
+const StudioPage = lazy(() => import("./pages/StudioPage.jsx"));
 
-// Admin Dashboard Pages
-const AdminLoginPage = lazy(() => import("./admin/pages/AdminLoginPage.jsx"));
-const AdminInviteAcceptPage = lazy(() => import("./admin/pages/AdminInviteAcceptPage.jsx"));
-import AdminLayout from "./admin/components/AdminLayout.jsx";
-const AdminDashboardPage = lazy(() => import("./admin/pages/AdminDashboardPage.jsx"));
-const AdminInquiriesPage = lazy(() => import("./admin/pages/AdminInquiriesPage.jsx"));
-const AdminClientsPage = lazy(() => import("./admin/pages/AdminClientsPage.jsx"));
-const AdminProjectsPage = lazy(() => import("./admin/pages/AdminProjectsPage.jsx"));
-const AdminBookingsPage = lazy(() => import("./admin/pages/AdminBookingsPage.jsx"));
-const AdminPortfolioPage = lazy(() => import("./admin/pages/AdminPortfolioPage.jsx"));
-const AdminServicesPage = lazy(() => import("./admin/pages/AdminServicesPage.jsx"));
-const AdminTestimonialsPage = lazy(() => import("./admin/pages/AdminTestimonialsPage.jsx"));
-const AdminMessagesPage = lazy(() => import("./admin/pages/AdminMessagesPage.jsx"));
-const AdminAnalyticsPage = lazy(() => import("./admin/pages/AdminAnalyticsPage.jsx"));
-const AdminTeamPage = lazy(() => import("./admin/pages/AdminTeamPage.jsx"));
-const AdminSettingsPage = lazy(() => import("./admin/pages/AdminSettingsPage.jsx"));
+// Admin Dashboard & Live CMS
+const AdminDashboard = lazy(() => import("./admin/AdminDashboard.jsx"));
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function App() {
+function AppShell() {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
+  const isAdmin =
+    location.pathname.startsWith("/admin") || location.pathname.startsWith("/studio-os");
   const isBooking = location.pathname.startsWith("/book") || location.pathname.startsWith("/contact");
   const isExperience = location.pathname.startsWith("/experiences") || isBooking;
-  const isEditorial = location.pathname.startsWith("/explore") || location.pathname.startsWith("/stories/portraits");
+  const isEditorial =
+    location.pathname.startsWith("/explore") ||
+    location.pathname.startsWith("/stories/portraits") ||
+    location.pathname.startsWith("/stories") ||
+    location.pathname.startsWith("/journeys") ||
+    location.pathname.startsWith("/studio");
 
   useEffect(() => {
     // Disable smooth Lenis scrolling on admin dashboard for instant, native responsiveness
@@ -152,20 +144,76 @@ export default function App() {
   };
 
   return (
-    <AdminProvider>
-      {/* Public Navbar hidden on all admin dashboard routes */}
+    <>
       {!isAdmin && <Navbar />}
 
       <main
         style={{
-          minHeight: isAdmin || isExperience || isEditorial ? "100vh" : undefined,
-          backgroundColor: isExperience ? "#050505" : isEditorial ? "#f7ede0" : undefined,
+          minHeight: isAdmin ? "100vh" : isExperience || isEditorial ? "100vh" : undefined,
+          backgroundColor: isAdmin ? "#FAF8F5" : isExperience ? "#050505" : isEditorial ? "#f7ede0" : undefined,
         }}
       >
         <AnimatePresence mode="wait" onExitComplete={handleRouteExitComplete}>
           <Routes location={location} key={isAdmin ? "admin-shell" : location.pathname}>
+            {/* Admin Dashboard & Live CMS */}
+            <Route
+              path="/admin/*"
+              element={
+                <Suspense
+                  fallback={
+                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
+                  }
+                >
+                  <AdminDashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <Suspense
+                  fallback={
+                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
+                  }
+                >
+                  <AdminDashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/studio-os/*"
+              element={
+                <Suspense
+                  fallback={
+                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
+                  }
+                >
+                  <AdminDashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/studio-os"
+              element={
+                <Suspense
+                  fallback={
+                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
+                  }
+                >
+                  <AdminDashboard />
+                </Suspense>
+              }
+            />
+
             {/* Public Website Routes */}
-            <Route path="/" element={<Suspense fallback={<div className="page-loader-placeholder" />}><Home /></Suspense>} />
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<div className="page-loader-placeholder" />}>
+                  <Home />
+                </Suspense>
+              }
+            />
             <Route
               path="/experiences/website-design"
               element={
@@ -212,9 +260,31 @@ export default function App() {
               }
             />
             <Route path="/stories/portraits" element={<Navigate to="/explore/portraits" replace />} />
-            <Route path="/stories" element={<Suspense fallback={<div className="page-loader-placeholder" />}><PlaceholderPage title="Stories" /></Suspense>} />
-            <Route path="/journeys" element={<Suspense fallback={<div className="page-loader-placeholder" />}><PlaceholderPage title="Journeys" /></Suspense>} />
-            <Route path="/studio" element={<Suspense fallback={<div className="page-loader-placeholder" />}><PlaceholderPage title="The Studio" /></Suspense>} />
+            
+            <Route
+              path="/stories"
+              element={
+                <Suspense fallback={<div className="page-loader-placeholder" />}>
+                  <StoriesPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/journeys"
+              element={
+                <Suspense fallback={<div className="page-loader-placeholder" />}>
+                  <JourneysPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/studio"
+              element={
+                <Suspense fallback={<div className="page-loader-placeholder" />}>
+                  <StudioPage />
+                </Suspense>
+              }
+            />
 
             {/* Booking & Creative Brief Routes */}
             <Route
@@ -267,92 +337,21 @@ export default function App() {
             <Route path="/work" element={<Navigate to="/stories" replace />} />
             <Route path="/services" element={<Navigate to="/journeys" replace />} />
 
-            {/* Admin Authentication & Invitation Routes */}
-            <Route
-              path="/admin/login"
-              element={
-                <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0A" }} />}>
-                  <AdminLoginPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/admin/invite/:token"
-              element={
-                <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0A" }} />}>
-                  <AdminInviteAcceptPage />
-                </Suspense>
-              }
-            />
-
-            {/* Protected Admin Shell & Nested Modules (Persistent, Zero-Blink Shell) */}
-            <Route
-              path="/admin"
-              element={
-                <AdminProtectedRoute>
-                  <AdminLayout />
-                </AdminProtectedRoute>
-              }
-            >
-              <Route index element={<AdminDashboardPage />} />
-              <Route path="dashboard" element={<AdminDashboardPage />} />
-              <Route path="inquiries" element={<AdminInquiriesPage />} />
-              <Route path="clients" element={<AdminClientsPage />} />
-              <Route path="projects" element={<AdminProjectsPage />} />
-              <Route path="bookings" element={<AdminBookingsPage />} />
-              <Route path="portfolio" element={<AdminPortfolioPage />} />
-              <Route
-                path="services"
-                element={
-                  <AdminProtectedRoute requiredRole="Founder">
-                    <AdminServicesPage />
-                  </AdminProtectedRoute>
-                }
-              />
-              <Route
-                path="testimonials"
-                element={
-                  <AdminProtectedRoute requiredRole="Admin">
-                    <AdminTestimonialsPage />
-                  </AdminProtectedRoute>
-                }
-              />
-              <Route path="messages" element={<AdminMessagesPage />} />
-              <Route
-                path="analytics"
-                element={
-                  <AdminProtectedRoute requiredRole="Admin">
-                    <AdminAnalyticsPage />
-                  </AdminProtectedRoute>
-                }
-              />
-              <Route
-                path="team"
-                element={
-                  <AdminProtectedRoute requiredRole="Founder">
-                    <AdminTeamPage />
-                  </AdminProtectedRoute>
-                }
-              />
-              <Route
-                path="settings"
-                element={
-                  <AdminProtectedRoute requiredRole="Founder">
-                    <AdminSettingsPage />
-                  </AdminProtectedRoute>
-                }
-              />
-              <Route path="*" element={<AdminDashboardPage />} />
-            </Route>
-
-            {/* Fallback for retired secondary routes */}
+            {/* Fallback for all other routes redirects to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AnimatePresence>
       </main>
 
-      {/* Public Footer hidden on all admin dashboard routes */}
       {!isAdmin && <Footer />}
-    </AdminProvider>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <LiveCmsProvider>
+      <AppShell />
+    </LiveCmsProvider>
   );
 }

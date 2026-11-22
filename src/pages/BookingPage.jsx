@@ -413,7 +413,7 @@ export default function BookingPage() {
         throw new Error(errJson.error || "Unable to submit your project brief right now. Please try again.");
       }
 
-      // 4. Save inquiry into studio DataContext (persisted across admin)
+      // 4. Save inquiry into studio DataContext
       if (typeof addInquiry === "function") {
         addInquiry({
           ...bookingPayload,
