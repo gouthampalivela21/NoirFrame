@@ -132,7 +132,8 @@ export default function Navbar() {
   const isExperienceDark =
     location.pathname.startsWith("/experiences") ||
     location.pathname.startsWith("/book") ||
-    location.pathname.startsWith("/contact");
+    location.pathname.startsWith("/contact") ||
+    location.pathname.startsWith("/journeys");
   const isEditorial = location.pathname.startsWith("/explore") || location.pathname.startsWith("/stories/portraits");
 
   return (
