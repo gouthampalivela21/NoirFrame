@@ -13,6 +13,9 @@ import {
   EASE_APPLE,
 } from "../animations/pageTransitions.js";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { useLiveCms } from "../context/LiveCmsContext.jsx";
+import { setPageMetadata } from "../utils/pageMetadata.js";
+import { optimizedImageSrc } from "../utils/optimizedImageSrc.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -100,6 +103,9 @@ function getDesktopCinematicMatch() {
 }
 
 function InsidePreviewThumb({ module }) {
+  if (module.image) {
+    return <div className="inside-thumb" aria-hidden="true"><img src={module.image} alt="" loading="lazy" /></div>;
+  }
   switch (module.id) {
     case "homepage":
       return (
@@ -166,6 +172,11 @@ function InsidePreviewThumb({ module }) {
 }
 
 export default function WebsiteExperiencePage() {
+  const { websiteExperience: content = {} } = useLiveCms();
+  const filmStages = Array.isArray(content.filmStages) ? content.filmStages : FILM_PROCESS_STAGES;
+  const processTimeline = Array.isArray(content.processTimeline) ? content.processTimeline : CREATIVE_PROCESS_TIMELINE;
+  const modules = Array.isArray(content.modules) ? content.modules : INSIDE_WEBSITE_MODULES;
+  const technology = Array.isArray(content.technology) ? content.technology : TECH_STACK;
   const pageRef = useRef(null);
   const filmSectionRef = useRef(null);
   const pinRef = useRef(null);
@@ -179,9 +190,9 @@ export default function WebsiteExperiencePage() {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.title = "Website Experience — PHANTOM LABS";
+      setPageMetadata(content.seoTitle || "Website Experience — PHANTOM LABS", content.seoDescription);
     }
-  }, []);
+  }, [content.seoTitle, content.seoDescription]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -437,14 +448,14 @@ export default function WebsiteExperiencePage() {
 
           {/* Hero Copy Overlay */}
           <div className="exp-hero__copy">
-            <span className="exp-hero__label">WEBSITE EXPERIENCE</span>
+            <span className="exp-hero__label">{content.heroLabel || "WEBSITE EXPERIENCE"}</span>
             <h1 className="exp-hero__title">
-              Websites that
+              {content.heroHeadlineFirst || "Websites that"}
               <br />
-              feel different.
+              {content.heroHeadlineSecond || "feel different."}
             </h1>
             <p className="exp-hero__subtitle">
-              We design and develop digital experiences that turn ideas into something extraordinary.
+              {content.heroSubtitle || "We design and develop digital experiences that turn ideas into something extraordinary."}
             </p>
           </div>
 
@@ -460,22 +471,20 @@ export default function WebsiteExperiencePage() {
             <>
               {/* Phase 4 Editorial Copy beside angled laptop */}
               <div className="exp-story-editorial" aria-hidden="false">
-                <span className="exp-kicker">03 / DESIGN STORY</span>
+                <span className="exp-kicker">{content.storyKicker || "03 / DESIGN STORY"}</span>
                 <h2 className="exp-story-editorial__title">
-                  Designed with restraint.
-                  <br />
-                  Built to hold attention.
+                  {content.storyTitle || "Designed with restraint. Built to hold attention."}
                 </h2>
                 <p className="exp-story-editorial__text">
-                  Every proportion, margin, and light cue is calibrated so the product commands the room — never visual noise.
+                  {content.storyBody || "Every proportion, margin, and light cue is calibrated so the product commands the room — never visual noise."}
                 </p>
               </div>
 
               {/* Phase 5 Sequential 6-Stage Process beside synchronized screen */}
               <div className="exp-process-stage">
-                <span className="exp-kicker">04 / THE PROCESS</span>
+                <span className="exp-kicker">{content.filmKicker || "04 / THE PROCESS"}</span>
                 <ul className="exp-proc-list">
-                  {FILM_PROCESS_STAGES.map((stage, idx) => (
+                  {filmStages.map((stage, idx) => (
                     <li key={stage.title} className={`exp-proc-item exp-proc-item--${idx}`}>
                       <span className="exp-proc-item__num">{stage.num}</span>
                       <div className="exp-proc-item__copy">
@@ -489,15 +498,15 @@ export default function WebsiteExperiencePage() {
 
               {/* Phase 6 Final Reveal Caption */}
               <div className="exp-final-caption">
-                <span className="exp-kicker">05 / FINAL REVEAL</span>
-                <p>Precision crafted from concept to live viewport.</p>
+                <span className="exp-kicker">{content.finalKicker || "05 / FINAL REVEAL"}</span>
+                <p>{content.finalCaption || "Precision crafted from concept to live viewport."}</p>
               </div>
             </>
           )}
 
           {/* Scroll Prompt */}
           <div className="exp-hero__scroll-cue" aria-hidden="true">
-            <span>SCROLL TO EXPLORE</span>
+            <span>{content.scrollLabel || "SCROLL TO EXPLORE"}</span>
             <span className="exp-hero__scroll-arrow">↓</span>
           </div>
         </div>
@@ -507,15 +516,13 @@ export default function WebsiteExperiencePage() {
           <div className="exp-mobile-story">
             <div className="exp-mobile-story__card">
               <span className="exp-kicker">DESIGN STORY</span>
-              <h2 className="exp-mobile-story__title">
-                Designed with restraint. Built to hold attention.
-              </h2>
+              <h2 className="exp-mobile-story__title">{content.mobileStoryTitle || content.storyTitle || "Designed with restraint. Built to hold attention."}</h2>
               <p className="exp-mobile-story__text">
-                Tap any stage below to inspect how the architecture inside the MacBook screen evolves from discovery to production release.
+                {content.mobileStoryBody || "Tap any stage below to inspect how the architecture inside the MacBook screen evolves from discovery to production release."}
               </p>
 
               <div className="exp-mobile-tabs" role="tablist" aria-label="Experience workflow stages">
-                {FILM_PROCESS_STAGES.map((stage, idx) => (
+                {filmStages.map((stage, idx) => (
                   <button
                     key={stage.title}
                     type="button"
@@ -544,21 +551,21 @@ export default function WebsiteExperiencePage() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.9, ease: EASE_APPLE }}
           >
-            <span className="exp-kicker">THE VISION</span>
+            <span className="exp-kicker">{content.visionKicker || "THE VISION"}</span>
             <h2 id="vision-heading" className="exp-vision__title">
-              More than a website.
+              {content.visionTitle || "More than a website."}
             </h2>
             <p className="exp-vision__desc">
-              We don’t just build websites. We create digital experiences that communicate identity, evoke emotion, and make brands unforgettable.
+              {content.visionBody || "We don’t just build websites. We create digital experiences that communicate identity, evoke emotion, and make brands unforgettable."}
             </p>
           </motion.div>
 
           <div className="exp-vision__media-frame">
             <picture>
-              <source type="image/webp" srcSet="/images/hero-villa-wide.webp" />
+              <source srcSet={content.visionImageWebp || "/images/hero-villa-wide.webp"} />
               <img
-                src="/images/hero-villa-wide.jpg"
-                alt="Architectural glass villa glowing at twilight overlooking misty mountains"
+                src={optimizedImageSrc(content.visionImage || "/images/hero-villa-wide.jpg")}
+                alt={content.visionImageAlt || "Architectural glass villa glowing at twilight overlooking misty mountains"}
                 className="exp-vision__parallax-img"
                 loading="lazy"
                 decoding="async"
@@ -572,14 +579,14 @@ export default function WebsiteExperiencePage() {
       <section className="exp-creative-process" aria-labelledby="process-heading">
         <div className="exp-creative-process__inner container-max">
           <div className="exp-section-head">
-            <span className="exp-kicker">METHODOLOGY</span>
+            <span className="exp-kicker">{content.processKicker || "METHODOLOGY"}</span>
             <h2 id="process-heading" className="exp-section-title">
-              Our Creative Process
+              {content.processTitle || "Our Creative Process"}
             </h2>
           </div>
 
           <ol className="exp-timeline">
-            {CREATIVE_PROCESS_TIMELINE.map((stage, idx) => (
+            {processTimeline.map((stage, idx) => (
               <motion.li
                 key={stage.name}
                 className="exp-timeline__row"
@@ -605,17 +612,17 @@ export default function WebsiteExperiencePage() {
       <section className="exp-inside" aria-labelledby="inside-heading">
         <div className="exp-inside__inner container-max">
           <div className="exp-section-head">
-            <span className="exp-kicker">ANATOMY OF THE EXPERIENCE</span>
+            <span className="exp-kicker">{content.insideKicker || "ANATOMY OF THE EXPERIENCE"}</span>
             <h2 id="inside-heading" className="exp-section-title">
-              Inside the Website
+              {content.insideTitle || "Inside the Website"}
             </h2>
             <p className="exp-section-sub">
-              Select any layer below to open its enlarged interactive inspection view.
+              {content.insideIntro || "Select any layer below to open its enlarged interactive inspection view."}
             </p>
           </div>
 
           <div className="exp-inside__grid">
-            {INSIDE_WEBSITE_MODULES.map((mod, idx) => (
+            {modules.map((mod, idx) => (
               <motion.button
                 key={mod.id}
                 type="button"
@@ -650,14 +657,14 @@ export default function WebsiteExperiencePage() {
       <section className="exp-tech" aria-labelledby="tech-heading">
         <div className="exp-tech__inner container-max">
           <div className="exp-section-head">
-            <span className="exp-kicker">TECHNOLOGY</span>
+            <span className="exp-kicker">{content.technologyKicker || "TECHNOLOGY"}</span>
             <h2 id="tech-heading" className="exp-section-title">
-              Engineered for quiet speed.
+              {content.technologyTitle || "Engineered for quiet speed."}
             </h2>
           </div>
 
           <div className="exp-tech__list">
-            {TECH_STACK.map((item, idx) => (
+            {technology.map((item, idx) => (
               <motion.div
                 key={item.name}
                 className="exp-tech__item"
@@ -690,20 +697,20 @@ export default function WebsiteExperiencePage() {
           transition={{ duration: 0.85, ease: EASE_APPLE }}
         >
           <h2 id="exp-cta-heading" className="exp-cta__title">
-            Let’s create something unforgettable.
+            {content.ctaTitle || "Let’s create something unforgettable."}
           </h2>
           <p className="exp-cta__subtitle">
-            Your next digital experience starts with an idea.
+            {content.ctaSubtitle || "Your next digital experience starts with an idea."}
           </p>
 
           <div className="exp-cta__actions">
-            <Link to="/contact" className="exp-cta__btn">
-              <span>Start a Conversation</span>
+            <Link to={content.ctaLink || "/contact"} className="exp-cta__btn">
+              <span>{content.ctaLabel || "Start a Conversation"}</span>
               <span aria-hidden="true">↗</span>
             </Link>
             <Link to="/#websites" className="exp-cta__back">
               <span aria-hidden="true">←</span>
-              <span>Return to PHANTOM LABS</span>
+              <span>{content.backLabel || "Return to PHANTOM LABS"}</span>
             </Link>
           </div>
         </motion.div>
@@ -711,6 +718,7 @@ export default function WebsiteExperiencePage() {
 
       {/* Interactive Native Top-Layer Inspection Dialog */}
       <InsideWebsiteModal
+        modules={modules}
         selectedId={selectedInsideId}
         onSelectId={setSelectedInsideId}
         onClose={() => setSelectedInsideId(null)}

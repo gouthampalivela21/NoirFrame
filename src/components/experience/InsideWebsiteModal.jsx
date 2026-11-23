@@ -247,14 +247,16 @@ export default function InsideWebsiteModal({
   selectedId,
   onSelectId,
   onClose,
+  modules = INSIDE_WEBSITE_MODULES,
 }) {
   const dialogRef = useRef(null);
   const pointerDownOutsideRef = useRef(false);
   const [subVariant, setSubVariant] = useState(0);
   const titleId = useId();
 
-  const currentIdx = INSIDE_WEBSITE_MODULES.findIndex((m) => m.id === selectedId);
-  const currentModule = currentIdx >= 0 ? INSIDE_WEBSITE_MODULES[currentIdx] : null;
+  const moduleList = Array.isArray(modules) ? modules : INSIDE_WEBSITE_MODULES;
+  const currentIdx = moduleList.findIndex((m) => m.id === selectedId);
+  const currentModule = currentIdx >= 0 ? moduleList[currentIdx] : null;
 
   useEffect(() => {
     setSubVariant(0);
@@ -316,9 +318,9 @@ export default function InsideWebsiteModal({
   const stepModule = (delta) => {
     if (currentIdx < 0) return;
     const nextIdx =
-      (currentIdx + delta + INSIDE_WEBSITE_MODULES.length) %
-      INSIDE_WEBSITE_MODULES.length;
-    onSelectId(INSIDE_WEBSITE_MODULES[nextIdx].id);
+      (currentIdx + delta + moduleList.length) %
+      moduleList.length;
+    onSelectId(moduleList[nextIdx].id);
   };
 
   return (
@@ -389,7 +391,7 @@ export default function InsideWebsiteModal({
               ← Previous
             </button>
             <span className="inside-modal__counter">
-              {currentModule.index} / 0{INSIDE_WEBSITE_MODULES.length}
+              {currentModule.index} / {String(moduleList.length).padStart(2, "0")}
             </span>
             <button
               type="button"

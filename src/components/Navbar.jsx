@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { prefersReducedMotion } from "../utils/helpers.js";
 import { attachMagnetic } from "../animations/hoverAnimations.js";
 import Logo from "./Logo.jsx";
+import { useLiveCms } from "../context/LiveCmsContext.jsx";
 
 const NAV_LINKS = [
   { label: "Home", to: "/", match: ["/"] },
@@ -53,6 +54,7 @@ const itemVariants = {
 };
 
 export default function Navbar() {
+  const { navigation, branding } = useLiveCms();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ctaBtnRef = useRef(null);
@@ -62,7 +64,8 @@ export default function Navbar() {
     if (link.to === "/") {
       return location.pathname === "/";
     }
-    return link.match?.some((prefix) => location.pathname.startsWith(prefix));
+    const matches = Array.isArray(link.match) && link.match.length ? link.match : [link.to];
+    return matches.some((prefix) => prefix && location.pathname.startsWith(prefix));
   };
 
   useEffect(() => {
@@ -128,6 +131,7 @@ export default function Navbar() {
   };
 
   const isReduced = prefersReducedMotion();
+  const navLinks = Array.isArray(navigation) && navigation.length ? navigation : NAV_LINKS;
   const isHome = location.pathname === "/";
   const isExperienceDark =
     location.pathname.startsWith("/experiences") ||
@@ -159,13 +163,13 @@ export default function Navbar() {
               style={{ display: "inline-flex", alignItems: "center" }}
             >
               <img
-                src="/images/phantom-labs-logo.png"
-                alt="PHANTOM LABS"
+                src={branding?.logoLight || "/images/phantom-labs-logo.png"}
+                alt={branding?.logoAlt || "PHANTOM LABS"}
                 className="navbar__brand-logo-img navbar__brand-logo-img--light"
               />
               <img
-                src="/images/phantom-labs-logo-white.png"
-                alt="PHANTOM LABS"
+                src={branding?.logoDark || "/images/phantom-labs-logo-white.png"}
+                alt={branding?.logoAlt || "PHANTOM LABS"}
                 className="navbar__brand-logo-img navbar__brand-logo-img--dark"
               />
             </motion.span>
@@ -173,7 +177,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="navbar__center-nav" aria-label="Primary Navigation">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const active = isLinkActive(link);
               return (
                 <Link
@@ -192,13 +196,13 @@ export default function Navbar() {
 
           {/* Desktop Primary CTA Button */}
           <Link
-            to="/contact"
+            to={branding?.headerCtaLink || "/contact"}
             ref={ctaBtnRef}
             className="btn btn-primary navbar__cta-btn"
             data-cursor="button"
             onClick={() => setMenuOpen(false)}
           >
-            <span>Start a Conversation</span>
+            <span>{branding?.headerCtaLabel || "Start a Conversation"}</span>
             <span className="btn-arrow" aria-hidden="true">&rarr;</span>
           </Link>
 
@@ -273,7 +277,7 @@ export default function Navbar() {
               <div className="mobile-apple-nav__inner">
                 {/* Navigation Links Stack */}
                 <nav className="mobile-apple-nav__links" aria-label="Mobile Navigation">
-                  {NAV_LINKS.map((link, idx) => {
+                  {navLinks.map((link, idx) => {
                     const active = isLinkActive(link);
                     return (
                       <motion.div

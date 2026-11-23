@@ -3,21 +3,24 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { setPageMetadata } from "../utils/pageMetadata.js";
+import { optimizedImageSrc } from "../utils/optimizedImageSrc.js";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
 export default function StoriesPage() {
-  const { stories, isLoading } = useLiveCms();
+  const { stories, pages, isLoading } = useLiveCms();
+  const storyPage = pages?.stories || {};
   const [selectedGenre, setSelectedGenre] = useState("All");
   const isReduced = prefersReducedMotion();
 
   useEffect(() => {
-    document.title = "Stories & Field Notes — Phantom Labs";
+    setPageMetadata(storyPage.seoTitle || "Stories & Field Notes — Phantom Labs", storyPage.seoDescription);
     if (window.__lenis) {
       window.__lenis.scrollTo(0, { immediate: true });
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, []);
+  }, [storyPage.seoTitle, storyPage.seoDescription]);
 
   const genres = useMemo(() => {
     const set = new Set(["All"]);
@@ -56,7 +59,7 @@ export default function StoriesPage() {
             marginBottom: "16px",
           }}
         >
-          Visual Monographs & Field Notes
+          {storyPage.eyebrow || "Visual Monographs & Field Notes"}
         </div>
         <h1
           style={{
@@ -69,7 +72,7 @@ export default function StoriesPage() {
             color: "#0D0D0D",
           }}
         >
-          Stories Framed in Light.
+          {storyPage.headline || "Stories Framed in Light."}
         </h1>
         <p
           style={{
@@ -81,7 +84,7 @@ export default function StoriesPage() {
             fontWeight: "300",
           }}
         >
-          A continuous journal of editorial portraiture, natural light observations, and unhurried human encounters.
+          {storyPage.intro || "A continuous journal of editorial portraiture, natural light observations, and unhurried human encounters."}
         </p>
 
         {/* Filter Pills */}
@@ -175,19 +178,12 @@ export default function StoriesPage() {
                       }}
                     >
                       <img
-                        src={imageSrc}
+                        src={optimizedImageSrc(imageSrc)}
                         alt={story.headline}
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
-                          transition: "transform 0.5s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = "scale(1.03)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = "scale(1)";
                         }}
                         loading="lazy"
                         decoding="async"

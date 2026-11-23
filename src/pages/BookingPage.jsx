@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useData } from "../context/DataContext.jsx";
+import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { setPageMetadata } from "../utils/pageMetadata.js";
 import {
   CATEGORIES_CONFIG,
   BOOKING_STEPS,
@@ -17,6 +19,11 @@ export default function BookingPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addInquiry } = useData();
+  const { booking: bookingCms, pages } = useLiveCms();
+  const categoryConfigs = useMemo(
+    () => ({ ...CATEGORIES_CONFIG, ...(bookingCms?.categories || {}) }),
+    [bookingCms?.categories]
+  );
   const isReduced = prefersReducedMotion();
 
   // Detect preselected category from path param or query string (?category=... or ?service=...)
@@ -27,8 +34,8 @@ export default function BookingPage() {
       searchParams.get("service") ||
       "portraits";
     const normalized = raw.toLowerCase().trim();
-    return CATEGORIES_CONFIG[normalized] ? normalized : "portraits";
-  }, [pathCategory, searchParams]);
+    return categoryConfigs[normalized] ? normalized : "portraits";
+  }, [pathCategory, searchParams, categoryConfigs]);
 
   const [currentCategory, setCurrentCategory] = useState(detectedCategory);
   const [currentStep, setCurrentStep] = useState(1); // 1 to 5
@@ -42,10 +49,10 @@ export default function BookingPage() {
 
   // Sync category if URL param changes
   useEffect(() => {
-    if (detectedCategory && CATEGORIES_CONFIG[detectedCategory]) {
+    if (detectedCategory && categoryConfigs[detectedCategory]) {
       setCurrentCategory(detectedCategory);
     }
-  }, [detectedCategory]);
+  }, [detectedCategory, categoryConfigs]);
 
   // Session storage key for saving progress
   const storageKey = `phantom_booking_state_${currentCategory}`;
@@ -81,14 +88,25 @@ export default function BookingPage() {
   }, [formData, storageKey]);
 
   // Update document title
-  const categoryConfig = CATEGORIES_CONFIG[currentCategory] || CATEGORIES_CONFIG.portraits;
+  const categoryConfig = categoryConfigs[currentCategory] || categoryConfigs.portraits;
+  const cmsSteps = BOOKING_STEPS.map((step, index) => (
+    pages?.booking?.steps?.[index] || {
+      ...step,
+      eyebrow: `Step 0${step.id} / ${step.label}`,
+      title: step.label,
+      description: "",
+    }
+  ));
   useEffect(() => {
-    document.title = `Book a Session: ${categoryConfig.label} — Phantom Labs`;
+    setPageMetadata(
+      `${pages?.booking?.seoTitle || "Book a Session"}: ${categoryConfig.label} — Phantom Labs`,
+      pages?.booking?.seoDescription
+    );
     if (window.__lenis) {
       window.__lenis.scrollTo(0, { immediate: true });
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [categoryConfig]);
+  }, [categoryConfig, pages?.booking?.seoTitle]);
 
   // Field change helpers
   const handleBriefChange = (questionId, value) => {
@@ -449,7 +467,7 @@ export default function BookingPage() {
 
   // Category switch handler (if visitor chooses to switch categories)
   const handleCategorySwitch = (newCat) => {
-    if (CATEGORIES_CONFIG[newCat]) {
+    if (categoryConfigs[newCat]) {
       setCurrentCategory(newCat);
       setShowCategoryPicker(false);
       navigate(`/book?category=${newCat}`, { replace: true });
@@ -479,36 +497,21 @@ export default function BookingPage() {
             <div className="booking-confirm-icon" aria-hidden="true">
               ✓
             </div>
-            <h1 className="booking-confirm-title">Project Brief Received.</h1>
+            <h1 className="booking-confirm-title">{pages?.booking?.confirmationTitle || "Project Brief Received."}</h1>
+            {pages?.booking?.confirmationIntro && <p className="booking-confirm-message">{pages.booking.confirmationIntro}</p>}
             <p className="booking-confirm-message">
               Thank you, <strong>{formData.contact.name || "Client"}</strong>. Your commission brief for{" "}
               <strong>{categoryConfig.label}</strong> has been delivered to Maya Rao and the Phantom Labs team.
             </p>
 
             <div className="booking-confirm-timeline">
-              <div className="booking-timeline-card">
-                <span className="booking-timeline-step-num">Step 01 / Studio Review</span>
-                <h3 className="booking-timeline-title">Artistic Evaluation</h3>
-                <p className="booking-timeline-desc">
-                  We review your brief, aesthetic direction, and scheduling within 24–48 hours.
-                </p>
-              </div>
-
-              <div className="booking-timeline-card">
-                <span className="booking-timeline-step-num">Step 02 / Consultation</span>
-                <h3 className="booking-timeline-title">Tailored Proposal</h3>
-                <p className="booking-timeline-desc">
-                  We connect via {formData.contact.preferredChannel} with creative notes, date windows, and pricing scope.
-                </p>
-              </div>
-
-              <div className="booking-timeline-card">
-                <span className="booking-timeline-step-num">Step 03 / Alignment</span>
-                <h3 className="booking-timeline-title">No Upfront Commitment</h3>
-                <p className="booking-timeline-desc">
-                  Final shot lists, locations, and fees are agreed upon together before any deposit is made.
-                </p>
-              </div>
+              {(pages?.booking?.confirmationTimeline || []).map((item, index) => (
+                <div className="booking-timeline-card" key={`${item.title}-${index}`}>
+                  <span className="booking-timeline-step-num">{item.step}</span>
+                  <h3 className="booking-timeline-title">{item.title}</h3>
+                  <p className="booking-timeline-desc">{String(item.desc || "").replace("{channel}", formData.contact.preferredChannel || "your preferred channel")}</p>
+                </div>
+              ))}
             </div>
 
             <div className="booking-confirm-actions">
@@ -569,7 +572,7 @@ export default function BookingPage() {
                     exit={isReduced ? false : { opacity: 0, height: 0 }}
                     transition={{ duration: 0.35, ease: APPLE_EASE }}
                   >
-                    {Object.values(CATEGORIES_CONFIG).map((cat) => (
+                    {Object.values(categoryConfigs).map((cat) => (
                       <button
                         key={cat.id}
                         type="button"
@@ -592,12 +595,12 @@ export default function BookingPage() {
               <div className="booking-progress-bar-track">
                 <div
                   className="booking-progress-bar-fill"
-                  style={{ width: `${((currentStep - 1) / (BOOKING_STEPS.length - 1)) * 100}%` }}
+                  style={{ width: `${((currentStep - 1) / (cmsSteps.length - 1)) * 100}%` }}
                 />
               </div>
 
               <ol className="booking-steps-list">
-                {BOOKING_STEPS.map((step) => {
+                {cmsSteps.map((step) => {
                   const isActive = currentStep === step.id;
                   const isCompleted = currentStep > step.id;
                   return (
@@ -638,10 +641,10 @@ export default function BookingPage() {
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                   >
                     <div className="booking-section-title-wrap">
-                      <span className="booking-step-eyebrow">Step 01 / Creative Vision</span>
-                      <h2 className="booking-step-title">The Project Brief</h2>
+                      <span className="booking-step-eyebrow">{cmsSteps[0]?.eyebrow}</span>
+                      <h2 className="booking-step-title">{cmsSteps[0]?.title}</h2>
                       <p className="booking-step-sub">
-                        Tailored questions for your <strong>{categoryConfig.label}</strong> commission. Help us understand the essence and intention of your project.
+                        {cmsSteps[0]?.description} <strong>{categoryConfig.label}</strong> commission.
                       </p>
                     </div>
 
@@ -780,10 +783,10 @@ export default function BookingPage() {
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                   >
                     <div className="booking-section-title-wrap">
-                      <span className="booking-step-eyebrow">Step 02 / Schedule & Logistics</span>
-                      <h2 className="booking-step-title">Timeline, Setting & Production</h2>
+                      <span className="booking-step-eyebrow">{cmsSteps[1]?.eyebrow}</span>
+                      <h2 className="booking-step-title">{cmsSteps[1]?.title}</h2>
                       <p className="booking-step-sub">
-                        Let us know when and where you would like this production to take place.
+                        {cmsSteps[1]?.description}
                       </p>
                     </div>
 
@@ -899,10 +902,10 @@ export default function BookingPage() {
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                   >
                     <div className="booking-section-title-wrap">
-                      <span className="booking-step-eyebrow">Step 03 / Visual Direction</span>
-                      <h2 className="booking-step-title">Inspiration & References</h2>
+                      <span className="booking-step-eyebrow">{cmsSteps[2]?.eyebrow}</span>
+                      <h2 className="booking-step-title">{cmsSteps[2]?.title}</h2>
                       <p className="booking-step-sub">
-                        Optional step. If you have existing moodboards, Pinterest boards, Are.na channels, or files that capture the atmosphere you envision, share them here.
+                        {cmsSteps[2]?.description}
                       </p>
                     </div>
 
@@ -1060,10 +1063,10 @@ export default function BookingPage() {
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                   >
                     <div className="booking-section-title-wrap">
-                      <span className="booking-step-eyebrow">Step 04 / Communication</span>
-                      <h2 className="booking-step-title">How Should We Reach You?</h2>
+                      <span className="booking-step-eyebrow">{cmsSteps[3]?.eyebrow}</span>
+                      <h2 className="booking-step-title">{cmsSteps[3]?.title}</h2>
                       <p className="booking-step-sub">
-                        We respect your time. Share your preferred contact method and consultation availability.
+                        {cmsSteps[3]?.description}
                       </p>
                     </div>
 
@@ -1189,10 +1192,10 @@ export default function BookingPage() {
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                   >
                     <div className="booking-section-title-wrap">
-                      <span className="booking-step-eyebrow">Step 05 / Final Review</span>
-                      <h2 className="booking-step-title">Review Project Brief</h2>
+                      <span className="booking-step-eyebrow">{cmsSteps[4]?.eyebrow}</span>
+                      <h2 className="booking-step-title">{cmsSteps[4]?.title}</h2>
                       <p className="booking-step-sub">
-                        Confirm your creative brief before sending. You can edit any section by clicking the Edit link.
+                        {cmsSteps[4]?.description}
                       </p>
                     </div>
 

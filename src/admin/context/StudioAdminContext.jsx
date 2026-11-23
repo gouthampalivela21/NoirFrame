@@ -8,6 +8,18 @@ import React, {
 } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { adminApiFetch } from "../auth/adminApi.js";
+import {
+  defaultLiveCmsCategories,
+  defaultLiveCmsBranding,
+  defaultLiveCmsFooter,
+  defaultLiveCmsJourneys,
+  defaultLiveCmsNavigation,
+  defaultLiveCmsPages,
+  defaultLiveCmsStories,
+  defaultLiveCmsStudio,
+  defaultLiveCmsWebsiteExperience,
+} from "../../data/liveCmsDefaults.js";
+import { CATEGORIES_CONFIG } from "../../data/bookingQuestions.js";
 
 const StudioAdminContext = createContext(null);
 
@@ -56,31 +68,16 @@ export function StudioAdminProvider({ children }) {
       ctaText: "Explore Digital Experience",
       ctaLink: "/experiences/website-design",
     },
-    categories: [],
-    studio: {
-      headline: "The Studio.",
-      subtitle: "A sanctuary for deliberate photography, medium format discipline, and unhurried observation.",
-      leadImage: "/images/editorial/mira-studio-lead.jpg",
-      philosophy: "We believe photography is not the act of taking, but of receiving.",
-      principles: [],
-      spaces: [],
-      founder: {},
-    },
-    journeys: {
-      headline: "Journeys & Commissions.",
-      subtitle: "Bespoke photography and motion experiences designed around unhurried presence.",
-      packages: [],
-    },
-    stories: [],
-    footer: {
-      tagline: "Visual Stories, Framed Differently.",
-      address: "Bangalore, India · Worldwide Inquiries",
-      email: "studio@phantomlabs.in",
-      phone: "+91 (0) 80 4920 1800",
-      instagram: "https://instagram.com",
-      linkedin: "https://linkedin.com",
-      copyright: "© 2026 Phantom Labs Studio. All rights reserved.",
-    },
+    websiteExperience: defaultLiveCmsWebsiteExperience,
+    categories: defaultLiveCmsCategories,
+    studio: defaultLiveCmsStudio,
+    journeys: defaultLiveCmsJourneys,
+    stories: defaultLiveCmsStories,
+    booking: { categories: CATEGORIES_CONFIG },
+    pages: defaultLiveCmsPages,
+    navigation: defaultLiveCmsNavigation,
+    branding: defaultLiveCmsBranding,
+    footer: defaultLiveCmsFooter,
     portfolio: [],
     services: [],
     testimonials: [],
@@ -157,10 +154,23 @@ export function StudioAdminProvider({ children }) {
           ...cmsRes.cms,
           hero: { ...prev.hero, ...(cmsRes.cms.hero || {}) },
           websiteSection: { ...prev.websiteSection, ...(cmsRes.cms.websiteSection || {}) },
-          categories: Array.isArray(cmsRes.cms.categories) ? cmsRes.cms.categories : prev.categories,
+          websiteExperience: { ...prev.websiteExperience, ...(cmsRes.cms.websiteExperience || {}) },
+          categories: Array.isArray(cmsRes.cms.categories) && cmsRes.cms.categories.length ? cmsRes.cms.categories : prev.categories,
           studio: { ...prev.studio, ...(cmsRes.cms.studio || {}) },
           journeys: { ...prev.journeys, ...(cmsRes.cms.journeys || {}) },
           stories: Array.isArray(cmsRes.cms.stories) ? cmsRes.cms.stories : prev.stories,
+          booking: { ...prev.booking, ...(cmsRes.cms.booking || {}), categories: { ...(prev.booking?.categories || {}), ...(cmsRes.cms.booking?.categories || {}) } },
+          pages: {
+            ...prev.pages,
+            ...(cmsRes.cms.pages || {}),
+            stories: { ...prev.pages.stories, ...(cmsRes.cms.pages?.stories || {}) },
+            booking: { ...prev.pages.booking, ...(cmsRes.cms.pages?.booking || {}) },
+            studio: { ...prev.pages.studio, ...(cmsRes.cms.pages?.studio || {}) },
+            journeys: { ...prev.pages.journeys, ...(cmsRes.cms.pages?.journeys || {}) },
+            seo: { ...prev.pages.seo, ...(cmsRes.cms.pages?.seo || {}) },
+          },
+          navigation: Array.isArray(cmsRes.cms.navigation) && cmsRes.cms.navigation.length ? cmsRes.cms.navigation : prev.navigation,
+          branding: { ...prev.branding, ...(cmsRes.cms.branding || {}) },
           footer: { ...prev.footer, ...(cmsRes.cms.footer || {}) },
           portfolio: Array.isArray(cmsRes.cms.portfolio) ? cmsRes.cms.portfolio : (Array.isArray(cmsRes.cms.stories) ? cmsRes.cms.stories : []),
           services: Array.isArray(cmsRes.cms.services) ? cmsRes.cms.services : (cmsRes.cms.journeys?.packages || []),
@@ -705,6 +715,29 @@ export function StudioAdminProvider({ children }) {
     }));
   }, []);
 
+  const updateCMSPath = useCallback((path, value) => {
+    const parts = Array.isArray(path) ? path : String(path).split(".").filter(Boolean);
+    if (!parts.length) return;
+    setCmsData((previous) => {
+      const next = { ...previous };
+      let source = previous;
+      let target = next;
+      parts.forEach((part, index) => {
+        const key = Array.isArray(source) ? Number(part) : part;
+        if (index === parts.length - 1) {
+          target[key] = value;
+          return;
+        }
+        const child = source?.[key];
+        const clone = Array.isArray(child) ? [...child] : { ...(child || {}) };
+        target[key] = clone;
+        source = child || {};
+        target = clone;
+      });
+      return next;
+    });
+  }, []);
+
   const saveCMSChanges = useCallback(async () => {
     try {
       const res = await adminApiFetch("/api/admin/cms", {
@@ -817,6 +850,7 @@ export function StudioAdminProvider({ children }) {
     updateCMSCategories,
     updateCMSWebsiteSection,
     updateCMSFooter,
+    updateCMSPath,
     saveCMSChanges,
     addTeamMember,
   };

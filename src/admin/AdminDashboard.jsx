@@ -8,13 +8,10 @@ import InquiriesView from "./views/InquiriesView.jsx";
 import ClientsView from "./views/ClientsView.jsx";
 import ProjectsView from "./views/ProjectsView.jsx";
 import BookingsView from "./views/BookingsView.jsx";
-import PortfolioCMSView from "./views/PortfolioCMSView.jsx";
-import ServicesCMSView from "./views/ServicesCMSView.jsx";
-import TestimonialsCMSView from "./views/TestimonialsCMSView.jsx";
 import MessagesView from "./views/MessagesView.jsx";
 import AnalyticsView from "./views/AnalyticsView.jsx";
 import TeamView from "./views/TeamView.jsx";
-import SettingsCMSView from "./views/SettingsCMSView.jsx";
+import WebsiteContentView from "./views/WebsiteContentView.jsx";
 
 import NewProjectModal from "./components/NewProjectModal.jsx";
 import LogPaymentModal from "./components/LogPaymentModal.jsx";
@@ -30,13 +27,10 @@ import {
   Users,
   Camera,
   Calendar,
-  Image as ImageIcon,
   Layers,
-  MessageSquare,
   Mail,
   BarChart3,
   UserCheck,
-  Sliders,
   Search,
   Bell,
   ChevronDown,
@@ -139,20 +133,17 @@ function AdminDashboardInner() {
 
   const initials = getInitials(displayName, email);
 
-  // 12 Navigation Items
+  // Keep operational tools visible and collect every website editor under CMS.
   const NAV_ITEMS = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "inquiries", label: "Inquiries", icon: Inbox, badge: inquiries.filter((i) => i.status === "New").length },
     { id: "clients", label: "Clients", icon: Users },
     { id: "projects", label: "Projects", icon: Camera, badge: projects.filter((p) => p.stage !== "Delivered").length },
     { id: "bookings", label: "Bookings", icon: Calendar },
-    { id: "portfolio", label: "Portfolio (CMS)", icon: ImageIcon },
-    { id: "services", label: "Services (CMS)", icon: Layers },
-    { id: "testimonials", label: "Testimonials (CMS)", icon: MessageSquare },
+    { id: "cms", label: "CMS", icon: Layers },
     { id: "messages", label: "Messages", icon: Mail, badge: messages.filter((m) => m.unread).length },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "team", label: "Team", icon: UserCheck },
-    { id: "settings", label: "Settings (CMS)", icon: Sliders },
   ];
 
   return (
@@ -173,13 +164,12 @@ function AdminDashboardInner() {
         {/* Extended-Width Uppercase Wordmark */}
         <div className="studio-sidebar-header">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Link to="/admin" style={{ textDecoration: "none", color: "inherit" }} onClick={() => setMobileNavOpen(false)}>
-              <div className="studio-brand-title">
-                PHANTOM LABS
-              </div>
-              <div className="studio-brand-subtitle">
-                Visual Stories, Framed Differently
-              </div>
+            <Link to="/gouthamspace" style={{ textDecoration: "none", color: "inherit" }} onClick={() => setMobileNavOpen(false)}>
+              <img
+                className="studio-brand-logo"
+                src="/images/phantom-labs-admin-wordmark.png"
+                alt="Phantom Labs"
+              />
             </Link>
             <button
               type="button"
@@ -192,7 +182,7 @@ function AdminDashboardInner() {
           </div>
         </div>
 
-        {/* 12 Interactive Navigation Items */}
+        {/* Direct links to operations and editable website sections */}
         <nav className="studio-sidebar-nav">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -465,13 +455,10 @@ function AdminDashboardInner() {
           {activeView === "clients" && <ClientsView />}
           {activeView === "projects" && <ProjectsView />}
           {activeView === "bookings" && <BookingsView />}
-          {activeView === "portfolio" && <PortfolioCMSView />}
-          {activeView === "services" && <ServicesCMSView />}
-          {activeView === "testimonials" && <TestimonialsCMSView />}
           {activeView === "messages" && <MessagesView />}
           {activeView === "analytics" && <AnalyticsView />}
           {activeView === "team" && <TeamView />}
-          {activeView === "settings" && <SettingsCMSView />}
+          {activeView === "cms" && <WebsiteContentView />}
         </main>
       </div>
 

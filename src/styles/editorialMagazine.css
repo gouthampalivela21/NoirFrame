@@ -445,12 +445,6 @@
   display: block;
   object-fit: cover;
   image-rendering: auto;
-  image-rendering: -webkit-optimize-contrast;
-  transition: transform 0.4s ease;
-}
-
-.editorial-frame-box:hover .editorial-frame-img {
-  transform: scale(1.015);
 }
 
 .editorial-moment-passage {
@@ -696,11 +690,10 @@
   border: 1px solid var(--editorial-divider-light);
   text-decoration: none;
   overflow: hidden;
-  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .editorial-story-card:hover {
-  transform: translateY(-3px);
   background: var(--editorial-paper-card-hover);
   border-color: rgba(55, 45, 32, 0.28);
 }
@@ -717,11 +710,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
-}
-
-.editorial-story-card:hover .editorial-story-thumb {
-  transform: scale(1.04);
 }
 
 .editorial-story-card-body {

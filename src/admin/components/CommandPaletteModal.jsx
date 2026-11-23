@@ -151,10 +151,10 @@ export default function CommandPaletteModal() {
               <div
                 className="studio-nav-item"
                 style={{ color: "#111111", padding: "8px 12px" }}
-                onClick={() => navigateTo("portfolio")}
+                onClick={() => navigateTo("cms")}
               >
                 <Layout size={15} />
-                <span>Open Website Portfolio CMS</span>
+                <span>Edit Website Stories</span>
               </div>
             </div>
           )}

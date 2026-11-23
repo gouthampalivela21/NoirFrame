@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { prefersReducedMotion } from "../utils/helpers.js";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
+import { optimizedImageSrc } from "../utils/optimizedImageSrc.js";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
@@ -13,8 +14,8 @@ export default function WebsitesShowcase() {
 
   const title = website.title || "Website.";
   const subtitle = website.subtitle || "A better way to experience the web.";
-  const imageDesktop = website.imageDesktop || "/images/websites-showcase-desktop.jpg";
-  const imageMobile = website.imageMobile || "/images/websites-showcase-mobile.jpg";
+  const imageDesktop = optimizedImageSrc(website.imageDesktop || "/images/websites-showcase-desktop.jpg");
+  const imageMobile = optimizedImageSrc(website.imageMobile || "/images/websites-showcase-mobile.jpg");
   const ctaLink = website.ctaLink || "/experiences/website-design";
 
   return (

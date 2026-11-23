@@ -41,6 +41,52 @@ function sanitizeFilename(name) {
   return base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 160) || "attachment";
 }
 
+/** Create a short-lived, founder-authorized upload slot for an original image. */
+export async function createCmsImageUpload({ name, type, size }) {
+  const mimeType = String(type || "").trim().toLowerCase();
+  if (!mimeType.startsWith("image/")) {
+    const err = new Error("Only image uploads are permitted for website media.");
+    err.statusCode = 400;
+    throw err;
+  }
+  if (!Number.isFinite(Number(size)) || Number(size) <= 0 || Number(size) > MAX_UPLOAD_BYTES) {
+    const err = new Error("Image must be between 1 byte and 15 MB.");
+    err.statusCode = Number(size) > MAX_UPLOAD_BYTES ? 413 : 400;
+    throw err;
+  }
+
+  const cleanName = sanitizeFilename(name || "image.jpg");
+  const ext = path.extname(cleanName) || ".jpg";
+  const filename = `img_${Date.now()}_${crypto.randomBytes(8).toString("hex")}${ext}`;
+  const storagePath = `cms/${filename}`;
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase.storage
+    .from("public-media")
+    .createSignedUploadUrl(storagePath, { upsert: false });
+
+  if (error || !data?.token || !data?.path) {
+    const err = new Error(error?.message || "Could not create a secure image upload link.");
+    err.statusCode = 502;
+    throw err;
+  }
+
+  const { data: publicData } = supabase.storage.from("public-media").getPublicUrl(data.path);
+  if (!publicData?.publicUrl) {
+    const err = new Error("Supabase did not return a public image URL.");
+    err.statusCode = 502;
+    throw err;
+  }
+
+  return {
+    path: data.path,
+    token: data.token,
+    url: publicData.publicUrl,
+    filename,
+    mimeType,
+    sizeBytes: Number(size),
+  };
+}
+
 /**
  * Public CMS image upload — saves to public/images/uploads and optionally Supabase storage
  */
@@ -79,24 +125,46 @@ export async function saveCmsImage({ name, type, base64Data }) {
   const filename = `${uniquePrefix}${ext}`;
   const localFilePath = path.join(PUBLIC_UPLOADS_DIR, filename);
 
-  // Write file to public/images/uploads for instant local serving
-  fs.writeFileSync(localFilePath, buffer);
-  const publicUrl = `/images/uploads/${filename}`;
-
-  // If Supabase Storage is configured, also push to cloud storage bucket
+  // Keep the uploaded bytes, format, dimensions, and quality exactly as sent.
+  // The file is never resized or recompressed here.
   try {
     const supabase = getSupabaseAdminClient();
-    await supabase.storage
+    const storagePath = `cms/${filename}`;
+    const { error } = await supabase.storage
       .from("public-media")
-      .upload(`cms/${filename}`, buffer, {
+      .upload(storagePath, buffer, {
         contentType: mimeType,
+        cacheControl: "31536000",
         upsert: true,
       });
-  } catch {}
+    if (error) throw error;
+
+    const { data } = supabase.storage.from("public-media").getPublicUrl(storagePath);
+    if (!data?.publicUrl) throw new Error("Supabase did not return a public image URL.");
+
+    return {
+      success: true,
+      url: data.publicUrl,
+      filename,
+      sizeBytes: buffer.length,
+      mimeType,
+    };
+  } catch (storageError) {
+    // Vercel's filesystem is temporary. Never return a local URL for a cloud
+    // deployment or pretend an image was saved if persistent storage failed.
+    if (process.env.VERCEL) {
+      const err = new Error("Could not save the original image to Supabase Storage. Check the public-media bucket and server credentials, then try again.");
+      err.statusCode = 502;
+      throw err;
+    }
+
+    // Local development fallback, also preserving the original buffer bytes.
+    fs.writeFileSync(localFilePath, buffer);
+  }
 
   return {
     success: true,
-    url: publicUrl,
+    url: `/images/uploads/${filename}`,
     filename,
     sizeBytes: buffer.length,
     mimeType,

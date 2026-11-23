@@ -22,14 +22,14 @@ export const routeTransition = {
   animate: {
     opacity: 1,
     transition: {
-      duration: 0.28,
+      duration: 0.2,
       ease: EASE_APPLE,
     },
   },
   exit: {
     opacity: 0,
     transition: {
-      duration: 0.2,
+      duration: 0.14,
       ease: EASE_APPLE_SOFT,
     },
   },

@@ -28,7 +28,8 @@ gsap.registerPlugin(ScrollTrigger);
 function AppShell() {
   const location = useLocation();
   const isAdmin =
-    location.pathname.startsWith("/admin") || location.pathname.startsWith("/studio-os");
+    location.pathname === "/gouthamspace" ||
+    location.pathname.startsWith("/gouthamspace/");
   const isBooking = location.pathname.startsWith("/book") || location.pathname.startsWith("/contact");
   const isExperience = location.pathname.startsWith("/experiences") || isBooking;
   const isEditorial =
@@ -157,7 +158,7 @@ function AppShell() {
           <Routes location={location} key={isAdmin ? "admin-shell" : location.pathname}>
             {/* Admin Dashboard & Live CMS */}
             <Route
-              path="/admin/*"
+              path="/gouthamspace/*"
               element={
                 <Suspense
                   fallback={
@@ -168,43 +169,6 @@ function AppShell() {
                 </Suspense>
               }
             />
-            <Route
-              path="/admin"
-              element={
-                <Suspense
-                  fallback={
-                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
-                  }
-                >
-                  <AdminDashboard />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/studio-os/*"
-              element={
-                <Suspense
-                  fallback={
-                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
-                  }
-                >
-                  <AdminDashboard />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/studio-os"
-              element={
-                <Suspense
-                  fallback={
-                    <div style={{ minHeight: "100vh", background: "#FAF8F5" }} />
-                  }
-                >
-                  <AdminDashboard />
-                </Suspense>
-              }
-            />
-
             {/* Public Website Routes */}
             <Route
               path="/"

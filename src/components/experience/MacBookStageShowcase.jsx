@@ -1,4 +1,5 @@
 import React from "react";
+import { optimizedImageSrc } from "../../utils/optimizedImageSrc.js";
 
 const PROCESS_SCREEN_STATES = [
   {
@@ -112,7 +113,7 @@ export default function MacBookStageShowcase({
                     <picture className="mbp-scene__bg-picture">
                       <source type="image/webp" srcSet="/images/hero-villa-wide.webp" />
                       <img
-                        src="/images/hero-villa-wide.jpg"
+                        src={optimizedImageSrc("/images/hero-villa-wide.jpg")}
                         alt=""
                         className="mbp-scene__bg-img"
                         decoding="async"
@@ -239,7 +240,7 @@ export default function MacBookStageShowcase({
                     <picture className="mbp-scene__bg-picture">
                       <source type="image/webp" srcSet="/images/hero-villa-wide.webp" />
                       <img
-                        src="/images/hero-villa-wide.jpg"
+                        src={optimizedImageSrc("/images/hero-villa-wide.jpg")}
                         alt=""
                         className="mbp-scene__bg-img"
                         decoding="async"

@@ -21,8 +21,8 @@
 /* Minimal Warm Off-White Header over Sunset Villa Hero */
 .navbar--home:not(.is-scrolled):not(.navbar--open) {
   background: rgba(245, 244, 241, 0.92);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom-color: rgba(17, 17, 17, 0.08);
 }
 
@@ -438,17 +438,6 @@
   object-position: center bottom;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .promo-tile__img {
-    transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .promo-tile:has(a.promo-tile__primary-link:hover) .promo-tile__img,
-  .promo-tile:hover .promo-tile__img {
-    transform: scale(1.035);
-  }
-}
-
 /* Split Layout (Row 3 Desktop/Tablet: Left-Centered Copy beside Right Visual) */
 @media (min-width: 680px) {
   .promo-tile--split,
@@ -459,16 +448,9 @@
     padding-inline-start: clamp(24px, 4vw, 60px);
   }
 
-  .promo-tile--split .promo-tile__header,
-  .promo-tile--split .promo-tile__actions,
-  .promo-tile--commercial .promo-tile__header,
-  .promo-tile--commercial .promo-tile__actions,
-  .promo-tile--editorial .promo-tile__header,
-  .promo-tile--editorial .promo-tile__actions {
-    inline-size: min(48%, 280px);
-    text-align: center;
-    justify-content: center;
-  }
+  .promo-tile--split .promo-tile__copy,
+  .promo-tile--commercial .promo-tile__copy,
+  .promo-tile--editorial .promo-tile__copy { max-inline-size: 48%; }
 
   .promo-tile--split .promo-tile__img,
   .promo-tile--commercial .promo-tile__img,
@@ -478,15 +460,6 @@
 }
 
 @media (min-width: 680px) and (max-width: 1080px) {
-  .promo-tile--split .promo-tile__header,
-  .promo-tile--split .promo-tile__actions,
-  .promo-tile--commercial .promo-tile__header,
-  .promo-tile--commercial .promo-tile__actions,
-  .promo-tile--editorial .promo-tile__header,
-  .promo-tile--editorial .promo-tile__actions {
-    inline-size: 48%;
-  }
-
   .promo-tile--split .promo-tile__actions,
   .promo-tile--commercial .promo-tile__actions,
   .promo-tile--editorial .promo-tile__actions {
@@ -548,10 +521,22 @@
 }
 
 .promo-tile__header {
-  position: relative;
-  z-index: 2;
   max-inline-size: 460px;
   pointer-events: none;
+}
+
+.promo-tile__copy {
+  position: absolute;
+  z-index: 3;
+  left: var(--tile-text-x, 50%);
+  top: var(--tile-text-y, 16%);
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .promo-tile__title {
@@ -612,10 +597,7 @@
 }
 
 .promo-tile__primary-link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  content: none;
 }
 
 /* Elevate Independent Secondary Action above Primary Stretched Overlay */

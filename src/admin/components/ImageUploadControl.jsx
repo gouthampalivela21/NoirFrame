@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Upload, Image as ImageIcon, X, Check, Loader2 } from "lucide-react";
 import { adminApiFetch } from "../auth/adminApi.js";
+import { supabase } from "../../lib/supabase.js";
 
 export default function ImageUploadControl({
   label = "Image Media",
@@ -14,6 +15,62 @@ export default function ImageUploadControl({
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
 
+  const makeDeliveryImage = async (file) => {
+    if (file.type === "image/svg+xml" || file.type === "image/gif") return null;
+    if (typeof createImageBitmap !== "function") return null;
+    const bitmap = await createImageBitmap(file);
+    try {
+      const maxEdge = 2560;
+      if (Math.max(bitmap.width, bitmap.height) <= maxEdge && file.size <= 2 * 1024 * 1024) return null;
+      const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d", { alpha: true });
+      if (!context) return null;
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.92));
+      if (!blob || blob.size >= file.size) return null;
+      return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}-web.webp`, { type: "image/webp", lastModified: Date.now() });
+    } finally {
+      bitmap.close?.();
+    }
+  };
+
+  const uploadToCloud = async (file) => {
+    const linkResponse = await adminApiFetch("/api/admin/image-upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: file.name, type: file.type, size: file.size }),
+    });
+    const upload = await linkResponse.json().catch(() => ({}));
+    if (!linkResponse.ok) throw new Error(upload.error || "Could not prepare the image upload.");
+    const { error } = await supabase.storage.from("public-media").uploadToSignedUrl(upload.path, upload.token, file, {
+      contentType: file.type,
+      cacheControl: "31536000",
+      upsert: false,
+    });
+    if (error) throw error;
+    return upload.url;
+  };
+
+  const uploadViaApi = async (file) => {
+    const base64Data = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Could not read the selected image."));
+      reader.readAsDataURL(file);
+    });
+    const res = await adminApiFetch("/api/admin/upload-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: file.name, type: file.type, base64Data }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Failed to upload image.");
+    return data.url;
+  };
+
   const handleFileUpload = async (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -21,38 +78,36 @@ export default function ImageUploadControl({
       return;
     }
 
+    setIsUploading(true);
+    setUploadError("");
+
     try {
-      setIsUploading(true);
-      setUploadError("");
-
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64Data = e.target.result;
-
-        const res = await adminApiFetch("/api/admin/upload-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: file.name,
-            type: file.type,
-            base64Data,
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) {
-            onChange(data.url);
-          }
-        } else {
-          const errData = await res.json().catch(() => ({}));
-          setUploadError(errData.error || "Failed to upload image.");
+      if (supabase?.storage) {
+        // Preserve the exact upload as the master; use a separate responsive WebP for the public site.
+        const originalUrl = await uploadToCloud(file);
+        let deliveryUrl = originalUrl;
+        try {
+          const deliveryFile = await makeDeliveryImage(file);
+          if (deliveryFile) deliveryUrl = await uploadToCloud(deliveryFile);
+        } catch (deliveryError) {
+          console.warn("Could not create a lighter delivery image; using the original.", deliveryError);
         }
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+        onChange(deliveryUrl, { originalUrl });
+      } else {
+        // Local development fallback when Supabase is not configured.
+        const originalUrl = await uploadViaApi(file);
+        let deliveryUrl = originalUrl;
+        try {
+          const deliveryFile = await makeDeliveryImage(file);
+          if (deliveryFile) deliveryUrl = await uploadViaApi(deliveryFile);
+        } catch (deliveryError) {
+          console.warn("Could not create a lighter delivery image; using the original.", deliveryError);
+        }
+        if (deliveryUrl) onChange(deliveryUrl, { originalUrl });
+      }
     } catch (err) {
-      setUploadError("Upload failed. Please check network connectivity.");
+      setUploadError(err.message || "Upload failed. Please check network connectivity.");
+    } finally {
       setIsUploading(false);
     }
   };

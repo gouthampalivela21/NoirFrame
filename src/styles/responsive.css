@@ -141,6 +141,11 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
+
+  .navbar--home:not(.is-scrolled):not(.navbar--open) {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
 }
 
 /* ==========================================================================

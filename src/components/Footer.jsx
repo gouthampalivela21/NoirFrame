@@ -2,19 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
 
-const LINKS = [
-  { label: "Stories", to: "/stories" },
-  { label: "Journeys", to: "/journeys" },
-  { label: "The Studio", to: "/studio" },
-  { label: "Contact", to: "/contact" },
-];
-
 export default function Footer() {
-  const { footer } = useLiveCms();
+  const { footer, navigation, branding } = useLiveCms();
+  const links = Array.isArray(footer?.links) && footer.links.length
+    ? footer.links
+    : (navigation || []);
   const tagline = footer?.tagline || "Visual stories, framed differently.";
   const address = footer?.address || "Bangalore, India · Worldwide Inquiries";
   const email = footer?.email || "studio@phantomlabs.in";
+  const phone = footer?.phone || "";
   const instagram = footer?.instagram || "https://instagram.com/phantomlabs.in";
+  const linkedin = footer?.linkedin || "";
   const copyright = footer?.copyright || `© ${new Date().getFullYear()} Phantom Labs. All rights reserved.`;
 
   return (
@@ -24,8 +22,8 @@ export default function Footer() {
           <div className="footer__brand-block">
             <Link to="/" className="footer__brand-link" aria-label="PHANTOM LABS">
               <img
-                src="/images/phantom-labs-logo-white.png"
-                alt="PHANTOM LABS"
+                src={branding?.logoDark || "/images/phantom-labs-logo-white.png"}
+                alt={branding?.logoAlt || "PHANTOM LABS"}
                 className="footer__brand-logo-img"
               />
             </Link>
@@ -40,7 +38,7 @@ export default function Footer() {
           </div>
 
           <nav className="footer__links-nav" aria-label="Footer Navigation">
-            {LINKS.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.label}
                 to={link.to}
@@ -73,6 +71,16 @@ export default function Footer() {
                 className="footer__link"
               >
                 {email}
+              </a>
+            )}
+            {phone && (
+              <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} data-cursor="pointer" className="footer__link">
+                {phone}
+              </a>
+            )}
+            {linkedin && linkedin !== "https://linkedin.com" && (
+              <a href={linkedin} target="_blank" rel="noopener noreferrer" data-cursor="pointer" className="footer__link">
+                LinkedIn
               </a>
             )}
           </div>

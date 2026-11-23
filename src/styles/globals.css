@@ -114,6 +114,7 @@
 html {
   background: var(--color-bg);
   color: var(--color-fg);
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -121,6 +122,7 @@ body {
   color: var(--color-fg);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.28s var(--ease-cinema);
@@ -500,6 +502,7 @@ img {
    ========================================================= */
 
 .footer {
+  margin: 0;
   padding: clamp(36px, 5vh, 52px) var(--edge) 24px var(--edge);
   background: var(--color-dark);
   color: var(--color-fg-light);

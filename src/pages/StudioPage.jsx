@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { prefersReducedMotion } from "../utils/helpers.js";
+import { setPageMetadata } from "../utils/pageMetadata.js";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
 export default function StudioPage() {
-  const { studio, isLoading } = useLiveCms();
+  const { studio, pages, testimonials, isLoading } = useLiveCms();
   const isReduced = prefersReducedMotion();
 
   const headline = studio?.headline || "The Studio.";
@@ -23,12 +24,12 @@ export default function StudioPage() {
   const founder = studio?.founder || {};
 
   useEffect(() => {
-    document.title = "The Studio & Philosophy — Phantom Labs";
+    setPageMetadata(pages?.studio?.seoTitle || "The Studio & Philosophy — Phantom Labs", pages?.studio?.seoDescription);
     if (window.__lenis) {
       window.__lenis.scrollTo(0, { immediate: true });
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, []);
+  }, [pages?.studio?.seoTitle, pages?.studio?.seoDescription]);
 
   return (
     <div style={{ backgroundColor: "#FAF9F6", minHeight: "100vh", color: "#111111" }}>
@@ -275,7 +276,7 @@ export default function StudioPage() {
       )}
 
       {/* Founder Profile */}
-      {founder.name && (
+      {(founder.name || founder.role || founder.portrait || founder.quote || founder.bio) && (
         <section
           style={{
             maxWidth: "1000px",
@@ -303,7 +304,7 @@ export default function StudioPage() {
             >
               <img
                 src={founder.portrait}
-                alt={founder.name}
+                alt="Portrait of the Phantom Labs founder"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
@@ -322,17 +323,6 @@ export default function StudioPage() {
             >
               THE FOUNDER
             </div>
-            <h3
-              style={{
-                fontFamily: 'Playfair Display, Georgia, serif',
-                fontSize: "28px",
-                fontWeight: "500",
-                margin: "0 0 4px 0",
-                color: "#0D0D0D",
-              }}
-            >
-              {founder.name}
-            </h3>
             {founder.role && (
               <div style={{ fontSize: "13.5px", color: "#8E8E93", marginBottom: "16px" }}>
                 {founder.role}
@@ -364,6 +354,20 @@ export default function StudioPage() {
         </section>
       )}
 
+      {Array.isArray(testimonials) && testimonials.length > 0 && (
+        <section style={{ maxWidth: "1280px", margin: "0 auto", padding: "12px 24px 88px" }} aria-label="Client notes">
+          <div style={{ borderTop: "1px solid #EAEAEA", paddingTop: 28, marginBottom: 24, color: "#737373", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase" }}>CLIENT NOTES</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
+            {testimonials.map((review) => (
+              <blockquote key={review.id} style={{ margin: 0, padding: 24, background: "#F3F1ED", borderRadius: 12 }}>
+                <p style={{ margin: "0 0 18px", fontFamily: 'Playfair Display, Georgia, serif', fontSize: 20, lineHeight: 1.5 }}>“{review.quote}”</p>
+                <footer style={{ color: "#737373", fontSize: 13 }}>{review.author}{review.client ? ` · ${review.client}` : ""}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Start a Conversation CTA */}
       <div
         style={{
@@ -380,13 +384,13 @@ export default function StudioPage() {
             margin: "0 0 16px 0",
           }}
         >
-          Start a Conversation.
+          {studio.ctaTitle || "Start a Conversation."}
         </h3>
         <p style={{ color: "#737373", fontSize: "16px", margin: "0 0 28px 0" }}>
-          We take a limited number of commissions each quarter.
+          {studio.ctaBody || "We take a limited number of commissions each quarter."}
         </p>
         <Link
-          to="/book"
+          to={studio.ctaLink || "/book"}
           style={{
             display: "inline-block",
             padding: "14px 32px",
@@ -400,7 +404,7 @@ export default function StudioPage() {
             textDecoration: "none",
           }}
         >
-          Inquire for Commissions &rarr;
+          {studio.ctaLabel || "Inquire for Commissions"} &rarr;
         </Link>
       </div>
     </div>

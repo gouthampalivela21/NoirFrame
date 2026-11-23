@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { prefersReducedMotion } from "../utils/helpers.js";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
+import { optimizedImageSrc } from "../utils/optimizedImageSrc.js";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
@@ -11,8 +12,8 @@ export default function HeroShowcase() {
   const { home, isLoading } = useLiveCms();
   const hero = home.hero || {};
 
-  const heroWide = hero.heroImageWide || hero.bannerImage || "/images/hero-villa-wide.jpg";
-  const heroMobile = hero.heroImageMobile || hero.bannerImage || "/images/hero-villa-mobile.jpg";
+  const heroWide = optimizedImageSrc(hero.heroImageWide || hero.bannerImage || "/images/hero-villa-wide.jpg");
+  const heroMobile = optimizedImageSrc(hero.heroImageMobile || hero.bannerImage || "/images/hero-villa-mobile.jpg");
   const headline = hero.headline || "PHANTOM LABS";
   const subheadline = hero.subheadline || "Photography. Framed Differently.";
   const ctaTo = hero.secondaryButtonLink || "/stories";
@@ -28,9 +29,9 @@ export default function HeroShowcase() {
       {/* Full-Viewport Photographic Architectural Canvas */}
       <motion.div
         className="hero-showcase__media-wrap"
-        initial={isReduced ? false : { opacity: 0, scale: 1.018 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.05, ease: APPLE_EASE }}
+        initial={isReduced ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.55, ease: APPLE_EASE }}
       >
         <picture className="hero-showcase__picture">
           <source

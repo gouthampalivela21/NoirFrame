@@ -22,7 +22,7 @@ import {
   getAllCalendarBookings,
   getLiveSummary,
 } from "./db.js";
-import { saveUploadedFile, handleFileDownload, saveCmsImage } from "./uploads.js";
+import { saveUploadedFile, handleFileDownload, saveCmsImage, createCmsImageUpload } from "./uploads.js";
 import { verifyFounderRequest } from "./adminAuth.js";
 
 function parseJsonBody(req) {
@@ -384,6 +384,24 @@ export async function handleApiRequest(req, res) {
   // -------------------------------------------------------------------------
   // IMAGE UPLOADS: POST /api/admin/upload-image (1-CLICK REPLACEMENT)
   // -------------------------------------------------------------------------
+  if (pathname === "/api/admin/image-upload-url") {
+    if (req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const result = await createCmsImageUpload(body);
+        sendJson(res, 201, result);
+      } catch (err) {
+        sendJson(res, err.statusCode || 400, {
+          success: false,
+          error: err.message || "Could not prepare the image upload.",
+        });
+      }
+      return true;
+    }
+    sendJson(res, 405, { success: false, error: "Method not allowed" });
+    return true;
+  }
+
   if (pathname === "/api/admin/upload-image") {
     if (req.method === "POST") {
       try {
