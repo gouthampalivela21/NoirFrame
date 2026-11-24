@@ -986,7 +986,7 @@ export default function BookingPage() {
                           Click to upload or drag & drop files here
                         </div>
                         <div className="booking-upload-sub">
-                          Supports PNG, JPG, WEBP, or PDF moodboards (up to 15MB each)
+                          Supports PNG, JPG, WEBP, or PDF moodboards
                         </div>
                       </div>
 

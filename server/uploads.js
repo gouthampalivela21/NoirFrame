@@ -20,7 +20,7 @@ if (!fs.existsSync(PUBLIC_UPLOADS_DIR)) {
   fs.mkdirSync(PUBLIC_UPLOADS_DIR, { recursive: true });
 }
 
-const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB per file
+const MAX_NON_IMAGE_UPLOAD_BYTES = 15 * 1024 * 1024; // Documents and booking references only.
 
 const ALLOWED_MIME_PREFIXES = [
   "image/",
@@ -49,9 +49,9 @@ export async function createCmsImageUpload({ name, type, size }) {
     err.statusCode = 400;
     throw err;
   }
-  if (!Number.isFinite(Number(size)) || Number(size) <= 0 || Number(size) > MAX_UPLOAD_BYTES) {
-    const err = new Error("Image must be between 1 byte and 15 MB.");
-    err.statusCode = Number(size) > MAX_UPLOAD_BYTES ? 413 : 400;
+  if (!Number.isFinite(Number(size)) || Number(size) <= 0) {
+    const err = new Error("Image size must be greater than zero.");
+    err.statusCode = 400;
     throw err;
   }
 
@@ -110,12 +110,6 @@ export async function saveCmsImage({ name, type, base64Data }) {
   if (!buffer.length) {
     const err = new Error("Uploaded image is empty.");
     err.statusCode = 400;
-    throw err;
-  }
-
-  if (buffer.length > MAX_UPLOAD_BYTES) {
-    const err = new Error("Image exceeds the 15 MB upload limit.");
-    err.statusCode = 413;
     throw err;
   }
 
@@ -198,8 +192,8 @@ export async function saveUploadedFile({ name, type, size, base64Data, bookingId
     throw err;
   }
 
-  if (buffer.length > MAX_UPLOAD_BYTES) {
-    const err = new Error("File exceeds the 15 MB upload limit.");
+  if (!mimeType.startsWith("image/") && buffer.length > MAX_NON_IMAGE_UPLOAD_BYTES) {
+    const err = new Error("Document uploads must be 15 MB or smaller.");
     err.statusCode = 413;
     throw err;
   }

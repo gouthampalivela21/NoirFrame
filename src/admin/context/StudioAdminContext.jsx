@@ -745,12 +745,19 @@ export function StudioAdminProvider({ children }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cmsData),
       });
-      if (res.ok) {
-        showToast("✓ Live CMS content published to database.", "success");
+      const result = await res.json().catch(() => ({}));
+      if (res.ok && result.storageMode === "supabase") {
+        showToast("✓ CMS changes published to the shared live database.", "success");
         return;
       }
-    } catch (err) {}
-    showToast("Error publishing CMS changes to database.", "error");
+      if (res.ok && result.storageMode === "local") {
+        showToast("Saved only on this computer. Connect local Supabase to sync changes live.", "error");
+        return;
+      }
+      throw new Error(result.error || "The shared CMS database is not configured.");
+    } catch (err) {
+      showToast(err.message || "Error publishing CMS changes to the shared database.", "error");
+    }
   }, [cmsData, showToast]);
 
   // Team Member Operations

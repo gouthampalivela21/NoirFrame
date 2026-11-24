@@ -230,6 +230,15 @@ SET
   public = false,
   file_size_limit = 15728640;
 
+-- Public website photography is served directly by Supabase Storage. The
+-- server issues signed upload URLs; the bucket itself has no per-bucket cap.
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('public-media', 'public-media', true, NULL)
+ON CONFLICT (id) DO UPDATE
+SET
+  public = true,
+  file_size_limit = NULL;
+
 DROP POLICY IF EXISTS "Founder Can Read Private Booking Attachments" ON storage.objects;
 CREATE POLICY "Founder Can Read Private Booking Attachments"
   ON storage.objects
@@ -272,6 +281,7 @@ DECLARE
   v_founder_row_synced boolean;
   v_no_other_active_accounts boolean;
   v_bucket_private boolean;
+  v_public_media_ready boolean;
   v_storage_rls_ready boolean;
 BEGIN
   -- 1. All 5 required tables exist in public schema
@@ -347,7 +357,15 @@ BEGIN
       AND b.public = false
   ) INTO v_bucket_private;
 
-  -- 9. storage.objects has RLS enabled and Founder-only bucket policy exists
+  -- 9. Public website media bucket exists for originals and CMS image sync
+  SELECT EXISTS (
+    SELECT 1
+    FROM storage.buckets b
+    WHERE b.id = 'public-media'
+      AND b.public = true
+  ) INTO v_public_media_ready;
+
+  -- 10. storage.objects has RLS enabled and Founder-only bucket policy exists
   SELECT (
     EXISTS (
       SELECT 1
@@ -375,6 +393,7 @@ BEGIN
     'founder_row_synced', v_founder_row_synced,
     'no_other_active_accounts', v_no_other_active_accounts,
     'bucket_private', v_bucket_private,
+    'public_media_ready', v_public_media_ready,
     'storage_rls_ready', v_storage_rls_ready
   );
 END;
@@ -389,3 +408,20 @@ GRANT EXECUTE ON FUNCTION public.verify_admin_security_state(text) TO service_ro
 -- 9. REFRESH POSTGREST SCHEMA CACHE
 -- -------------------------------------------------------------------------
 NOTIFY pgrst, 'reload schema';
+
+-- Keep live CMS changes visible immediately to subscribed local and production
+-- clients. Add the table only when it is not already in the publication.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime')
+    AND NOT EXISTS (
+      SELECT 1
+      FROM pg_publication_tables
+      WHERE pubname = 'supabase_realtime'
+        AND schemaname = 'public'
+        AND tablename = 'site_content'
+    ) THEN
+    EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE public.site_content';
+  END IF;
+END
+$$;

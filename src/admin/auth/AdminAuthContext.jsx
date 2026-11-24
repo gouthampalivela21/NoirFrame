@@ -16,49 +16,69 @@ export function AdminAuthProvider({ children }) {
 
   // Listen to Firebase Auth state with immediate single-owner verification
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
-
-      if (!currentUser) {
-        setUser(null);
-        setIsOwner(false);
-        setLoading(false);
-        return;
-      }
-
-      // 1. Strict Email Verification Check
-      if (!currentUser.emailVerified) {
-        await signOut(auth);
-        setUser(null);
-        setIsOwner(false);
-        setAuthError(
-          "Access Denied: Your admin email has not been verified. Please verify your email before accessing Studio OS."
-        );
-        setLoading(false);
-        return;
-      }
-
-      // 2. Strict Single-Owner Identity Match (UID and/or designated admin email)
-      const authorized = isAuthorizedOwner(currentUser);
-
-      if (!authorized) {
-        // Immediately kick unauthorized accounts out
-        await signOut(auth);
-        setUser(null);
-        setIsOwner(false);
-        setAuthError(
-          `Access Denied: Account (${currentUser.email || currentUser.uid}) is not authorized as the Studio OS administrator.`
-        );
-        setLoading(false);
-        return;
-      }
-
-      // Validated single-owner admin session
-      setUser(currentUser);
-      setIsOwner(true);
-      setAuthError("");
+    const handleAuthError = (error) => {
+      console.error("[Studio Auth Error]", error);
+      setUser(null);
+      setIsOwner(false);
+      setAuthError(
+        error?.code === "auth/invalid-api-key"
+          ? "Studio sign-in is unavailable because the deployed Firebase API key is invalid. Update VITE_FIREBASE_API_KEY in Vercel and redeploy."
+          : error?.message || "Studio sign-in could not connect to Firebase. Check the deployed Firebase configuration."
+      );
       setLoading(false);
-    });
+    };
+
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = onAuthStateChanged(
+        auth,
+        async (currentUser) => {
+          setLoading(true);
+
+          try {
+            if (!currentUser) {
+              setUser(null);
+              setIsOwner(false);
+              setLoading(false);
+              return;
+            }
+
+            if (!currentUser.emailVerified) {
+              await signOut(auth);
+              setUser(null);
+              setIsOwner(false);
+              setAuthError(
+                "Access Denied: Your admin email has not been verified. Please verify your email before accessing Studio OS."
+              );
+              setLoading(false);
+              return;
+            }
+
+            const authorized = isAuthorizedOwner(currentUser);
+            if (!authorized) {
+              await signOut(auth);
+              setUser(null);
+              setIsOwner(false);
+              setAuthError(
+                `Access Denied: Account (${currentUser.email || currentUser.uid}) is not authorized as the Studio OS administrator.`
+              );
+              setLoading(false);
+              return;
+            }
+
+            setUser(currentUser);
+            setIsOwner(true);
+            setAuthError("");
+            setLoading(false);
+          } catch (error) {
+            handleAuthError(error);
+          }
+        },
+        handleAuthError
+      );
+    } catch (error) {
+      handleAuthError(error);
+    }
 
     return () => unsubscribe();
   }, []);

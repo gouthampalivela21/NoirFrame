@@ -607,19 +607,34 @@ export async function updateInvoiceRecord(id, patch) {
 // 5. CMS & LIVE STORIES / FIELD NOTES / CONTENT
 // ---------------------------------------------------------------------------
 export async function getCMSContent() {
+  let supabaseConfigured = false;
   try {
     const supabase = getSupabaseAdminClient();
+    supabaseConfigured = true;
     const { data, error } = await supabase
       .from(SITE_CONTENT_TABLE)
       .select("*")
       .eq("id", 1)
       .maybeSingle();
 
+    if (error) throw error;
     if (!error && data && data.data && Object.keys(data.data).length > 0) {
       writeJsonFile("cms.json", data.data);
       return data.data;
     }
-  } catch {}
+  } catch (error) {
+    if (supabaseConfigured || process.env.VERCEL) {
+      const err = new Error(`Could not load the shared CMS from Supabase: ${error.message}`);
+      err.statusCode = 503;
+      throw err;
+    }
+  }
+
+  if (process.env.VERCEL && !supabaseConfigured) {
+    const err = new Error("The live CMS has no Supabase connection configured.");
+    err.statusCode = 503;
+    throw err;
+  }
 
   return readJsonFile("cms.json", {
     hero: {
@@ -644,18 +659,38 @@ export async function getCMSContent() {
   });
 }
 
-export async function updateCMSContent(newContent) {
-  writeJsonFile("cms.json", newContent);
-
+export function getCMSStorageMode() {
   try {
-    const supabase = getSupabaseAdminClient();
-    await supabase.from(SITE_CONTENT_TABLE).upsert({
-      id: 1,
-      data: newContent,
-      updated_at: new Date().toISOString(),
-    });
-  } catch {}
+    getSupabaseAdminClient();
+    return "supabase";
+  } catch {
+    return process.env.VERCEL ? "unconfigured" : "local";
+  }
+}
 
+export async function updateCMSContent(newContent) {
+  let supabase;
+  try {
+    supabase = getSupabaseAdminClient();
+  } catch (error) {
+    if (error.code === "SERVER_CONFIG_INCOMPLETE" && !process.env.VERCEL) {
+      writeJsonFile("cms.json", newContent);
+      return newContent;
+    }
+    throw error;
+  }
+
+  const { error } = await supabase.from(SITE_CONTENT_TABLE).upsert({
+    id: 1,
+    data: newContent,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) {
+    const err = new Error(`Could not publish CMS content to Supabase: ${error.message}`);
+    err.statusCode = 503;
+    throw err;
+  }
+  writeJsonFile("cms.json", newContent);
   return newContent;
 }
 

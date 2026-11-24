@@ -29,16 +29,16 @@ export function LiveCmsProvider({ children }) {
   const fetchCmsData = useCallback(async () => {
     try {
       const res = await fetch("/api/cms");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.cms) {
-          setCms(withLiveCmsDefaults(data.cms));
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.cms));
-          } catch {}
-          setError(null);
-        }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success || !data.cms) {
+        throw new Error(data.error || `CMS request failed (${res.status}).`);
       }
+
+      setCms(withLiveCmsDefaults(data.cms));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.cms));
+      } catch {}
+      setError(null);
     } catch (err) {
       console.warn("[Live CMS fetch warning]:", err.message);
       setError("Unable to sync live site content.");

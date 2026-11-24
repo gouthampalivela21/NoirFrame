@@ -16,6 +16,7 @@ import {
   createInvoiceRecord,
   updateInvoiceRecord,
   getCMSContent,
+  getCMSStorageMode,
   updateCMSContent,
   getAllTeamMembers,
   createTeamMemberRecord,
@@ -362,9 +363,9 @@ export async function handleApiRequest(req, res) {
     if (req.method === "GET") {
       try {
         const cms = await getCMSContent();
-        sendJson(res, 200, { success: true, cms });
+        sendJson(res, 200, { success: true, cms, storageMode: getCMSStorageMode() });
       } catch (err) {
-        sendJson(res, 500, { success: false, error: err.message });
+        sendJson(res, err.statusCode || 500, { success: false, error: err.message });
       }
       return true;
     }
@@ -373,9 +374,9 @@ export async function handleApiRequest(req, res) {
       try {
         const body = await parseJsonBody(req);
         const updated = await updateCMSContent(body);
-        sendJson(res, 200, { success: true, cms: updated });
+        sendJson(res, 200, { success: true, cms: updated, storageMode: getCMSStorageMode() });
       } catch (err) {
-        sendJson(res, 500, { success: false, error: err.message });
+        sendJson(res, err.statusCode || 500, { success: false, error: err.message });
       }
       return true;
     }

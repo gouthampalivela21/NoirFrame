@@ -503,21 +503,10 @@
   border: 1px solid #111111;
 }
 
-.promo-tile--editorial .promo-tile__btn--primary:hover {
-  background: #2C2C2E;
-  border-color: #2C2C2E;
-}
-
 .promo-tile--editorial .promo-tile__btn--secondary {
   background: transparent;
   color: #111111;
   border: 1px solid rgba(17, 17, 17, 0.65);
-}
-
-.promo-tile--editorial .promo-tile__btn--secondary:hover {
-  background: #111111;
-  color: #FFFFFF;
-  border-color: #111111;
 }
 
 .promo-tile__header {
@@ -588,7 +577,6 @@
   letter-spacing: -0.008em;
   text-decoration: none;
   z-index: 2;
-  transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
 }
 
 /* Primary Link Stretched Overlay Anchored to .promo-tile */
@@ -620,21 +608,10 @@
   border: 1px solid #111111;
 }
 
-.promo-tile--light .promo-tile__btn--primary:hover {
-  background: #2C2C2E;
-  border-color: #2C2C2E;
-}
-
 .promo-tile--light .promo-tile__btn--secondary {
   background: transparent;
   color: #111111;
   border: 1px solid rgba(17, 17, 17, 0.65);
-}
-
-.promo-tile--light .promo-tile__btn--secondary:hover {
-  background: #111111;
-  color: #FFFFFF;
-  border-color: #111111;
 }
 
 .promo-tile--dark .promo-tile__btn--primary {
@@ -643,21 +620,10 @@
   border: 1px solid #F5F5F7;
 }
 
-.promo-tile--dark .promo-tile__btn--primary:hover {
-  background: #FFFFFF;
-  border-color: #FFFFFF;
-}
-
 .promo-tile--dark .promo-tile__btn--secondary {
   background: transparent;
   color: #F5F5F7;
   border: 1px solid rgba(245, 245, 247, 0.72);
-}
-
-.promo-tile--dark .promo-tile__btn--secondary:hover {
-  background: #FFFFFF;
-  color: #0A0A0A;
-  border-color: #FFFFFF;
 }
 
 .promo-tile:has(a.promo-tile__primary-link:focus-visible) {

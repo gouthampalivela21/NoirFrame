@@ -82,7 +82,11 @@ export function getSupabaseAnonKey() {
 }
 
 export function getServiceRoleKey() {
-  return getServerEnv("SUPABASE_SERVICE_ROLE_KEY") || getServerEnv("SUPABASE_KEY");
+  return (
+    getServerEnv("SUPABASE_SECRET_KEY") ||
+    getServerEnv("SUPABASE_SERVICE_ROLE_KEY") ||
+    getServerEnv("SUPABASE_KEY")
+  );
 }
 
 export function getFounderEmails() {
@@ -246,7 +250,7 @@ export async function verifyLiveSupabaseReadiness(forceRefresh = false) {
       ? makeCheck(false, "Missing valid https:// VITE_SUPABASE_URL.")
       : makeCheck(false, "Missing VITE_SUPABASE_ANON_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY).");
 
-  // 2. Independent check: Server-only SUPABASE_SERVICE_ROLE_KEY configured (and validated below if reachable)
+  // 2. Independent check: Server-only Supabase secret key configured (and validated below if reachable)
   let serviceRoleCheck = envStatus.hasServiceRoleKey
     ? makeCheck(false, "Configured in server env; waiting for Supabase reachability to verify Admin API access.")
     : makeCheck(false, "Missing server-only SUPABASE_SERVICE_ROLE_KEY.");
@@ -280,6 +284,10 @@ export async function verifyLiveSupabaseReadiness(forceRefresh = false) {
     "Cannot check until migrations are applied and FOUNDER_EMAIL is configured."
   );
   let privateStorageCheck = makeCheck(
+    false,
+    "Cannot check until migrations are applied and Supabase project is reachable."
+  );
+  let publicMediaCheck = makeCheck(
     false,
     "Cannot check until migrations are applied and Supabase project is reachable."
   );
@@ -333,7 +341,7 @@ export async function verifyLiveSupabaseReadiness(forceRefresh = false) {
     }
   }
 
-  // Step B: Verify server-only SUPABASE_SERVICE_ROLE_KEY against Admin Auth API
+  // Step B: Verify server-only Supabase secret key against Admin Auth API
   if (envStatus.hasServiceRoleKey) {
     if (isMockTest) {
       try {
@@ -363,71 +371,61 @@ export async function verifyLiveSupabaseReadiness(forceRefresh = false) {
     }
   }
 
-  // Step C: Verify migrations, Founder-only RLS, and private Storage
+  // Step C: Verify migrations, Founder-only RLS, and private Storage in every environment.
   if (envStatus.hasServiceRoleKey && envStatus.hasFounderEmail) {
-    if (isMockTest) {
-      try {
-        const supabase = getSupabaseAdminClient();
-        const { data: secState, error: rpcErr } = await supabase.rpc(
-          "verify_admin_security_state",
-          { expected_founder_email: founderEmail || "" }
+    try {
+      const supabase = getSupabaseAdminClient();
+      const { data: secState, error: rpcErr } = await supabase.rpc(
+        "verify_admin_security_state",
+        { expected_founder_email: founderEmail || "" }
+      );
+
+      if (rpcErr) {
+        const isMissingFn =
+          rpcErr.code === "PGRST202" ||
+          rpcErr.code === "42883" ||
+          String(rpcErr.message || "").toLowerCase().includes("verify_admin_security_state");
+
+        migrationsCheck = makeCheck(
+          false,
+          isMissingFn
+            ? "Security migration not applied yet — run supabase/migrations/202611180001_founder_admin_security.sql in Supabase SQL Editor."
+            : "Failed to verify database schema state via Supabase RPC.",
+          isMissingFn ? "pending" : "error"
         );
+        founderRlsCheck = makeCheck(false, "Apply the database migration first to enable and verify Founder-only RLS.");
+        privateStorageCheck = makeCheck(false, "Apply the database migration first to create the private booking-attachments bucket.");
+        publicMediaCheck = makeCheck(false, "Apply the database migration first to create the public website media bucket.");
+      } else if (secState && typeof secState === "object") {
+        migrationsCheck = secState.tables_exist
+          ? makeCheck(true, "Required tables exist (booking_requests, booking_attachments, clients, team_members, site_content).")
+          : makeCheck(false, "One or more required tables are missing — re-run the SQL migration.");
 
-        if (rpcErr) {
-          const isMissingFn =
-            rpcErr.code === "PGRST202" ||
-            rpcErr.code === "42883" ||
-            String(rpcErr.message || "").toLowerCase().includes("verify_admin_security_state");
+        const rlsReasons = [];
+        if (!secState.rls_enabled_all) rlsReasons.push("RLS not enabled on all 5 tables");
+        if (!secState.founder_helper_exists) rlsReasons.push("is_authorized_founder() helper missing");
+        if (!secState.policies_present) rlsReasons.push("Founder-only RLS policies missing");
+        if (!secState.no_permissive_policies) rlsReasons.push("legacy permissive policy still exists");
+        if (!secState.founder_row_synced) rlsReasons.push("primary Founder row not synced to FOUNDER_EMAIL");
 
-          migrationsCheck = makeCheck(
-            false,
-            isMissingFn
-              ? "Security migration not applied yet — run supabase/migrations/202611180001_founder_admin_security.sql in Supabase SQL Editor."
-              : "Failed to verify database schema state via Supabase RPC.",
-            isMissingFn ? "pending" : "error"
-          );
-          founderRlsCheck = makeCheck(false, "Apply the database migration first to enable and verify Founder-only RLS.");
-          privateStorageCheck = makeCheck(false, "Apply the database migration first to create the private booking-attachments bucket.");
-        } else if (secState && typeof secState === "object") {
-          migrationsCheck = secState.tables_exist
-            ? makeCheck(true, "Required tables exist (booking_requests, booking_attachments, clients, team_members, site_content).")
-            : makeCheck(false, "One or more required tables are missing — re-run the SQL migration.");
+        founderRlsCheck =
+          rlsReasons.length === 0
+            ? makeCheck(true, "Row Level Security and Founder-only policies verified across all tables.")
+            : makeCheck(false, `Pending: ${rlsReasons.join("; ")}.`);
 
-          const rlsReasons = [];
-          if (!secState.rls_enabled_all) rlsReasons.push("RLS not enabled on all 5 tables");
-          if (!secState.founder_helper_exists) rlsReasons.push("is_authorized_founder() helper missing");
-          if (!secState.policies_present) rlsReasons.push("Founder-only RLS policies missing");
-          if (!secState.no_permissive_policies) rlsReasons.push("legacy permissive policy still exists");
-          if (!secState.founder_row_synced) rlsReasons.push("primary Founder row not synced to FOUNDER_EMAIL");
-
-          founderRlsCheck =
-            rlsReasons.length === 0
-              ? makeCheck(true, "Row Level Security and Founder-only policies verified across all tables.")
-              : makeCheck(false, `Pending: ${rlsReasons.join("; ")}.`);
-
-          privateStorageCheck =
-            secState.bucket_private && secState.storage_rls_ready
-              ? makeCheck(true, "Private bucket 'booking-attachments' (public=false) and Founder-only policies verified.")
-              : makeCheck(false, "Pending: private bucket or storage policies missing.");
-        }
-      } catch {
-        migrationsCheck = makeCheck(false, "Unexpected error while verifying database migrations.", "error");
-        founderRlsCheck = makeCheck(false, "Unexpected error while verifying RLS policies.", "error");
-        privateStorageCheck = makeCheck(false, "Unexpected error while verifying private storage policies.", "error");
+        privateStorageCheck =
+          secState.bucket_private && secState.storage_rls_ready
+            ? makeCheck(true, "Private bucket 'booking-attachments' (public=false) and Founder-only policies verified.")
+            : makeCheck(false, "Pending: private bucket or storage policies missing.");
+        publicMediaCheck = secState.public_media_ready
+          ? makeCheck(true, "Public bucket 'public-media' is ready for website images.")
+          : makeCheck(false, "Pending: public website media bucket is missing.");
       }
-    } else {
-      migrationsCheck = makeCheck(
-        true,
-        "Booking & admin database migrations verified (booking_requests, booking_attachments, clients, team_members, site_content)."
-      );
-      founderRlsCheck = makeCheck(
-        true,
-        "Row Level Security and Founder-only policies active on all tables."
-      );
-      privateStorageCheck = makeCheck(
-        true,
-        "Private bucket 'booking-attachments' (public=false) and Founder-only storage policies verified."
-      );
+    } catch {
+      migrationsCheck = makeCheck(false, "Unexpected error while verifying database migrations.", "error");
+      founderRlsCheck = makeCheck(false, "Unexpected error while verifying RLS policies.", "error");
+      privateStorageCheck = makeCheck(false, "Unexpected error while verifying private storage policies.", "error");
+      publicMediaCheck = makeCheck(false, "Unexpected error while verifying public website media storage.", "error");
     }
   }
 
@@ -440,6 +438,7 @@ export async function verifyLiveSupabaseReadiness(forceRefresh = false) {
     migrationsApplied: migrationsCheck,
     founderRlsActive: founderRlsCheck,
     privateStorageActive: privateStorageCheck,
+    publicMediaActive: publicMediaCheck,
   };
 
   const ready = Object.values(checks).every((c) => c.ok === true);
