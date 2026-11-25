@@ -71,6 +71,23 @@ export default function ImageUploadControl({
     return data.url;
   };
 
+  const uploadImage = async (file) => {
+    if (!supabase?.storage) return uploadViaApi(file);
+
+    try {
+      return await uploadToCloud(file);
+    } catch (cloudError) {
+      // Safari can report a generic "Load failed" for direct Storage uploads.
+      // Retry through our authenticated server API, which writes to the same
+      // Supabase bucket and avoids a browser-to-Storage network dependency.
+      try {
+        return await uploadViaApi(file);
+      } catch (apiError) {
+        throw new Error(apiError.message || cloudError.message || "Image upload failed. Please try again.");
+      }
+    }
+  };
+
   const handleFileUpload = async (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -82,29 +99,16 @@ export default function ImageUploadControl({
     setUploadError("");
 
     try {
-      if (supabase?.storage) {
-        // Preserve the exact upload as the master; use a separate responsive WebP for the public site.
-        const originalUrl = await uploadToCloud(file);
-        let deliveryUrl = originalUrl;
-        try {
-          const deliveryFile = await makeDeliveryImage(file);
-          if (deliveryFile) deliveryUrl = await uploadToCloud(deliveryFile);
-        } catch (deliveryError) {
-          console.warn("Could not create a lighter delivery image; using the original.", deliveryError);
-        }
-        onChange(deliveryUrl, { originalUrl });
-      } else {
-        // Local development fallback when Supabase is not configured.
-        const originalUrl = await uploadViaApi(file);
-        let deliveryUrl = originalUrl;
-        try {
-          const deliveryFile = await makeDeliveryImage(file);
-          if (deliveryFile) deliveryUrl = await uploadViaApi(deliveryFile);
-        } catch (deliveryError) {
-          console.warn("Could not create a lighter delivery image; using the original.", deliveryError);
-        }
-        if (deliveryUrl) onChange(deliveryUrl, { originalUrl });
+      // Preserve the exact upload as the master; use a separate responsive WebP for the public site.
+      const originalUrl = await uploadImage(file);
+      let deliveryUrl = originalUrl;
+      try {
+        const deliveryFile = await makeDeliveryImage(file);
+        if (deliveryFile) deliveryUrl = await uploadImage(deliveryFile);
+      } catch (deliveryError) {
+        console.warn("Could not create a lighter delivery image; using the original.", deliveryError);
       }
+      if (deliveryUrl) onChange(deliveryUrl, { originalUrl });
     } catch (err) {
       setUploadError(err.message || "Upload failed. Please check network connectivity.");
     } finally {
@@ -183,7 +187,10 @@ export default function ImageUploadControl({
               style={{ fontSize: "12.5px" }}
               placeholder="Paste direct image URL or upload below..."
               value={value || ""}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                setUploadError("");
+                onChange(e.target.value);
+              }}
             />
             {value && (
               <button
