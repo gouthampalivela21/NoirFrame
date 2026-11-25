@@ -2,6 +2,18 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/admin/(.*)",
+      "destination": "/api/admin?route=/api/admin/$1"
+    },
+    {
+      "source": "/api/bookings/(.*)",
+      "destination": "/api/bookings?route=/api/bookings/$1"
+    },
+    {
+      "source": "/api/uploads/(.*)",
+      "destination": "/api/uploads?route=/api/uploads/$1"
+    },
+    {
       "source": "/((?!api/|assets/|images/|.*\\.(?:png|jpe?g|webp|svg|ico|css|js|json|txt|xml|woff2?|pdf)$).*)",
       "destination": "/index.html"
     }
