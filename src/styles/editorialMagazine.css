@@ -1425,6 +1425,163 @@
   .editorial-page--fashion .editorial-collection-photo img { transition: none; }
 }
 
+/* Minimal full-screen showcase direction: white canvas, photography first. */
+.editorial-page--fashion {
+  --editorial-paper: #fff;
+  --editorial-paper-subtle: #fff;
+  --editorial-paper-deep: #f3f3f3;
+  --editorial-ink: #111;
+  --editorial-ink-secondary: #666;
+  --editorial-accent: #111;
+  --editorial-divider: rgba(0, 0, 0, .14);
+  padding: calc(var(--nav-height, 70px) + 10px) 0 0;
+  background: #fff;
+}
+.editorial-page--fashion .editorial-container {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+.editorial-page--fashion .editorial-article { width: 100%; max-width: none; }
+.editorial-page--fashion .editorial-masthead {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 14px clamp(20px, 5vw, 76px);
+  border-top: 0;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+}
+.editorial-page--fashion .editorial-kicker,
+.editorial-page--fashion .editorial-back-link { color: #333; }
+.editorial-page--fashion .editorial-opening-spread {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: calc(100svh - var(--nav-height, 70px) - 48px);
+  min-height: 520px;
+  max-height: 1000px;
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+}
+.editorial-page--fashion .editorial-opening-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+}
+.editorial-page--fashion .editorial-opening-photo::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,.06) 32%, rgba(0,0,0,.54) 100%);
+}
+.editorial-page--fashion .editorial-opening-photo img { object-fit: cover; }
+.editorial-page--fashion .editorial-opening-copy {
+  position: absolute;
+  z-index: 2;
+  right: auto;
+  bottom: clamp(30px, 7vh, 82px);
+  left: clamp(22px, 7vw, 108px);
+  width: min(620px, 76vw);
+  padding: 0;
+  color: #fff;
+}
+.editorial-page--fashion .editorial-opening-brand {
+  margin: 0 0 14px;
+  color: rgba(255,255,255,.88);
+  font-size: 9px;
+  letter-spacing: .24em;
+}
+.editorial-page--fashion .editorial-opening-label {
+  color: rgba(255,255,255,.78);
+  font-size: 8px;
+  letter-spacing: .18em;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-headline {
+  max-width: 740px;
+  margin: 12px 0 10px;
+  color: #fff;
+  font-size: clamp(3.5rem, 9vw, 8.5rem);
+  line-height: .88;
+  letter-spacing: -.045em;
+  text-align: left;
+  text-wrap: balance;
+}
+.editorial-page--fashion .editorial-opening-rule { width: 34px; margin: 16px 0; background: rgba(255,255,255,.75); }
+.editorial-page--fashion .editorial-opening-copy .editorial-deck {
+  max-width: 380px;
+  margin: 0;
+  color: rgba(255,255,255,.9);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: left;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-byline { display: none; }
+.editorial-page--fashion .editorial-opening-page { margin-top: 20px; color: rgba(255,255,255,.82); }
+.editorial-page--fashion .editorial-opening-page i { color: rgba(255,255,255,.55); }
+.editorial-page--fashion .editorial-opening-photo .editorial-caption { display: none; }
+.editorial-page--fashion .editorial-divider { display: none; }
+.editorial-page--fashion .editorial-collection-section {
+  width: 100%;
+  padding: clamp(50px, 8vh, 100px) clamp(18px, 5vw, 76px) clamp(36px, 6vh, 72px);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-collection-heading {
+  max-width: 1480px;
+  margin: 0 auto 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0,0,0,.14);
+}
+.editorial-page--fashion .editorial-collection-heading h2 {
+  margin: 5px 0 0;
+  color: #111;
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+  font-style: normal;
+}
+.editorial-page--fashion .editorial-collection-heading p { color: #666; }
+.editorial-page--fashion .editorial-photo-collection {
+  width: 100%;
+  max-width: 1480px;
+  height: min(88svh, 920px);
+  min-height: 520px;
+  aspect-ratio: auto;
+  margin: 0 auto;
+  gap: clamp(5px, .8vw, 12px);
+}
+.editorial-page--fashion .editorial-collection-photo { background: #f2f2f2; }
+.editorial-page--fashion .editorial-collection-photo figcaption { font-size: 8px; }
+.editorial-page--fashion .editorial-commission-footer {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 24px clamp(18px, 5vw, 76px) 42px;
+  border-top: 0;
+  background: #fff;
+}
+.editorial-page--fashion .editorial-commission-btn { border-radius: 0; }
+.editorial-page--category-couples .editorial-opening-copy { left: auto; right: clamp(22px, 7vw, 108px); align-items: flex-end; text-align: right; }
+.editorial-page--category-couples .editorial-opening-copy .editorial-headline,
+.editorial-page--category-couples .editorial-opening-copy .editorial-deck { text-align: right; }
+.editorial-page--category-events .editorial-opening-photo img { object-position: center 58%; }
+.editorial-page--category-brands .editorial-opening-copy { bottom: auto; top: 50%; transform: translateY(-50%); }
+.editorial-page--category-editorial .editorial-opening-photo img { object-position: center 38%; }
+.editorial-page--category-commercial .editorial-opening-copy { width: min(470px, 60vw); }
+@media (max-width: 600px) {
+  .editorial-page--fashion .editorial-masthead { padding: 12px 18px; }
+  .editorial-page--fashion .editorial-opening-spread { height: calc(88svh - var(--nav-height, 64px)); min-height: 560px; }
+  .editorial-page--fashion .editorial-opening-copy { right: 20px; bottom: 34px; left: 20px; width: auto; }
+  .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(3.4rem, 15vw, 5.6rem); }
+  .editorial-page--fashion .editorial-collection-section { padding: 48px 14px 24px; }
+  .editorial-page--fashion .editorial-photo-collection { height: 76svh; min-height: 440px; }
+  .editorial-page--fashion .editorial-commission-footer { padding: 22px 18px 32px; }
+  .editorial-page--category-couples .editorial-opening-copy { right: 20px; left: 20px; align-items: flex-start; text-align: left; }
+  .editorial-page--category-couples .editorial-opening-copy .editorial-headline,
+  .editorial-page--category-couples .editorial-opening-copy .editorial-deck { text-align: left; }
+  .editorial-page--category-brands .editorial-opening-copy { top: auto; transform: none; }
+}
+
 /* Reduced Motion Override for Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .editorial-page,

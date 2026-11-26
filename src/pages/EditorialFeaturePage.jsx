@@ -87,7 +87,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
 
   return (
     <motion.div
-      className="editorial-page editorial-page--fashion"
+      className={`editorial-page editorial-page--fashion editorial-page--category-${story.id || categoryKey}`}
       key={story.id || categoryKey}
       initial={isReduced ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
