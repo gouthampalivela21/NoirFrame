@@ -138,12 +138,13 @@ export default function Navbar() {
     location.pathname.startsWith("/book") ||
     location.pathname.startsWith("/contact") ||
     location.pathname.startsWith("/journeys");
+  const isCategoryPage = location.pathname.startsWith("/stories/");
   const isEditorial = location.pathname.startsWith("/explore") || location.pathname.startsWith("/stories/portraits");
 
   return (
     <>
       <motion.header
-        className={`navbar ${scrolled ? "is-scrolled" : ""} ${isHome ? "navbar--home" : ""} ${isExperienceDark ? "navbar--dark" : ""} ${isEditorial ? "navbar--editorial" : ""} ${menuOpen ? "navbar--open" : ""}`}
+        className={`navbar ${scrolled ? "is-scrolled" : ""} ${isHome ? "navbar--home" : ""} ${isExperienceDark ? "navbar--dark" : ""} ${isEditorial ? "navbar--editorial" : ""} ${isCategoryPage ? "navbar--category" : ""} ${menuOpen ? "navbar--open" : ""}`}
         initial={isReduced ? false : { opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2, ease: APPLE_EASE }}

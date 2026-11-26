@@ -161,3 +161,42 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Liquid-glass material for the site navigation across all sections. */
+.navbar:not(.navbar--category):not(.navbar--open) {
+  background: rgba(255,255,255,.62);
+  border-bottom: 1px solid rgba(255,255,255,.76);
+  box-shadow: 0 1px 0 rgba(255,255,255,.72) inset, 0 8px 28px rgba(20,24,32,.08);
+  backdrop-filter: saturate(190%) blur(24px);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
+  transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+}
+.navbar:not(.navbar--category):not(.navbar--open).is-scrolled {
+  background: rgba(255,255,255,.78);
+  border-bottom-color: rgba(255,255,255,.84);
+  box-shadow: 0 1px 0 rgba(255,255,255,.82) inset, 0 10px 32px rgba(20,24,32,.1);
+  backdrop-filter: saturate(210%) blur(30px);
+  -webkit-backdrop-filter: saturate(210%) blur(30px);
+}
+.navbar.navbar--dark:not(.navbar--open) {
+  background: rgba(15,16,20,.55);
+  border-bottom-color: rgba(255,255,255,.18);
+  box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 8px 28px rgba(0,0,0,.12);
+  backdrop-filter: saturate(190%) blur(24px);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
+}
+.navbar.navbar--dark:not(.navbar--open).is-scrolled {
+  background: rgba(15,16,20,.72);
+  border-bottom-color: rgba(255,255,255,.22);
+  backdrop-filter: saturate(210%) blur(30px);
+  -webkit-backdrop-filter: saturate(210%) blur(30px);
+}
+@media (max-width: 767px) {
+  .navbar:not(.navbar--category):not(.navbar--open),
+  .navbar:not(.navbar--category):not(.navbar--open).is-scrolled,
+  .navbar.navbar--dark:not(.navbar--open),
+  .navbar.navbar--dark:not(.navbar--open).is-scrolled {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+}

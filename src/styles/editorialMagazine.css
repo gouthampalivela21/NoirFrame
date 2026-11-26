@@ -1595,3 +1595,944 @@
     transform: none !important;
   }
 }
+
+/* Reference-matched category opening: immersive image, sparse left-aligned copy. */
+.editorial-page--fashion { padding-top: 0; }
+.editorial-page--fashion .editorial-masthead { display: none; }
+.editorial-page--fashion .editorial-opening-spread {
+  height: 100svh;
+  min-height: 600px;
+  max-height: none;
+}
+.editorial-page--fashion .editorial-opening-photo::after {
+  background: linear-gradient(180deg, rgba(0,0,0,.2) 0%, rgba(0,0,0,0) 32%, rgba(0,0,0,.62) 100%);
+}
+.editorial-page--fashion .editorial-opening-copy {
+  top: auto;
+  right: auto;
+  bottom: clamp(56px, 10vh, 120px);
+  left: clamp(28px, 6.25vw, 180px);
+  width: min(900px, 68vw);
+  padding: 0;
+  align-items: flex-start;
+  text-align: left;
+  transform: none;
+}
+.editorial-page--fashion .editorial-opening-brand,
+.editorial-page--fashion .editorial-opening-copy .editorial-deck { display: none; }
+.editorial-page--fashion .editorial-opening-label {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: clamp(20px, 2.2vw, 32px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.025em;
+  text-transform: none;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-headline {
+  max-width: 900px;
+  margin: 0;
+  color: #fff;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3rem, 4.5vw, 4.6rem);
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1.02;
+  letter-spacing: -.055em;
+  text-align: left;
+  text-wrap: balance;
+}
+.navbar.navbar--category,
+.navbar.navbar--category.is-scrolled {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.navbar.navbar--category .nav-link,
+.navbar.navbar--category .navbar__mobile-toggle { color: rgba(255,255,255,.9); }
+.navbar.navbar--category .nav-link:hover,
+.navbar.navbar--category .nav-link.is-active,
+.navbar.navbar--category .nav-link.active { color: #fff; }
+.navbar.navbar--category .nav-link::after { background: #fff; }
+.navbar.navbar--category .navbar__brand-logo-img--light { display: none; }
+.navbar.navbar--category .navbar__brand-logo-img--dark { display: block; }
+.navbar.navbar--category .navbar__cta-btn {
+  border-color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.76);
+  color: #1d1d1f;
+}
+.navbar.navbar--category.is-scrolled {
+  background: rgba(18,18,20,.78);
+  backdrop-filter: saturate(160%) blur(18px);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-opening-spread { height: 100svh; min-height: 560px; }
+  .editorial-page--fashion .editorial-opening-copy {
+    top: auto;
+    right: 22px;
+    bottom: 48px;
+    left: 22px;
+    width: auto;
+    align-items: flex-start;
+    text-align: left;
+    transform: none;
+  }
+  .editorial-page--fashion .editorial-opening-label { margin-bottom: 8px; font-size: 20px; }
+  .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(2.9rem, 11vw, 4rem); }
+}
+
+/* AirPods-inspired product storytelling: restrained system typography,
+   expansive photography and clean white space. */
+.editorial-page--fashion {
+  --editorial-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --editorial-ink: #1d1d1f;
+  --editorial-ink-secondary: #6e6e73;
+  --editorial-paper-deep: #f5f5f7;
+  padding-top: 0;
+  color: #1d1d1f;
+  font-family: var(--editorial-sans);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-masthead {
+  position: sticky;
+  z-index: 15;
+  top: var(--nav-height, 70px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: none;
+  min-height: 58px;
+  margin: 0;
+  padding: 0 clamp(22px, 8vw, 180px);
+  border-bottom: 1px solid rgba(29,29,31,.14);
+  background: rgba(255,255,255,.94);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+.editorial-page--fashion .editorial-category-name {
+  color: #1d1d1f;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -.025em;
+}
+.editorial-page--fashion .editorial-category-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 42px);
+}
+.editorial-page--fashion .editorial-category-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 58px;
+  color: #424245;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color .2s ease;
+}
+.editorial-page--fashion .editorial-category-nav a:hover { color: #000; }
+.editorial-page--fashion .editorial-category-nav a:last-child {
+  min-height: 34px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #0071e3;
+  color: #fff;
+}
+.editorial-page--fashion .editorial-opening-spread {
+  height: 100svh;
+  min-height: 600px;
+  max-height: none;
+  scroll-margin-top: 0;
+}
+.editorial-page--fashion .editorial-opening-photo::after {
+  background: linear-gradient(180deg, rgba(0,0,0,.02) 38%, rgba(0,0,0,.58) 100%);
+}
+.editorial-page--fashion .editorial-opening-copy {
+  top: auto;
+  right: auto;
+  bottom: clamp(48px, 9vh, 150px);
+  left: clamp(28px, 6.25vw, 180px);
+  width: min(1100px, 82vw);
+  align-items: flex-start;
+  text-align: left;
+  transform: none;
+}
+.editorial-page--fashion .editorial-opening-brand {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.editorial-page--fashion .editorial-opening-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-headline {
+  max-width: 1100px;
+  margin: 0;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3.8rem, 8vw, 8.7rem);
+  font-weight: 650;
+  line-height: .98;
+  letter-spacing: -.065em;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-deck {
+  max-width: 540px;
+  margin-top: 18px;
+  font-size: clamp(15px, 1.5vw, 20px);
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+.editorial-page--fashion .editorial-opening-copy .editorial-headline,
+.editorial-page--fashion .editorial-opening-copy .editorial-deck { text-align: left; }
+.editorial-page--fashion .editorial-collection-section {
+  padding: clamp(58px, 9vw, 130px) 0 72px;
+  scroll-margin-top: calc(var(--nav-height, 70px) + 58px);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-collection-heading {
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0 clamp(22px, 8vw, 180px) 42px;
+  border: 0;
+}
+.editorial-page--fashion .editorial-collection-heading .editorial-opening-label {
+  color: #6e6e73;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.editorial-page--fashion .editorial-collection-heading h2 {
+  margin: 4px 0 0;
+  color: #1d1d1f;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3.4rem, 7vw, 7.2rem);
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-collection-heading p {
+  max-width: 720px;
+  margin: 16px 0 0;
+  color: #6e6e73;
+  text-align: left;
+  font-size: clamp(17px, 2vw, 24px);
+  line-height: 1.3;
+}
+.editorial-page--fashion .editorial-photo-collection {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 clamp(22px, 6.25vw, 120px) 26px;
+  gap: clamp(18px, 2vw, 32px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(22px, 6.25vw, 120px);
+  scrollbar-width: none;
+}
+.editorial-page--fashion .editorial-photo-collection::-webkit-scrollbar { display: none; }
+.editorial-page--fashion .editorial-collection-photo,
+.editorial-page--fashion .editorial-collection-photo--1,
+.editorial-page--fashion .editorial-collection-photo--2,
+.editorial-page--fashion .editorial-collection-photo--3,
+.editorial-page--fashion .editorial-collection-photo--4 {
+  display: flex;
+  flex: 0 0 min(84vw, 1320px);
+  flex-direction: column;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  background: transparent;
+  scroll-snap-align: start;
+}
+.editorial-page--fashion .editorial-collection-image {
+  width: 100%;
+  height: min(72svh, 820px);
+  min-height: 460px;
+  overflow: hidden;
+  border-radius: clamp(22px, 3.5vw, 54px);
+  background: #f5f5f7;
+}
+.editorial-page--fashion .editorial-collection-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(.2,.7,.2,1);
+}
+.editorial-page--fashion .editorial-collection-photo:hover .editorial-collection-image img { transform: scale(1.018); }
+.editorial-page--fashion .editorial-collection-photo figcaption {
+  position: static;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 3px 0;
+  color: #6e6e73;
+  text-shadow: none;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+.editorial-page--fashion .editorial-collection-photo figcaption span:last-child { color: #1d1d1f; }
+.editorial-page--fashion .editorial-commission-footer {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 26px clamp(22px, 6vw, 90px) 56px;
+}
+.editorial-page--fashion .editorial-commission-btn {
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #0071e3;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.editorial-page--fashion .editorial-commission-footer .editorial-back-link { font-size: 14px; }
+@media (max-width: 680px) {
+  .editorial-page--fashion { padding-top: 0; }
+  .editorial-page--fashion .editorial-masthead {
+    top: var(--nav-height, 64px);
+    min-height: 54px;
+    padding: 0 18px;
+  }
+  .editorial-page--fashion .editorial-category-name { font-size: 16px; }
+  .editorial-page--fashion .editorial-category-nav { gap: 15px; }
+  .editorial-page--fashion .editorial-category-nav a { min-height: 54px; font-size: 11px; }
+  .editorial-page--fashion .editorial-category-nav a:nth-child(2) { display: none; }
+  .editorial-page--fashion .editorial-category-nav a:last-child { min-height: 30px; padding: 0 14px; }
+  .editorial-page--fashion .editorial-opening-spread { height: 100svh; min-height: 560px; }
+  .editorial-page--fashion .editorial-opening-copy { top: auto; right: 22px; bottom: 34px; left: 22px; width: auto; align-items: flex-start; text-align: left; transform: none; }
+  .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(3.2rem, 14vw, 5.7rem); }
+  .editorial-page--fashion .editorial-opening-copy .editorial-deck { max-width: 34ch; margin-top: 12px; font-size: 15px; }
+  .editorial-page--fashion .editorial-collection-section { padding: 58px 0 42px; }
+  .editorial-page--fashion .editorial-collection-heading { padding: 0 22px 28px; }
+  .editorial-page--fashion .editorial-collection-heading h2 { font-size: clamp(3.1rem, 13vw, 5rem); }
+  .editorial-page--fashion .editorial-collection-heading p { margin-top: 10px; font-size: 17px; }
+  .editorial-page--fashion .editorial-photo-collection { padding: 0 18px 18px; gap: 14px; scroll-padding-inline: 18px; }
+  .editorial-page--fashion .editorial-collection-photo,
+  .editorial-page--fashion .editorial-collection-photo--1,
+  .editorial-page--fashion .editorial-collection-photo--2,
+  .editorial-page--fashion .editorial-collection-photo--3,
+  .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 88vw; }
+  .editorial-page--fashion .editorial-collection-image { height: 66svh; min-height: 420px; border-radius: 28px; }
+  .editorial-page--fashion .editorial-collection-photo figcaption { padding-top: 13px; font-size: 13px; }
+  .editorial-page--fashion .editorial-commission-footer { padding: 20px 20px 38px; }
+}
+
+/* Category hero navigation uses the same glass material over photography. */
+.navbar.navbar--category,
+.navbar.navbar--category.is-scrolled {
+  background: rgba(18,19,24,.42);
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 8px 28px rgba(0,0,0,.12);
+  backdrop-filter: saturate(190%) blur(24px);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
+}
+.navbar.navbar--category.is-scrolled {
+  background: rgba(18,19,24,.68);
+  border-bottom-color: rgba(255,255,255,.24);
+  backdrop-filter: saturate(210%) blur(30px);
+  -webkit-backdrop-filter: saturate(210%) blur(30px);
+}
+@media (max-width: 767px) {
+  .navbar.navbar--category,
+  .navbar.navbar--category.is-scrolled {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+}
+
+/* Final category hero sizing: cover the whole viewport with no nav-height offset. */
+.editorial-page--fashion {
+  padding-top: 0 !important;
+  margin-top: 0;
+}
+.editorial-page--fashion .editorial-container,
+.editorial-page--fashion .editorial-article {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.editorial-page--fashion .editorial-opening-spread {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.editorial-page--fashion .editorial-opening-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  aspect-ratio: auto;
+  overflow: hidden;
+}
+.editorial-page--fashion .editorial-opening-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion { padding-top: 0 !important; }
+  .editorial-page--fashion .editorial-opening-spread { height: 100vh; height: 100svh; min-height: 100svh; }
+}
+
+/* Clean highlights section: one oversized photograph per viewport. */
+.editorial-page--fashion .editorial-collection-section {
+  padding: clamp(96px, 12vw, 176px) 0 clamp(56px, 8vw, 112px);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-collection-heading {
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 120px) clamp(42px, 5vw, 72px);
+  border: 0;
+}
+.editorial-page--fashion .editorial-collection-heading h2 {
+  margin: 0;
+  color: #1d1d1f;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-photo-collection {
+  max-width: none;
+  height: auto;
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 120px) 28px;
+  gap: clamp(20px, 2vw, 32px);
+  scroll-padding-inline: clamp(24px, 6.25vw, 120px);
+}
+.editorial-page--fashion .editorial-collection-photo,
+.editorial-page--fashion .editorial-collection-photo--1,
+.editorial-page--fashion .editorial-collection-photo--2,
+.editorial-page--fashion .editorial-collection-photo--3,
+.editorial-page--fashion .editorial-collection-photo--4 {
+  flex: 0 0 87.5vw;
+  height: auto;
+}
+.editorial-page--fashion .editorial-collection-image {
+  height: min(76svh, 900px);
+  min-height: 520px;
+  border-radius: clamp(24px, 2.2vw, 38px);
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-collection-section { padding: 76px 0 48px; }
+  .editorial-page--fashion .editorial-collection-heading { padding: 0 22px 30px; }
+  .editorial-page--fashion .editorial-collection-heading h2 { font-size: clamp(2.9rem, 11vw, 4rem); }
+  .editorial-page--fashion .editorial-photo-collection { padding: 0 18px 20px; gap: 14px; scroll-padding-inline: 18px; }
+  .editorial-page--fashion .editorial-collection-photo,
+  .editorial-page--fashion .editorial-collection-photo--1,
+  .editorial-page--fashion .editorial-collection-photo--2,
+  .editorial-page--fashion .editorial-collection-photo--3,
+  .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 88vw; }
+  .editorial-page--fashion .editorial-collection-image { height: 68svh; min-height: 430px; border-radius: 28px; }
+}
+
+.editorial-page--fashion .editorial-gallery { position: relative; }
+.editorial-page--fashion .editorial-photo-collection {
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+}
+.editorial-page--fashion .editorial-closer-section {
+  padding: clamp(72px, 8vw, 120px) 0 clamp(56px, 7vw, 100px);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-closer-heading {
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 120px) clamp(42px, 5vw, 72px);
+}
+.editorial-page--fashion .editorial-closer-heading h2 {
+  margin: 0;
+  color: #1d1d1f;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-closer-section .editorial-collection-photo figcaption {
+  position: static;
+  display: block;
+  padding: 18px 4px 0;
+  color: #6e6e73;
+  text-shadow: none;
+  font-size: clamp(15px, 1.2vw, 18px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -.01em;
+}
+.editorial-page--fashion .editorial-experience-section {
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(54px, 8vh, 110px) 24px 64px;
+  background: #14285f;
+  color: #fff;
+  isolation: isolate;
+}
+.editorial-page--fashion .editorial-experience-image,
+.editorial-page--fashion .editorial-experience-overlay {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.editorial-page--fashion .editorial-experience-image {
+  object-fit: cover;
+  object-position: center 42%;
+  filter: saturate(.8);
+}
+.editorial-page--fashion .editorial-experience-overlay {
+  background:
+    linear-gradient(180deg, rgba(9, 20, 57, .78) 0%, rgba(13, 39, 98, .55) 42%, rgba(0, 103, 202, .48) 100%),
+    linear-gradient(120deg, rgba(11, 25, 70, .42), rgba(31, 96, 183, .28));
+}
+.editorial-page--fashion .editorial-experience-copy {
+  width: min(1160px, 100%);
+  text-align: center;
+}
+.editorial-page--fashion .editorial-experience-copy p {
+  margin: 0 0 clamp(24px, 3vw, 42px);
+  color: rgba(255, 255, 255, .96);
+  font-size: clamp(18px, 2.2vw, 30px);
+  font-weight: 550;
+  line-height: 1.2;
+}
+.editorial-page--fashion .editorial-experience-copy h2 {
+  max-width: 1160px;
+  margin: 0 auto;
+  color: #fff;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3.5rem, 8.2vw, 8rem);
+  font-weight: 650;
+  line-height: .98;
+  letter-spacing: -.065em;
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-closer-section { padding: 64px 0 44px; }
+  .editorial-page--fashion .editorial-closer-heading { padding: 0 22px 30px; }
+  .editorial-page--fashion .editorial-closer-heading h2 { font-size: clamp(2.9rem, 11vw, 4rem); }
+  .editorial-page--fashion .editorial-closer-section .editorial-collection-photo figcaption { padding: 13px 3px 0; font-size: 14px; }
+  .editorial-page--fashion .editorial-experience-section { min-height: 92svh; padding: 56px 20px 42px; }
+  .editorial-page--fashion .editorial-experience-copy p { margin-bottom: 24px; }
+  .editorial-page--fashion .editorial-experience-copy h2 { font-size: clamp(3rem, 12vw, 5rem); }
+}
+.editorial-page--fashion .editorial-approach-section {
+  padding: clamp(88px, 10vw, 148px) clamp(24px, 7vw, 120px) clamp(96px, 10vw, 150px);
+  background: #fff;
+  color: #1d1d1f;
+}
+.editorial-page--fashion .editorial-approach-intro {
+  max-width: 820px;
+  margin: 0 auto clamp(64px, 8vw, 120px);
+  text-align: center;
+}
+.editorial-page--fashion .editorial-approach-intro h2 {
+  margin: 0;
+  font-family: var(--editorial-sans);
+  font-size: clamp(2rem, 3.8vw, 3.5rem);
+  font-weight: 650;
+  line-height: 1.06;
+  letter-spacing: -.045em;
+}
+.editorial-page--fashion .editorial-approach-intro p {
+  margin: 10px 0 0;
+  color: #66666b;
+  font-size: clamp(19px, 2.3vw, 31px);
+  font-weight: 550;
+  line-height: 1.28;
+  letter-spacing: -.025em;
+}
+.editorial-page--fashion .editorial-approach-grid {
+  display: grid;
+  width: min(1240px, 100%);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(40px, 7vw, 112px);
+  margin: 0 auto;
+}
+.editorial-page--fashion .editorial-approach-item svg {
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.editorial-page--fashion .editorial-approach-item h3 {
+  margin: 0 0 10px;
+  font-size: clamp(18px, 1.7vw, 24px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+}
+.editorial-page--fashion .editorial-approach-item p {
+  max-width: 34ch;
+  margin: 0;
+  color: #6e6e73;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.38;
+  letter-spacing: -.015em;
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-approach-section { padding: 76px 24px 84px; }
+  .editorial-page--fashion .editorial-approach-intro { margin-bottom: 52px; }
+  .editorial-page--fashion .editorial-approach-intro h2 { font-size: clamp(2rem, 9vw, 3rem); }
+  .editorial-page--fashion .editorial-approach-intro p { font-size: 19px; }
+  .editorial-page--fashion .editorial-approach-grid { grid-template-columns: 1fr; gap: 38px; }
+  .editorial-page--fashion .editorial-approach-item svg { width: 40px; height: 40px; margin-bottom: 16px; }
+  .editorial-page--fashion .editorial-approach-item p { font-size: 17px; }
+}
+.editorial-page--fashion .editorial-long-image-section {
+  position: relative;
+  display: flex;
+  min-height: 250svh;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(150px, 22vh, 280px) 24px 64px;
+  background: #7d16ce;
+  color: #fff;
+  isolation: isolate;
+}
+.editorial-page--fashion .editorial-long-image,
+.editorial-page--fashion .editorial-long-image-overlay {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.editorial-page--fashion .editorial-long-image {
+  object-fit: cover;
+  object-position: center 38%;
+}
+.editorial-page--fashion .editorial-long-image-overlay {
+  background:
+    linear-gradient(180deg, rgba(125, 15, 198, .62) 0%, rgba(152, 30, 208, .25) 48%, rgba(31, 0, 72, .42) 100%),
+    linear-gradient(90deg, rgba(142, 24, 217, .28), rgba(190, 54, 222, .2));
+}
+.editorial-page--fashion .editorial-long-image-copy {
+  width: min(1100px, 100%);
+  text-align: center;
+}
+.editorial-page--fashion .editorial-long-image-copy p {
+  margin: 0 0 clamp(22px, 3vw, 42px);
+  color: rgba(255, 255, 255, .96);
+  font-size: clamp(18px, 2.2vw, 30px);
+  font-weight: 550;
+  line-height: 1.2;
+}
+.editorial-page--fashion .editorial-long-image-copy h2 {
+  max-width: 1100px;
+  margin: 0 auto;
+  color: #fff;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3.5rem, 8.2vw, 8rem);
+  font-weight: 650;
+  line-height: .98;
+  letter-spacing: -.065em;
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-long-image-section { min-height: 210svh; padding: 120px 20px 42px; }
+  .editorial-page--fashion .editorial-long-image-copy p { margin-bottom: 24px; }
+  .editorial-page--fashion .editorial-long-image-copy h2 { font-size: clamp(3rem, 12vw, 5rem); }
+}
+.editorial-page--fashion .editorial-feature-cards-section {
+  padding: clamp(44px, 5vw, 72px) 0 88px;
+  background: #fff;
+  color: #1d1d1f;
+}
+.editorial-page--fashion .editorial-feature-cards-track {
+  display: flex;
+  gap: clamp(16px, 1.5vw, 22px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 clamp(24px, 6.25vw, 90px) 16px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(24px, 6.25vw, 90px);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.editorial-page--fashion .editorial-feature-cards-track::-webkit-scrollbar { display: none; }
+.editorial-page--fashion .editorial-feature-card {
+  flex: 0 0 min(26vw, 400px);
+  min-width: 320px;
+  scroll-snap-align: start;
+}
+.editorial-page--fashion .editorial-feature-card-image {
+  height: clamp(420px, 40.3vw, 590px);
+  overflow: hidden;
+  border-radius: 24px;
+  background: #f5f5f7;
+}
+.editorial-page--fashion .editorial-feature-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.editorial-page--fashion .editorial-feature-card-copy { padding: 22px 4px 0; }
+.editorial-page--fashion .editorial-feature-card-copy h3 {
+  margin: 0;
+  font-size: clamp(18px, 1.55vw, 23px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+.editorial-page--fashion .editorial-feature-card-copy p {
+  margin: 4px 0 0;
+  color: #6e6e73;
+  font-size: clamp(16px, 1.5vw, 21px);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -.015em;
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-feature-cards-section { padding: 42px 0 60px; }
+  .editorial-page--fashion .editorial-feature-cards-track { gap: 14px; padding: 0 20px 12px; scroll-padding-inline: 20px; }
+  .editorial-page--fashion .editorial-feature-card { flex-basis: 78vw; min-width: 0; }
+  .editorial-page--fashion .editorial-feature-card-image { height: 62svh; min-height: 360px; border-radius: 20px; }
+  .editorial-page--fashion .editorial-feature-card-copy { padding: 16px 3px 0; }
+  .editorial-page--fashion .editorial-feature-card-copy h3 { font-size: 18px; }
+  .editorial-page--fashion .editorial-feature-card-copy p { font-size: 16px; }
+}
+.editorial-page--fashion .editorial-why-section {
+  padding: clamp(64px, 7vw, 104px) 0 48px;
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+.editorial-page--fashion .editorial-why-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 90px) clamp(56px, 7vw, 100px);
+}
+.editorial-page--fashion .editorial-why-heading h2 {
+  max-width: 820px;
+  margin: 0;
+  color: #1d1d1f;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3rem, 5.2vw, 5rem);
+  font-weight: 650;
+  line-height: 1.03;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-why-heading a {
+  flex: 0 0 auto;
+  color: #06c;
+  font-size: clamp(17px, 1.8vw, 23px);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.editorial-page--fashion .editorial-why-heading a span { padding-left: 3px; font-size: 1.3em; vertical-align: -1px; }
+.editorial-page--fashion .editorial-why-track {
+  display: flex;
+  gap: clamp(16px, 1.5vw, 22px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 clamp(24px, 6.25vw, 90px) 12px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(24px, 6.25vw, 90px);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.editorial-page--fashion .editorial-why-track::-webkit-scrollbar { display: none; }
+.editorial-page--fashion .editorial-why-card {
+  position: relative;
+  flex: 0 0 min(26vw, 400px);
+  min-width: 330px;
+  min-height: 324px;
+  padding: 34px 34px 76px;
+  border-radius: 26px;
+  background: #fff;
+  scroll-snap-align: start;
+  transition: min-height .25s ease;
+}
+.editorial-page--fashion .editorial-why-icon {
+  display: block;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  fill: none;
+  stroke: #1d1d1f;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.editorial-page--fashion .editorial-why-card h3 {
+  margin: 0 0 14px;
+  font-size: clamp(23px, 2.25vw, 32px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.045em;
+}
+.editorial-page--fashion .editorial-why-card p {
+  margin: 0;
+  color: #222;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+.editorial-page--fashion .editorial-why-card .editorial-why-detail {
+  margin-top: 12px;
+  color: #6e6e73;
+  font-size: 16px;
+}
+.editorial-page--fashion .editorial-why-toggle {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #1d1d1f;
+  color: #fff;
+  font: 400 32px/1 var(--editorial-sans);
+  cursor: pointer;
+}
+.editorial-page--fashion .editorial-why-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 22px clamp(24px, 6.25vw, 90px) 0;
+}
+.editorial-page--fashion .editorial-why-controls button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0 0 4px;
+  border: 0;
+  border-radius: 50%;
+  background: #e5e5ea;
+  color: #5a5a5e;
+  font: 400 34px/1 var(--editorial-sans);
+  cursor: pointer;
+}
+.editorial-page--fashion .editorial-why-controls button:hover { background: #d6d6dc; }
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-why-section { padding: 64px 0 40px; }
+  .editorial-page--fashion .editorial-why-heading { display: block; padding: 0 22px 42px; }
+  .editorial-page--fashion .editorial-why-heading h2 { font-size: clamp(2.8rem, 10vw, 4rem); }
+  .editorial-page--fashion .editorial-why-heading a { display: inline-block; margin-top: 22px; }
+  .editorial-page--fashion .editorial-why-track { gap: 14px; padding: 0 20px 12px; scroll-padding-inline: 20px; }
+  .editorial-page--fashion .editorial-why-card { flex-basis: 82vw; min-width: 0; min-height: 310px; padding: 28px 26px 72px; border-radius: 23px; }
+  .editorial-page--fashion .editorial-why-icon { width: 46px; height: 46px; margin-bottom: 20px; }
+  .editorial-page--fashion .editorial-why-card h3 { font-size: 26px; }
+  .editorial-page--fashion .editorial-why-card p { font-size: 18px; }
+  .editorial-page--fashion .editorial-why-controls { padding: 18px 20px 0; }
+}
+.editorial-page--fashion .editorial-values-section {
+  padding: clamp(72px, 7.5vw, 112px) 0 clamp(88px, 9vw, 132px);
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+.editorial-page--fashion .editorial-values-heading {
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 90px) clamp(56px, 6vw, 86px);
+}
+.editorial-page--fashion .editorial-values-heading h2 {
+  max-width: 1000px;
+  margin: 0;
+  font-family: var(--editorial-sans);
+  font-size: clamp(3rem, 5.2vw, 5rem);
+  font-weight: 650;
+  line-height: 1.03;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 1.5vw, 22px);
+  padding: 0 clamp(24px, 6.25vw, 90px);
+}
+.editorial-page--fashion .editorial-value-card {
+  min-height: 342px;
+  padding: 36px 34px 34px;
+  border-radius: 28px;
+  background: #fff;
+}
+.editorial-page--fashion .editorial-value-card svg {
+  display: block;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  fill: none;
+  stroke: #1d1d1f;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.editorial-page--fashion .editorial-value-card h3 {
+  margin: 0 0 14px;
+  font-size: clamp(23px, 2.25vw, 32px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.045em;
+}
+.editorial-page--fashion .editorial-value-card p {
+  margin: 0 0 18px;
+  color: #222;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+.editorial-page--fashion .editorial-value-card a {
+  color: #06c;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.3;
+  text-decoration: none;
+}
+.editorial-page--fashion .editorial-value-card a span { padding-left: 3px; font-size: 1.25em; vertical-align: -1px; }
+@media (max-width: 760px) {
+  .editorial-page--fashion .editorial-values-section { padding: 64px 0 76px; }
+  .editorial-page--fashion .editorial-values-heading { padding: 0 22px 40px; }
+  .editorial-page--fashion .editorial-values-heading h2 { font-size: clamp(2.8rem, 10vw, 4rem); }
+  .editorial-page--fashion .editorial-values-grid { grid-template-columns: 1fr; gap: 14px; padding: 0 20px; }
+  .editorial-page--fashion .editorial-value-card { min-height: 0; padding: 28px 26px; border-radius: 23px; }
+  .editorial-page--fashion .editorial-value-card svg { width: 46px; height: 46px; margin-bottom: 20px; }
+  .editorial-page--fashion .editorial-value-card h3 { font-size: 26px; }
+  .editorial-page--fashion .editorial-value-card p,
+  .editorial-page--fashion .editorial-value-card a { font-size: 18px; }
+}
