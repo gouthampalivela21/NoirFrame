@@ -956,6 +956,9 @@
   line-height: 0.98;
   letter-spacing: -0.045em;
   margin-bottom: 18px;
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 .editorial-page--fashion .editorial-deck {
   max-width: 660px;
