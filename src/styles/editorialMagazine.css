@@ -1212,7 +1212,7 @@
 .editorial-page--fashion .editorial-masthead { border-top-color: var(--editorial-ink); }
 .editorial-page--fashion .editorial-opening-spread {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
   align-items: center;
   gap: clamp(32px, 6vw, 92px);
   margin: 28px 0 44px;
@@ -1294,8 +1294,9 @@
 .editorial-page--fashion .editorial-lead-figure { display: none; }
 .editorial-page--fashion .editorial-photo-collection {
   display: grid;
-  grid-template-columns: 1.05fr .82fr 1.1fr .8fr;
-  grid-template-rows: clamp(230px, 30vw, 430px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.12fr) minmax(0, .88fr);
+  aspect-ratio: 16 / 9;
   gap: clamp(10px, 1.5vw, 22px);
   align-items: stretch;
   margin: 26px 0 42px;
@@ -1303,15 +1304,15 @@
 .editorial-page--fashion .editorial-collection-photo {
   position: relative;
   min-width: 0;
-  height: 100%;
+  height: auto;
   margin: 0;
   overflow: hidden;
   background: var(--editorial-paper-deep);
 }
-.editorial-page--fashion .editorial-collection-photo--1 { height: 88%; align-self: end; }
-.editorial-page--fashion .editorial-collection-photo--2 { height: 100%; }
-.editorial-page--fashion .editorial-collection-photo--3 { height: 82%; align-self: start; }
-.editorial-page--fashion .editorial-collection-photo--4 { height: 94%; align-self: center; }
+.editorial-page--fashion .editorial-collection-photo--1 { grid-column: 1; grid-row: 1 / span 2; }
+.editorial-page--fashion .editorial-collection-photo--2 { grid-column: 2; grid-row: 1; }
+.editorial-page--fashion .editorial-collection-photo--3 { grid-column: 2; grid-row: 2; }
+.editorial-page--fashion .editorial-collection-photo--4 { grid-column: 3; grid-row: 1 / span 2; }
 .editorial-page--fashion .editorial-collection-photo img {
   display: block;
   width: 100%;
@@ -1336,11 +1337,11 @@
 @media (max-width: 820px) {
   .editorial-page--fashion .editorial-opening-spread { grid-template-columns: 1.05fr .95fr; gap: 28px; }
   .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(2.8rem, 7vw, 4.8rem); }
-  .editorial-page--fashion .editorial-photo-collection { grid-template-columns: 1fr 1fr; grid-template-rows: 240px 240px; }
+  .editorial-page--fashion .editorial-photo-collection { gap: 12px; }
   .editorial-page--fashion .editorial-collection-photo--1,
   .editorial-page--fashion .editorial-collection-photo--2,
   .editorial-page--fashion .editorial-collection-photo--3,
-  .editorial-page--fashion .editorial-collection-photo--4 { height: 100%; align-self: stretch; }
+  .editorial-page--fashion .editorial-collection-photo--4 { height: auto; }
 }
 @media (max-width: 600px) {
   .editorial-page--fashion .editorial-opening-spread { grid-template-columns: 1fr; gap: 22px; margin-top: 22px; }
@@ -1349,11 +1350,16 @@
   .editorial-page--fashion .editorial-opening-brand { margin-bottom: 28px; }
   .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(3.2rem, 15vw, 5rem); }
   .editorial-page--fashion .editorial-opening-page { margin-top: 26px; }
-  .editorial-page--fashion .editorial-photo-collection { grid-template-rows: 210px 170px; gap: 9px; }
-  .editorial-page--fashion .editorial-collection-photo--1,
-  .editorial-page--fashion .editorial-collection-photo--3 { grid-column: 1; }
-  .editorial-page--fashion .editorial-collection-photo--2,
-  .editorial-page--fashion .editorial-collection-photo--4 { grid-column: 2; }
+  .editorial-page--fashion .editorial-photo-collection {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    aspect-ratio: 1 / 1.12;
+    gap: 9px;
+  }
+  .editorial-page--fashion .editorial-collection-photo--1 { grid-column: 1; grid-row: 1; }
+  .editorial-page--fashion .editorial-collection-photo--2 { grid-column: 2; grid-row: 1; }
+  .editorial-page--fashion .editorial-collection-photo--3 { grid-column: 1; grid-row: 2; }
+  .editorial-page--fashion .editorial-collection-photo--4 { grid-column: 2; grid-row: 2; }
 }
 @media (prefers-reduced-motion: reduce) {
   .editorial-page--fashion .editorial-opening-photo img,
