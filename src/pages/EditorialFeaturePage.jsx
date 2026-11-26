@@ -8,6 +8,13 @@ import "../styles/editorialMagazine.css";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
 
+const conciseCopy = (value, limit = 36) => {
+  if (typeof value !== "string") return "";
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= limit) return value;
+  return `${words.slice(0, limit).join(" ").replace(/[,:;.!?]+$/, "")}…`;
+};
+
 const getFadeUpMotion = (isReduced, delay = 0, distance = 16) => ({
   initial: isReduced ? false : { opacity: 0, y: distance },
   whileInView: isReduced ? undefined : { opacity: 1, y: 0 },
@@ -81,7 +88,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
 
   return (
     <motion.div
-      className="editorial-page"
+      className="editorial-page editorial-page--fashion"
       key={story.id || categoryKey}
       initial={isReduced ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -114,7 +121,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
             {...getFadeUpMotion(isReduced, 0.05, 16)}
           >
             <h1 className="editorial-headline">{story.headline}</h1>
-            {story.deck && <p className="editorial-deck">{story.deck}</p>}
+            {story.deck && <p className="editorial-deck">{conciseCopy(story.deck, 24)}</p>}
             <div className="editorial-byline">{story.byline || "Photography & Words by Phantom Labs"}</div>
           </motion.div>
 
@@ -144,7 +151,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                 </div>
                 {story.leadImage.caption && (
                   <figcaption className="editorial-caption">
-                    {story.leadImage.caption}
+                    {conciseCopy(story.leadImage.caption, 14)}
                   </figcaption>
                 )}
               </motion.figure>
@@ -174,18 +181,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                         key={idx}
                         className={`editorial-p ${idx === 0 ? "editorial-drop-cap" : ""}`}
                       >
-                        {para}
-                      </p>
-                    ))}
-                  </div>
-
-                  <div className="editorial-column">
-                    <h3 className="editorial-subheading">
-                      {story.essaySubheadings?.[1] || "Unlearning the Impulse to Audition"}
-                    </h3>
-                    {openingEssay.slice(2).map((para, idx) => (
-                      <p key={idx} className="editorial-p">
-                        {para}
+                        {conciseCopy(para, idx === 0 ? 38 : 30)}
                       </p>
                     ))}
                   </div>
@@ -227,7 +223,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                       </div>
                       {subject.image.caption && (
                         <figcaption className="editorial-caption">
-                          {subject.image.caption}
+                          {conciseCopy(subject.image.caption, 14)}
                         </figcaption>
                       )}
                     </motion.figure>
@@ -239,7 +235,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
 
                     {subject.quote && (
                       <blockquote className="editorial-subject-quote">
-                        &ldquo;{subject.quote}&rdquo;
+                        &ldquo;{conciseCopy(subject.quote, 24)}&rdquo;
                       </blockquote>
                     )}
 
@@ -248,20 +244,10 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                         <h3 className="editorial-subheading">
                           {subject.bioTitle || "A Sanctuary for Quiet Rooms"}
                         </h3>
-                        <p className="editorial-p">{subject.bio}</p>
+                        <p className="editorial-p">{conciseCopy(subject.bio, 32)}</p>
                       </>
                     )}
 
-                    {subject.detailText && (
-                      <>
-                        <h3 className="editorial-subheading editorial-subheading--secondary">
-                          {subject.detailTitle || "On Stillness & Observation"}
-                        </h3>
-                        <div className="editorial-personal-detail">
-                          <strong>{subject.detailTitle || "Detail"}:</strong> {subject.detailText}
-                        </div>
-                      </>
-                    )}
                   </div>
                 </div>
               </motion.section>
@@ -284,13 +270,13 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                 <div className="editorial-moments-header">
                   {moments.tag && <span className="editorial-section-tag">{moments.tag}</span>}
                   <h2 className="editorial-section-title">{moments.title}</h2>
-                  {moments.intro && <p className="editorial-section-intro">{moments.intro}</p>}
+                  {moments.intro && <p className="editorial-section-intro">{conciseCopy(moments.intro, 18)}</p>}
                 </div>
 
                 {/* Diptych Frames */}
                 {Array.isArray(moments.diptych) && moments.diptych.length > 0 && (
                   <div className="editorial-diptych-grid">
-                    {moments.diptych.map((item, idx) => (
+                    {moments.diptych.slice(0, 2).map((item, idx) => (
                       <motion.div
                         key={idx}
                         className="editorial-frame-card"
@@ -309,7 +295,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                         </div>
                         {item.caption && (
                           <figcaption className="editorial-caption">
-                            {item.caption}
+                            {conciseCopy(item.caption, 12)}
                           </figcaption>
                         )}
                       </motion.div>
@@ -325,7 +311,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                     <h3 className="editorial-subheading">
                       {moments.passage1Subheading || "The Drift of Midday Light"}
                     </h3>
-                    <p className="editorial-p">{moments.passage1}</p>
+                    <p className="editorial-p">{conciseCopy(moments.passage1, 30)}</p>
                   </motion.div>
                 )}
 
@@ -348,7 +334,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                     </div>
                     {moments.envFigure.caption && (
                       <figcaption className="editorial-caption">
-                        {moments.envFigure.caption}
+                        {conciseCopy(moments.envFigure.caption, 14)}
                       </figcaption>
                     )}
                   </motion.figure>
@@ -362,7 +348,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                     <h3 className="editorial-subheading">
                       {moments.passage2Subheading || "The Intersection of Fatigue & Truth"}
                     </h3>
-                    <p className="editorial-p">{moments.passage2}</p>
+                    <p className="editorial-p">{conciseCopy(moments.passage2, 30)}</p>
                   </motion.div>
                 )}
               </motion.section>
@@ -384,11 +370,11 @@ export default function EditorialFeaturePage({ categoryOverride }) {
               >
                 {behind.tag && <span className="editorial-section-tag">{behind.tag}</span>}
                 <h2 className="editorial-section-title">{behind.title}</h2>
-                {behind.intro && <p className="editorial-section-intro">{behind.intro}</p>}
+                {behind.intro && <p className="editorial-section-intro">{conciseCopy(behind.intro, 18)}</p>}
 
                 <div className="editorial-craft-spread">
                   <div className="editorial-craft-columns">
-                    {behind.craftCards.map((card, idx) => (
+                    {behind.craftCards.slice(0, 2).map((card, idx) => (
                       <motion.div
                         key={idx}
                         className="editorial-craft-entry"
@@ -401,7 +387,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                           </span>
                         </div>
                         <h3 className="editorial-craft-headline">{card.title}</h3>
-                        <p className="editorial-craft-body">{card.text}</p>
+                        <p className="editorial-craft-body">{conciseCopy(card.text, 24)}</p>
                       </motion.div>
                     ))}
                   </div>
@@ -433,15 +419,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                       <h3 className="editorial-subheading">
                         {pause.subheadings?.[0] || "The Face as Autobiography"}
                       </h3>
-                      <p className="editorial-p">{pause.reflections[0]}</p>
-                    </div>
-                    <div className="editorial-column">
-                      <h3 className="editorial-subheading">
-                        {pause.subheadings?.[1] || "The Dignity of Stillness"}
-                      </h3>
-                      {pause.reflections.slice(1).map((para, idx) => (
-                        <p key={idx} className="editorial-p">{para}</p>
-                      ))}
+                      <p className="editorial-p">{conciseCopy(pause.reflections[0], 34)}</p>
                     </div>
                   </div>
                 )}
@@ -484,7 +462,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                   </div>
                   {finalSec.image.caption && (
                     <figcaption className="editorial-caption">
-                      {finalSec.image.caption}
+                      {conciseCopy(finalSec.image.caption, 14)}
                     </figcaption>
                   )}
                 </motion.figure>
@@ -498,8 +476,8 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                   <h3 className="editorial-subheading">
                     {finalSec.conclusionSubheading || "What the Light Left Behind"}
                   </h3>
-                  {finalSec.conclusion.map((para, idx) => (
-                    <p key={idx} className="editorial-p">{para}</p>
+                  {finalSec.conclusion.slice(0, 1).map((para, idx) => (
+                    <p key={idx} className="editorial-p">{conciseCopy(para, 34)}</p>
                   ))}
                 </motion.div>
               )}

@@ -916,6 +916,116 @@
   border-color: var(--editorial-ink);
 }
 
+/* Fashion editorial treatment shared by every category feature. */
+.editorial-page--fashion {
+  --editorial-paper: #f8f7f4;
+  --editorial-paper-subtle: #fff;
+  --editorial-paper-deep: #e7e3dc;
+  --editorial-ink: #111;
+  --editorial-ink-secondary: #37332e;
+  --editorial-divider: rgba(17, 17, 17, 0.32);
+  background: #f8f7f4;
+  background-image: none;
+}
+
+.editorial-page--fashion .editorial-container { max-width: 1260px; }
+.editorial-page--fashion .editorial-masthead {
+  align-items: center;
+  border-top: 2px solid #111;
+  border-bottom: 1px solid var(--editorial-divider-light);
+  padding: 12px 0;
+}
+.editorial-page--fashion .editorial-kicker,
+.editorial-page--fashion .editorial-back-link {
+  font-family: var(--editorial-sans);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.editorial-page--fashion .editorial-title-group {
+  max-width: 980px;
+  margin: 46px auto 28px;
+  text-align: center;
+}
+.editorial-page--fashion .editorial-headline {
+  font-family: "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif;
+  font-size: clamp(3.2rem, 8vw, 7.4rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  margin-bottom: 18px;
+}
+.editorial-page--fashion .editorial-deck {
+  max-width: 660px;
+  margin: 0 auto 18px;
+  font-family: var(--editorial-sans);
+  font-size: clamp(0.95rem, 1.5vw, 1.12rem);
+  font-style: normal;
+  line-height: 1.55;
+  color: #57524b;
+}
+.editorial-page--fashion .editorial-byline {
+  display: inline-block;
+  border-top: 1px solid var(--editorial-divider-light);
+  padding-top: 12px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+.editorial-page--fashion .editorial-divider--tight { margin: 0 0 28px; opacity: 0; }
+.editorial-page--fashion .editorial-lead-img { aspect-ratio: 16 / 9; max-height: 720px; }
+.editorial-page--fashion .editorial-caption {
+  font-family: var(--editorial-sans);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #625d55;
+}
+.editorial-page--fashion .editorial-essay-section,
+.editorial-page--fashion .editorial-quote-section,
+.editorial-page--fashion .editorial-closing-essay {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.editorial-page--fashion .editorial-essay-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.editorial-page--fashion .editorial-essay-grid .editorial-subheading {
+  font-family: var(--editorial-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.editorial-page--fashion .editorial-p { font-size: 15px; line-height: 1.7; }
+.editorial-page--fashion .editorial-subject-quote,
+.editorial-page--fashion .editorial-pull-quote {
+  font-family: "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif;
+  font-size: clamp(1.55rem, 3vw, 2.5rem);
+  line-height: 1.2;
+  border-left: 0;
+  padding: 4px 0;
+}
+.editorial-page--fashion .editorial-subject-quote::before {
+  content: "“";
+  display: block;
+  color: #9a8d7c;
+  font-size: 3.4rem;
+  line-height: 0.8;
+}
+.editorial-page--fashion .editorial-section-title {
+  font-family: "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+.editorial-page--fashion .editorial-section-tag,
+.editorial-page--fashion .editorial-craft-kicker { font-size: 9px; letter-spacing: 0.2em; }
+.editorial-page--fashion .editorial-craft-entry { padding-top: 16px; }
+.editorial-page--fashion .editorial-craft-body { font-size: 13px; line-height: 1.6; }
+.editorial-page--fashion .editorial-final-section { margin-top: 48px; }
+.editorial-page--fashion .editorial-back-link[style],
+.editorial-page--fashion a[style*="background-color: rgb(17, 17, 17)"] { border-radius: 0 !important; }
+
 /* --------------------------------------------------------------------------
    RESPONSIVE MEDIA QUERIES
    -------------------------------------------------------------------------- */
@@ -997,6 +1107,15 @@
 
   .editorial-subheading {
     font-size: 1.18rem;
+  }
+
+  .editorial-page--fashion .editorial-title-group {
+    margin: 30px auto 20px;
+  }
+
+  .editorial-page--fashion .editorial-headline {
+    font-size: clamp(2.55rem, 12vw, 4rem);
+    line-height: 1;
   }
 }
 
