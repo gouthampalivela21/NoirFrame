@@ -923,6 +923,7 @@
   --editorial-paper-deep: #e7e3dc;
   --editorial-ink: #111;
   --editorial-ink-secondary: #37332e;
+  --editorial-accent: #761c35;
   --editorial-divider: rgba(17, 17, 17, 0.32);
   background: #f8f7f4;
   background-image: none;
@@ -931,7 +932,7 @@
 .editorial-page--fashion .editorial-container { max-width: 1260px; }
 .editorial-page--fashion .editorial-masthead {
   align-items: center;
-  border-top: 2px solid #111;
+  border-top: 2px solid var(--editorial-accent);
   border-bottom: 1px solid var(--editorial-divider-light);
   padding: 12px 0;
 }
@@ -944,6 +945,9 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+.editorial-page--fashion .editorial-kicker,
+.editorial-page--fashion .editorial-section-tag,
+.editorial-page--fashion .editorial-craft-kicker { color: var(--editorial-accent); }
 .editorial-page--fashion .editorial-title-group {
   max-width: 980px;
   margin: 46px auto 28px;
@@ -1011,7 +1015,7 @@
 .editorial-page--fashion .editorial-subject-quote::before {
   content: "“";
   display: block;
-  color: #9a8d7c;
+  color: var(--editorial-accent);
   font-size: 3.4rem;
   line-height: 0.8;
 }
@@ -1028,6 +1032,77 @@
 .editorial-page--fashion .editorial-final-section { margin-top: 48px; }
 .editorial-page--fashion .editorial-back-link[style],
 .editorial-page--fashion a[style*="background-color: rgb(17, 17, 17)"] { border-radius: 0 !important; }
+
+/* The journal index shares the same ivory, ink and oxblood palette as features. */
+.stories-magazine-page {
+  --mag-paper: #f8f7f4;
+  --mag-ink: #171513;
+  --mag-muted: #6e665e;
+  --mag-rule: #d9d2c9;
+  --mag-accent: #761c35;
+  min-height: 100vh;
+  padding: calc(var(--nav-height, 72px) + 44px) 24px 100px;
+  color: var(--mag-ink);
+  background: var(--mag-paper);
+}
+.stories-magazine-container { max-width: 1320px; margin: 0 auto; }
+.stories-magazine-header { margin-bottom: 52px; }
+.stories-magazine-issue-line {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 12px 0; border-top: 2px solid var(--mag-accent); border-bottom: 1px solid var(--mag-rule);
+  color: var(--mag-muted); font: 600 9px/1.4 var(--editorial-sans, Arial, sans-serif);
+  letter-spacing: .18em; text-transform: uppercase;
+}
+.stories-magazine-title-block { max-width: 880px; margin: 54px auto 44px; text-align: center; }
+.stories-magazine-kicker { display: block; color: var(--mag-accent); font: 600 9px/1.4 var(--editorial-sans, Arial, sans-serif); letter-spacing: .22em; text-transform: uppercase; }
+.stories-magazine-title-block h1 {
+  margin: 12px 0 14px; font: 400 clamp(3rem, 8vw, 7rem)/.95 "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif;
+  letter-spacing: -.045em;
+}
+.stories-magazine-title-block p { max-width: 620px; margin: 0 auto; color: var(--mag-muted); font: 400 clamp(.95rem, 1.5vw, 1.1rem)/1.65 var(--editorial-sans, Arial, sans-serif); }
+.stories-category-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; border-bottom: 1px solid var(--mag-rule); }
+.stories-category-nav button {
+  position: relative; padding: 14px 2px; border: 0; color: var(--mag-muted); background: transparent;
+  font: 600 10px/1.4 var(--editorial-sans, Arial, sans-serif); letter-spacing: .15em; text-transform: uppercase; cursor: pointer;
+}
+.stories-category-nav button::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--mag-accent); content: ""; transform: scaleX(0); transition: transform .2s ease; }
+.stories-category-nav button:hover, .stories-category-nav button.is-active { color: var(--mag-accent); }
+.stories-category-nav button.is-active::after { transform: scaleX(1); }
+.stories-magazine-feature { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr); align-items: center; gap: clamp(28px, 6vw, 88px); padding-bottom: 58px; border-bottom: 1px solid var(--mag-rule); }
+.stories-magazine-feature-image, .stories-magazine-card-image { position: relative; display: block; overflow: hidden; background: #e6e0d8; color: #fff; }
+.stories-magazine-feature-image { aspect-ratio: 1.42; }
+.stories-magazine-feature-image img, .stories-magazine-card-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+.stories-magazine-feature-image:hover img, .stories-magazine-card-image:hover img { transform: scale(1.035); }
+.stories-magazine-image-index, .stories-magazine-card-image > span { position: absolute; right: 12px; bottom: 12px; left: 12px; color: #fff; font: 600 9px/1.4 var(--editorial-sans, Arial, sans-serif); letter-spacing: .15em; text-transform: uppercase; text-shadow: 0 1px 8px #000; }
+.stories-magazine-feature-copy { padding: 20px 0; }
+.stories-magazine-feature-copy h2 { margin: 18px 0; font: 400 clamp(2.2rem, 4.3vw, 4.25rem)/1.02 "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif; letter-spacing: -.035em; }
+.stories-magazine-feature-copy h2 a, .stories-magazine-card-copy h3 a { color: inherit; text-decoration: none; }
+.stories-magazine-feature-copy > p, .stories-magazine-card-copy > p { color: var(--mag-muted); font: 400 13px/1.7 var(--editorial-sans, Arial, sans-serif); }
+.stories-magazine-byline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--mag-rule); color: var(--mag-muted); font: 600 9px/1.5 var(--editorial-sans, Arial, sans-serif); letter-spacing: .12em; text-transform: uppercase; }
+.stories-magazine-byline a, .stories-magazine-read-link { color: var(--mag-accent); text-decoration: none; }
+.stories-magazine-collection { padding-top: 44px; }
+.stories-magazine-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--mag-rule); }
+.stories-magazine-section-heading span { color: var(--mag-accent); font: 600 9px/1.4 var(--editorial-sans, Arial, sans-serif); letter-spacing: .18em; text-transform: uppercase; }
+.stories-magazine-section-heading h2 { margin: 0 0 14px; font: 400 clamp(1.7rem, 3vw, 2.5rem)/1.1 "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif; }
+.stories-magazine-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 38px 26px; }
+.stories-magazine-card-image { aspect-ratio: 1.32; }
+.stories-magazine-card-copy { padding-top: 18px; }
+.stories-magazine-card-copy h3 { margin: 9px 0 8px; font: 400 clamp(1.5rem, 2.3vw, 2.15rem)/1.08 "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif; }
+.stories-magazine-read-link { display: inline-block; margin-top: 12px; font: 600 9px/1.4 var(--editorial-sans, Arial, sans-serif); letter-spacing: .14em; text-transform: uppercase; }
+.stories-magazine-empty { padding: 64px 16px; border-top: 1px solid var(--mag-rule); border-bottom: 1px solid var(--mag-rule); color: var(--mag-muted); text-align: center; font: 400 1rem/1.6 var(--editorial-sans, Arial, sans-serif); }
+@media (max-width: 760px) {
+  .stories-magazine-page { padding: calc(var(--nav-height, 64px) + 28px) 18px 64px; }
+  .stories-magazine-title-block { margin: 40px auto 32px; }
+  .stories-magazine-feature { grid-template-columns: 1fr; gap: 18px; padding-bottom: 38px; }
+  .stories-magazine-feature-image { aspect-ratio: 1.18; }
+  .stories-magazine-feature-copy { padding: 0; }
+  .stories-magazine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 16px; }
+}
+@media (max-width: 480px) {
+  .stories-magazine-issue-line { font-size: 8px; letter-spacing: .12em; }
+  .stories-category-nav { justify-content: flex-start; gap: 2px 18px; }
+  .stories-magazine-grid { grid-template-columns: 1fr; }
+}
 
 /* --------------------------------------------------------------------------
    RESPONSIVE MEDIA QUERIES

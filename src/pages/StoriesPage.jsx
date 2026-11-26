@@ -5,8 +5,14 @@ import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { prefersReducedMotion } from "../utils/helpers.js";
 import { setPageMetadata } from "../utils/pageMetadata.js";
 import { optimizedImageSrc } from "../utils/optimizedImageSrc.js";
+import "../styles/editorialMagazine.css";
 
 const APPLE_EASE = [0.22, 1, 0.36, 1];
+const conciseCopy = (value, limit = 22) => {
+  if (typeof value !== "string") return "";
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  return words.length <= limit ? value : `${words.slice(0, limit).join(" ").replace(/[,:;.!?]+$/, "")}…`;
+};
 
 export default function StoriesPage() {
   const { stories, pages, isLoading } = useLiveCms();
@@ -38,242 +44,101 @@ export default function StoriesPage() {
     );
   }, [stories, selectedGenre]);
 
+  const [featuredStory, ...otherStories] = filteredStories;
+  const getImage = (story) => optimizedImageSrc(
+    story.leadImage?.src || story.coverImage || story.image || "/images/hero-villa-wide.jpg"
+  );
+  const getStoryUrl = (story) => `/explore/${story.id || story.category?.toLowerCase() || "portraits"}`;
+
   return (
-    <div style={{ backgroundColor: "#FAF9F6", minHeight: "100vh", color: "#111111" }}>
-      {/* Editorial Header */}
-      <header
-        style={{
-          padding: "140px 24px 60px",
-          maxWidth: "1280px",
-          margin: "0 auto",
-          textAlign: "left",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "11px",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            fontWeight: "700",
-            color: "#737373",
-            marginBottom: "16px",
-          }}
-        >
-          {storyPage.eyebrow || "Visual Monographs & Field Notes"}
-        </div>
-        <h1
-          style={{
-            fontFamily: 'Playfair Display, Georgia, "Times New Roman", serif',
-            fontSize: "clamp(36px, 6vw, 68px)",
-            lineHeight: 1.05,
-            fontWeight: "400",
-            letterSpacing: "-0.02em",
-            margin: "0 0 20px 0",
-            color: "#0D0D0D",
-          }}
-        >
-          {storyPage.headline || "Stories Framed in Light."}
-        </h1>
-        <p
-          style={{
-            fontSize: "clamp(16px, 1.8vw, 20px)",
-            lineHeight: 1.6,
-            color: "#525252",
-            maxWidth: "680px",
-            margin: "0 0 36px 0",
-            fontWeight: "300",
-          }}
-        >
-          {storyPage.intro || "A continuous journal of editorial portraiture, natural light observations, and unhurried human encounters."}
-        </p>
-
-        {/* Filter Pills */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "8px",
-            paddingTop: "12px",
-            borderTop: "1px solid #EAEAEA",
-          }}
-        >
-          {genres.map((genre) => (
-            <button
-              key={genre}
-              type="button"
-              onClick={() => setSelectedGenre(genre)}
-              style={{
-                padding: "8px 18px",
-                borderRadius: "30px",
-                fontSize: "12.5px",
-                fontWeight: "500",
-                letterSpacing: "0.02em",
-                border: "1px solid",
-                borderColor: selectedGenre === genre ? "#111111" : "#D4D4D4",
-                backgroundColor: selectedGenre === genre ? "#111111" : "transparent",
-                color: selectedGenre === genre ? "#FFFFFF" : "#525252",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-            >
-              {genre}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* Stories Grid */}
-      <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px 120px" }}>
-        {filteredStories.length === 0 ? (
-          <div
-            style={{
-              padding: "80px 24px",
-              textAlign: "center",
-              border: "1px dashed #D4D4D4",
-              borderRadius: "12px",
-              color: "#737373",
-            }}
-          >
-            No stories published under this category yet.
+    <main className="stories-magazine-page">
+      <div className="stories-magazine-container">
+        <header className="stories-magazine-header">
+          <div className="stories-magazine-issue-line">
+            <span>{storyPage.eyebrow || "Phantom Labs · The Journal"}</span>
+            <span>Photography &amp; Culture</span>
           </div>
+          <div className="stories-magazine-title-block">
+            <span className="stories-magazine-kicker">The visual issue · 2026</span>
+            <h1>{storyPage.headline || "Stories Framed in Light."}</h1>
+            <p>{conciseCopy(storyPage.intro || "A journal of portraiture, light and human connection.", 24)}</p>
+          </div>
+          <nav className="stories-category-nav" aria-label="Filter stories by category">
+            {genres.map((genre) => (
+              <button
+                key={genre}
+                type="button"
+                className={selectedGenre === genre ? "is-active" : ""}
+                aria-pressed={selectedGenre === genre}
+                onClick={() => setSelectedGenre(genre)}
+              >
+                {genre}
+              </button>
+            ))}
+          </nav>
+        </header>
+
+        {isLoading ? (
+          <div className="stories-magazine-empty" role="status">Opening the journal…</div>
+        ) : !featuredStory ? (
+          <div className="stories-magazine-empty">No stories published under this category yet.</div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
-              gap: "40px 32px",
-            }}
-          >
-            {filteredStories.map((story, idx) => {
-              const imageSrc =
-                story.leadImage?.src ||
-                story.coverImage ||
-                story.image ||
-                "/images/hero-villa-wide.jpg";
+          <>
+            <motion.article
+              className="stories-magazine-feature"
+              initial={isReduced ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, ease: APPLE_EASE }}
+            >
+              <Link to={getStoryUrl(featuredStory)} className="stories-magazine-feature-image">
+                <img src={getImage(featuredStory)} alt={featuredStory.leadImage?.alt || featuredStory.headline} fetchPriority="high" />
+                <span className="stories-magazine-image-index">01 / {featuredStory.category || "The feature"}</span>
+              </Link>
+              <div className="stories-magazine-feature-copy">
+                <span className="stories-magazine-kicker">{featuredStory.issueKicker || "The cover story"}</span>
+                <h2><Link to={getStoryUrl(featuredStory)}>{featuredStory.headline}</Link></h2>
+                {featuredStory.deck && <p>{conciseCopy(featuredStory.deck, 26)}</p>}
+                <div className="stories-magazine-byline">
+                  <span>{featuredStory.byline?.replace("Photography & Words by ", "") || "Phantom Labs"}</span>
+                  <Link to={getStoryUrl(featuredStory)}>Read the story <span aria-hidden="true">↗</span></Link>
+                </div>
+              </div>
+            </motion.article>
 
-              return (
-                <motion.article
-                  key={story.id || idx}
-                  initial={isReduced ? false : { opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ duration: 0.6, delay: (idx % 3) * 0.08, ease: APPLE_EASE }}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Link
-                    to={`/explore/${story.id || story.category?.toLowerCase() || "portraits"}`}
-                    style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%" }}
-                  >
-                    <div
-                      style={{
-                        position: "relative",
-                        aspectRatio: "16/10",
-                        backgroundColor: "#E5E5E5",
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        marginBottom: "16px",
-                      }}
+            {otherStories.length > 0 && (
+              <section className="stories-magazine-collection" aria-label="More stories">
+                <div className="stories-magazine-section-heading">
+                  <span>In this issue</span>
+                  <h2>More perspectives</h2>
+                </div>
+                <div className="stories-magazine-grid">
+                  {otherStories.map((story, idx) => (
+                    <motion.article
+                      key={story.id || idx}
+                      className="stories-magazine-card"
+                      initial={isReduced ? false : { opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.1 }}
+                      transition={{ duration: 0.55, delay: (idx % 3) * 0.06, ease: APPLE_EASE }}
                     >
-                      <img
-                        src={optimizedImageSrc(imageSrc)}
-                        alt={story.headline}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "12px",
-                          left: "12px",
-                          backgroundColor: "rgba(13, 13, 13, 0.75)",
-                          backdropFilter: "blur(8px)",
-                          color: "#FFFFFF",
-                          fontSize: "10.5px",
-                          fontWeight: "600",
-                          letterSpacing: "0.08em",
-                          textTransform: "uppercase",
-                          padding: "4px 10px",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        {story.category || "Editorial"}
+                      <Link to={getStoryUrl(story)} className="stories-magazine-card-image">
+                        <img src={getImage(story)} alt={story.leadImage?.alt || story.headline} loading="lazy" decoding="async" />
+                        <span>{story.category || "Editorial"}</span>
+                      </Link>
+                      <div className="stories-magazine-card-copy">
+                        <span className="stories-magazine-kicker">{story.issueKicker || "Field note"}</span>
+                        <h3><Link to={getStoryUrl(story)}>{story.headline}</Link></h3>
+                        {story.deck && <p>{conciseCopy(story.deck, 18)}</p>}
+                        <Link className="stories-magazine-read-link" to={getStoryUrl(story)}>Read story <span aria-hidden="true">↗</span></Link>
                       </div>
-                    </div>
-
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          letterSpacing: "0.1em",
-                          textTransform: "uppercase",
-                          color: "#8E8E93",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        {story.issueKicker || "FIELD NOTE"}
-                      </div>
-
-                      <h2
-                        style={{
-                          fontFamily: 'Playfair Display, Georgia, serif',
-                          fontSize: "22px",
-                          fontWeight: "500",
-                          lineHeight: 1.3,
-                          margin: "0 0 10px 0",
-                          color: "#0D0D0D",
-                        }}
-                      >
-                        {story.headline}
-                      </h2>
-
-                      {story.deck && (
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            lineHeight: 1.55,
-                            color: "#666666",
-                            margin: "0 0 16px 0",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {story.deck}
-                        </p>
-                      )}
-
-                      <div
-                        style={{
-                          marginTop: "auto",
-                          paddingTop: "12px",
-                          borderTop: "1px solid #EAEAEA",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          fontSize: "12px",
-                          color: "#737373",
-                        }}
-                      >
-                        <span>{story.byline ? story.byline.replace("Photography & Words by ", "") : "Phantom Labs"}</span>
-                        <span style={{ fontWeight: "600", color: "#111111" }}>Read Field Note &rarr;</span>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.article>
-              );
-            })}
-          </div>
+                    </motion.article>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
