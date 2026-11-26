@@ -85,6 +85,18 @@ export default function EditorialFeaturePage({ categoryOverride }) {
   const behind = story.behind || {};
   const pause = story.pause || {};
   const finalSec = story.final || {};
+  const storyIndex = Math.max(0, Object.keys(EDITORIAL_STORIES).indexOf(story.id)) + 1;
+  const collectionImages = [
+    subject.image,
+    ...(Array.isArray(moments.diptych) ? moments.diptych : []),
+    moments.envFigure,
+    finalSec.image,
+    story.leadImage,
+  ].filter(Boolean).map((image) => ({
+    src: image.src || image,
+    alt: image.alt || story.category || "Editorial photograph",
+    caption: image.caption || "",
+  })).filter((image, index, list) => list.findIndex((candidate) => candidate.src === image.src) === index).slice(0, 4);
 
   return (
     <motion.div
@@ -116,52 +128,33 @@ export default function EditorialFeaturePage({ categoryOverride }) {
             </Link>
           </motion.header>
 
-          <motion.div
-            className="editorial-title-group"
-            {...getFadeUpMotion(isReduced, 0.05, 16)}
-          >
-            <h1 className="editorial-headline">{story.headline}</h1>
-            {story.deck && <p className="editorial-deck">{conciseCopy(story.deck, 24)}</p>}
-            <div className="editorial-byline">{story.byline || "Photography & Words by Phantom Labs"}</div>
-          </motion.div>
-
-          <motion.hr
-            className="editorial-divider editorial-divider--tight"
-            {...getDividerMotion(isReduced)}
-          />
-
-          {/* SECTION 2: FULL-WIDTH LEAD PHOTOGRAPH */}
-          {story.leadImage && (
-            <>
-              <motion.figure
-                className="editorial-lead-figure"
-                {...getFadeUpMotion(isReduced, 0.06, 18)}
-              >
-                <div className="editorial-lead-frame">
-                  <img
-                    src={story.leadImage.src || story.leadImage}
-                    alt={story.leadImage.alt || story.headline}
-                    className="editorial-lead-img"
-                    width="1376"
-                    height="768"
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                </div>
-                {story.leadImage.caption && (
-                  <figcaption className="editorial-caption">
-                    {conciseCopy(story.leadImage.caption, 14)}
-                  </figcaption>
-                )}
+          {/* LAYOUT A: IMAGE-LED FEATURE SPREAD */}
+          <section className="editorial-opening-spread" aria-label={`${story.category} feature spread`}>
+            {story.leadImage && (
+              <motion.figure className="editorial-opening-photo" {...getFadeUpMotion(isReduced, 0.04, 18)}>
+                <img
+                  src={story.leadImage.src || story.leadImage}
+                  alt={story.leadImage.alt || story.headline}
+                  width="1200"
+                  height="1500"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+                {story.leadImage.caption && <figcaption className="editorial-caption">{conciseCopy(story.leadImage.caption, 12)}</figcaption>}
               </motion.figure>
+            )}
+            <motion.div className="editorial-opening-copy" {...getFadeUpMotion(isReduced, 0.08, 16)}>
+              <span className="editorial-opening-brand">Phantom Labs</span>
+              <span className="editorial-opening-label">{story.category || "Photography"} · Editorial No. {String(storyIndex).padStart(2, "0")}</span>
+              <h1 className="editorial-headline">{story.headline}</h1>
+              {story.deck && <p className="editorial-deck">{conciseCopy(story.deck, 22)}</p>}
+              <div className="editorial-byline">{story.byline || "Photography & Words by Phantom Labs"}</div>
+              <span className="editorial-opening-page">{String(storyIndex).padStart(2, "0")} <i>—</i> 06</span>
+            </motion.div>
+          </section>
 
-              <motion.hr
-                className="editorial-divider"
-                {...getDividerMotion(isReduced)}
-              />
-            </>
-          )}
+          <motion.hr className="editorial-divider" {...getDividerMotion(isReduced)} />
 
           {/* SECTION 3: OPENING ESSAY */}
           {openingEssay.length > 0 && (
@@ -205,30 +198,6 @@ export default function EditorialFeaturePage({ categoryOverride }) {
               >
                 {subject.tag && <span className="editorial-section-tag">{subject.tag}</span>}
                 <div className="editorial-subject-grid">
-                  {subject.image && (
-                    <motion.figure
-                      className="editorial-subject-photo-wrap"
-                      {...getFadeUpMotion(isReduced, 0.08, 16)}
-                    >
-                      <div className="editorial-subject-frame">
-                        <img
-                          src={subject.image.src || subject.image}
-                          alt={subject.image.alt || subject.name}
-                          className="editorial-subject-img"
-                          width="896"
-                          height="1200"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </div>
-                      {subject.image.caption && (
-                        <figcaption className="editorial-caption">
-                          {conciseCopy(subject.image.caption, 14)}
-                        </figcaption>
-                      )}
-                    </motion.figure>
-                  )}
-
                   <div className="editorial-subject-content">
                     <h2 className="editorial-subject-name">{subject.name}</h2>
                     {subject.role && <div className="editorial-subject-role">{subject.role}</div>}
@@ -273,32 +242,14 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                   {moments.intro && <p className="editorial-section-intro">{conciseCopy(moments.intro, 18)}</p>}
                 </div>
 
-                {/* Diptych Frames */}
-                {Array.isArray(moments.diptych) && moments.diptych.length > 0 && (
-                  <div className="editorial-diptych-grid">
-                    {moments.diptych.slice(0, 2).map((item, idx) => (
-                      <motion.div
-                        key={idx}
-                        className="editorial-frame-card"
-                        {...getFadeUpMotion(isReduced, 0.05 * idx, 16)}
-                      >
-                        <div className="editorial-frame-box">
-                          <img
-                            src={item.src || item}
-                            alt={item.alt || `Moment frame 0${idx + 1}`}
-                            className="editorial-frame-img"
-                            width="896"
-                            height="1200"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </div>
-                        {item.caption && (
-                          <figcaption className="editorial-caption">
-                            {conciseCopy(item.caption, 12)}
-                          </figcaption>
-                        )}
-                      </motion.div>
+                {/* LAYOUT B: FOUR-FRAME PORTRAIT COLLECTION */}
+                {collectionImages.length > 0 && (
+                  <div className="editorial-photo-collection" aria-label={`${story.category} photo collection`}>
+                    {collectionImages.map((image, idx) => (
+                      <motion.figure key={`${image.src}-${idx}`} className={`editorial-collection-photo editorial-collection-photo--${idx + 1}`} {...getFadeUpMotion(isReduced, idx * 0.04, 14)}>
+                        <img src={image.src} alt={image.alt} width="900" height="1200" loading="lazy" decoding="async" />
+                        <figcaption>{image.caption ? conciseCopy(image.caption, 10) : `${story.category} · 0${idx + 1}`}</figcaption>
+                      </motion.figure>
                     ))}
                   </div>
                 )}
@@ -313,31 +264,6 @@ export default function EditorialFeaturePage({ categoryOverride }) {
                     </h3>
                     <p className="editorial-p">{conciseCopy(moments.passage1, 30)}</p>
                   </motion.div>
-                )}
-
-                {/* Wide Environmental Frame */}
-                {moments.envFigure && (
-                  <motion.figure
-                    className="editorial-env-figure"
-                    {...getFadeUpMotion(isReduced, 0.06, 18)}
-                  >
-                    <div className="editorial-env-frame">
-                      <img
-                        src={moments.envFigure.src || moments.envFigure}
-                        alt={moments.envFigure.alt || "Environmental portrait frame"}
-                        className="editorial-env-img"
-                        width="1200"
-                        height="896"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                    {moments.envFigure.caption && (
-                      <figcaption className="editorial-caption">
-                        {conciseCopy(moments.envFigure.caption, 14)}
-                      </figcaption>
-                    )}
-                  </motion.figure>
                 )}
 
                 {moments.passage2 && (
