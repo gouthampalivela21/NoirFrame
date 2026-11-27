@@ -161,34 +161,6 @@ export default function EditorialFeaturePage({ categoryOverride }) {
           </section>
 
           <motion.section
-            id="highlights"
-            className="editorial-collection-section"
-            aria-label={`${story.category} highlights`}
-            {...getFadeUpMotion(isReduced, 0.04, 16)}
-          >
-            <header className="editorial-collection-heading">
-              <h2>Get the highlights.</h2>
-            </header>
-            {collectionImages.length > 0 && (
-              <div id="gallery" className="editorial-gallery">
-                <div className="editorial-photo-collection" aria-label={`${story.category} photo collection`}>
-                  {collectionImages.map((image, idx) => (
-                    <motion.figure
-                      key={`${image.src}-${idx}`}
-                      className={`editorial-collection-photo editorial-collection-photo--${idx + 1}`}
-                      {...getFadeUpMotion(isReduced, idx * 0.04, 14)}
-                    >
-                      <div className="editorial-collection-image">
-                        <img src={image.src} alt={image.alt} width="1600" height="1100" loading="lazy" decoding="async" />
-                      </div>
-                    </motion.figure>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.section>
-
-          <motion.section
             id="details"
             className="editorial-closer-section"
             aria-label={`${story.category} photo details`}
@@ -198,7 +170,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
               <h2>Take a closer look.</h2>
             </header>
             {collectionImages.length > 0 && (
-              <div className="editorial-gallery">
+              <div id="gallery" className="editorial-gallery">
                 <div className="editorial-photo-collection" aria-label={`${story.category} detailed photographs`}>
                   {collectionImages.map((image, idx) => (
                     <motion.figure
