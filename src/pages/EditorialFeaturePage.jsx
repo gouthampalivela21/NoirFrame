@@ -196,11 +196,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
     if (story) {
       document.title = `${story.category || "Story"}: ${story.headline || "Field Notes"} — Phantom Labs`;
     }
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true });
-    }
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [story]);
+  }, [story.category, story.headline]);
 
   const featureCardsSection = (
     <motion.section

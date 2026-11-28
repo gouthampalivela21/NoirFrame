@@ -1,15 +1,11 @@
 import React, { useEffect, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Lenis from "lenis";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import CmsCanvasBridge from "./components/CmsCanvasBridge.jsx";
 import { LiveCmsProvider } from "./context/LiveCmsContext.jsx";
 
-import { prefersReducedMotion, isTouchDevice } from "./utils/helpers.js";
 
 // Public Pages
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -22,8 +18,6 @@ const StudioPage = lazy(() => import("./pages/StudioPage.jsx"));
 
 // Admin Dashboard & Live CMS
 const AdminDashboard = lazy(() => import("./admin/AdminDashboard.jsx"));
-
-gsap.registerPlugin(ScrollTrigger);
 
 function AppShell() {
   const location = useLocation();
@@ -39,43 +33,6 @@ function AppShell() {
     location.pathname.startsWith("/journeys") ||
     location.pathname.startsWith("/studio");
 
-  useEffect(() => {
-    // Disable smooth Lenis scrolling on admin dashboard for instant, native responsiveness
-    if (isAdmin || prefersReducedMotion()) return undefined;
-
-    const isTouch = isTouchDevice();
-    if (isTouch) {
-      const onNativeScroll = () => {
-        ScrollTrigger.update();
-      };
-      window.addEventListener("scroll", onNativeScroll, { passive: true });
-      return () => window.removeEventListener("scroll", onNativeScroll);
-    }
-
-    const lenis = new Lenis({
-      duration: 0.85,
-      smoothWheel: true,
-      wheelMultiplier: 0.98,
-      allowNestedScroll: true,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-
-    window.__lenis = lenis;
-    lenis.on("scroll", ScrollTrigger.update);
-
-    const raf = (time) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(500, 33);
-
-    return () => {
-      gsap.ticker.remove(raf);
-      lenis.destroy();
-      window.__lenis = null;
-    };
-  }, [isAdmin]);
-
   const scrollToHashTarget = React.useCallback((targetId) => {
     if (!targetId) return;
     let attempts = 0;
@@ -83,12 +40,8 @@ function AppShell() {
       const el = document.getElementById(targetId);
       if (el) {
         const offset = targetId === "websites" ? 0 : -56;
-        if (window.__lenis) {
-          window.__lenis.scrollTo(el, { offset, duration: 1.05 });
-        } else {
-          const top = el.getBoundingClientRect().top + window.scrollY + offset;
-          window.scrollTo({ top, behavior: "smooth" });
-        }
+        const top = el.getBoundingClientRect().top + window.scrollY + offset;
+        window.scrollTo({ top, behavior: "smooth" });
         return;
       }
       if (attempts < 15) {
@@ -106,43 +59,18 @@ function AppShell() {
     }
 
     if (isAdmin) {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      window.scrollTo(0, 0);
       return;
     }
 
     const targetId = location.hash ? location.hash.replace("#", "") : null;
 
     if (!targetId) {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      if (window.__lenis) {
-        window.__lenis.scrollTo(0, { immediate: true });
-      }
+      window.scrollTo(0, 0);
     } else {
       scrollToHashTarget(targetId);
     }
-
-    const id = requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
-
-    return () => cancelAnimationFrame(id);
   }, [location.pathname, location.hash, isAdmin, scrollToHashTarget]);
-
-  const handleRouteExitComplete = () => {
-    if (isAdmin) return;
-    const targetId = location.hash ? location.hash.replace("#", "") : null;
-    if (targetId) {
-      scrollToHashTarget(targetId);
-      return;
-    }
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true });
-    }
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
-  };
 
   return (
     <>

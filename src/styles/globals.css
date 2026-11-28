@@ -127,7 +127,6 @@ html *::after {
   animation-delay: 0s !important;
   transition-duration: 0s !important;
   transition-delay: 0s !important;
-  scroll-behavior: smooth;
 }
 
 body {
