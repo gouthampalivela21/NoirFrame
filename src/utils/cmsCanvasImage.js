@@ -11,19 +11,35 @@ export function applyCmsImageSource(element, src, viewport) {
     return;
   }
 
-  if (element.matches("img") && getViewport(element, viewport) === "mobile") {
+  if (element.matches("img")) {
     const picture = element.closest("picture");
     if (picture) {
-      const sources = Array.from(picture.querySelectorAll("source"));
-      let mobileSource = sources.find((source) => /max-width/i.test(source.media || ""));
-      if (!mobileSource) {
-        mobileSource = element.ownerDocument.createElement("source");
-        mobileSource.media = "(max-width: 680px)";
-        picture.insertBefore(mobileSource, element);
+      const view = getViewport(element, viewport);
+      const win = element.ownerDocument.defaultView;
+      const activeSources = Array.from(picture.querySelectorAll("source")).filter((source) => {
+        const media = source.media?.trim();
+        return !media || !win?.matchMedia || win.matchMedia(media).matches;
+      });
+
+      if (activeSources.length) {
+        // <picture> selects the first matching <source>. Update every source
+        // that can currently win so the preview and published page use the
+        // replacement regardless of whether the picture is width or aspect
+        // ratio based.
+        activeSources.forEach((source) => { source.srcset = src; });
+      } else {
+        const source = element.ownerDocument.createElement("source");
+        source.media = view === "mobile" ? "(max-width: 680px)" : "(min-width: 681px)";
+        source.srcset = src;
+        picture.insertBefore(source, picture.firstChild);
       }
-      mobileSource.srcset = src;
-      return;
     }
+
+    // Keep the img fallback in sync for browsers/viewports where no source
+    // media query matches. A matching <source> still takes precedence.
+    element.setAttribute("src", src);
+    element.removeAttribute("srcset");
+    return;
   }
 
   element.setAttribute("src", src);
