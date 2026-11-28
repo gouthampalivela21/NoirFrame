@@ -158,6 +158,7 @@ export function LiveCmsProvider({ children }) {
 
   const value = {
     cms: visibleCms,
+    previewMode,
     home: {
       hero: visibleCms.hero || {},
       websiteSection: visibleCms.websiteSection || {},

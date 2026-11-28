@@ -62,7 +62,9 @@ const getFadeUpMotion = (isReduced, delay = 0, distance = 16) => ({
 export default function EditorialFeaturePage({ categoryOverride }) {
   const { category: paramCategory } = useParams();
   const categoryKey = categoryOverride || paramCategory || "portraits";
-  const { getStoryById } = useLiveCms();
+  const { getStoryById, home, previewMode } = useLiveCms();
+
+  const categoryIsUnpublished = home.categories?.find((category) => category.id === categoryKey)?.published === false;
 
   const liveStory = getStoryById(categoryKey);
   const defaultStory = EDITORIAL_STORIES[categoryKey] || EDITORIAL_STORIES.portraits;
@@ -201,6 +203,18 @@ export default function EditorialFeaturePage({ categoryOverride }) {
       document.title = `${story.category || "Story"}: ${story.headline || "Field Notes"} — Phantom Labs`;
     }
   }, [story.category, story.headline]);
+
+  if (categoryIsUnpublished && !previewMode) {
+    return (
+      <main className="editorial-page editorial-page--unpublished" style={{ minHeight: "60vh", display: "grid", placeItems: "center", padding: "120px 24px 80px", textAlign: "center" }}>
+        <div>
+          <p className="editorial-eyebrow">Category unavailable</p>
+          <h1>This page is currently unpublished.</h1>
+          <Link to="/" className="editorial-cta">Return to the homepage</Link>
+        </div>
+      </main>
+    );
+  }
 
   const featureCardsSection = (
     <motion.section

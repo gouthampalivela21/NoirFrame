@@ -62,6 +62,12 @@ export default function SettingsCMSView() {
     updateCMSCategories(updated);
   };
 
+  const toggleCategoryPublished = (idx) => {
+    const category = categories[idx];
+    if (!category) return;
+    handleCategoryChange(idx, "published", category.published === false);
+  };
+
   // Studio Handlers
   const handleStudioChange = (field, val) => {
     const updated = { ...studio, [field]: val };
@@ -330,10 +336,23 @@ export default function SettingsCMSView() {
                 <span className="studio-badge studio-badge-subtle">
                   CATEGORY 0{idx + 1} &middot; {cat.id}
                 </span>
-                <span style={{ fontSize: "11px", color: "var(--studio-text-muted)" }}>
-                  {cat.theme === "dark" ? "Dark Theme" : "Light Theme"} &middot; {cat.layout === "split" ? "Split Layout" : "Stacked Layout"}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 600, color: cat.published === false ? "#99641c" : "#397255" }}>
+                    {cat.published === false ? "Unpublished" : "Published"}
+                  </span>
+                  <button
+                    type="button"
+                    className={cat.published === false ? "studio-btn-primary studio-btn-sm" : "studio-btn-secondary studio-btn-sm"}
+                    onClick={() => toggleCategoryPublished(idx)}
+                    aria-label={`${cat.published === false ? "Publish" : "Unpublish"} ${cat.title || cat.id} category`}
+                  >
+                    {cat.published === false ? "Publish category" : "Unpublish category"}
+                  </button>
+                </div>
               </div>
+              <span style={{ fontSize: "11px", color: "var(--studio-text-muted)" }}>
+                {cat.theme === "dark" ? "Dark Theme" : "Light Theme"} &middot; {cat.layout === "split" ? "Split Layout" : "Stacked Layout"}
+              </span>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="studio-form-group">

@@ -10,7 +10,11 @@ const APPLE_EASE = [0.22, 1, 0.36, 1];
 export default function Services() {
   const isReduced = prefersReducedMotion();
   const { home } = useLiveCms();
-  const categories = Array.isArray(home?.categories) ? home.categories : [];
+  const categories = Array.isArray(home?.categories)
+    ? home.categories.filter((category) => category.published !== false)
+    : [];
+
+  if (categories.length === 0) return null;
 
   return (
     <section
