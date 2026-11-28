@@ -126,6 +126,9 @@ function applyEdit(edit) {
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const styleKey = key === "objectPosition" && !element.matches("img,video,source") ? "backgroundPosition" : key === "objectFit" && !element.matches("img,video,source") ? "backgroundSize" : key;
     if (key === "objectPosition" && applyCmsImageObjectPosition(element, value, edit.viewport)) return;
+    if (key === "fontSize" && element.matches(".cms-positionable-copy")) {
+      element.querySelectorAll("h1,h2,h3,p").forEach((child) => child.style.setProperty("font-size", value, "important"));
+    }
     if (key === "translate" && value && getComputedStyle(element).display === "inline") element.style.display = "inline-block";
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = key === "objectFit" && !element.matches("img,video,source") && value === "cover" ? "cover" : value;
@@ -232,6 +235,18 @@ export default function CmsCanvasBridge() {
               element = origin;
             }
           }
+        }
+      }
+      // The image behind this section is normally covered by its overlay and
+      // copy. Clicking the image area selects the actual picture so it can be
+      // replaced from the inspector; clicking the copy still selects text.
+      const perspectiveSection = origin.closest(".editorial-long-image-section");
+      if (perspectiveSection && !origin.closest(".cms-positionable-copy")) {
+        const backgroundImage = perspectiveSection.querySelector(".editorial-long-image-picture img");
+        if (backgroundImage) {
+          element = backgroundImage;
+          text = "";
+          textNodeIndex = null;
         }
       }
       // Select the whole overlay group when the user clicks any of its copy,

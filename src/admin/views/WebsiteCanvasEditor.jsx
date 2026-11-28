@@ -88,6 +88,9 @@ function applyEditToFrame(frame, edit) {
     const isMedia = element.matches("img,video,source");
     const styleKey = key === "objectPosition" && !isMedia ? "backgroundPosition" : key === "objectFit" && !isMedia ? "backgroundSize" : key;
     if (key === "objectPosition" && applyCmsImageObjectPosition(element, value, edit.viewport)) return;
+    if (key === "fontSize" && element.matches(".cms-positionable-copy")) {
+      element.querySelectorAll("h1,h2,h3,p").forEach((child) => child.style.setProperty("font-size", value, "important"));
+    }
     if (key === "translate" && value && doc.defaultView.getComputedStyle(element).display === "inline") element.style.display = "inline-block";
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = value;
