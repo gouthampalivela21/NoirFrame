@@ -182,7 +182,7 @@ export default function WebsiteExperiencePage() {
   const pinRef = useRef(null);
   const visionRef = useRef(null);
 
-  const [isDesktopCinematic, setIsDesktopCinematic] = useState(getDesktopCinematicMatch);
+  const [isDesktopCinematic] = useState(false);
   const [activeMobileStage, setActiveMobileStage] = useState(0);
   const [selectedInsideId, setSelectedInsideId] = useState(null);
 
@@ -193,25 +193,6 @@ export default function WebsiteExperiencePage() {
       setPageMetadata(content.seoTitle || "Website Experience — PHANTOM LABS", content.seoDescription);
     }
   }, [content.seoTitle, content.seoDescription]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
-
-    const widthMq = window.matchMedia("(min-width: 900px)");
-    const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const update = () => {
-      setIsDesktopCinematic(widthMq.matches && !motionMq.matches);
-    };
-
-    update();
-    widthMq.addEventListener("change", update);
-    motionMq.addEventListener("change", update);
-    return () => {
-      widthMq.removeEventListener("change", update);
-      motionMq.removeEventListener("change", update);
-    };
-  }, []);
 
   // Desktop 6-Phase Pinned Apple Keynote ScrollTrigger Film + Vision Parallax
   useEffect(() => {

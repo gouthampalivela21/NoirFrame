@@ -1,6 +1,5 @@
 import React, { useEffect, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -156,8 +155,7 @@ function AppShell() {
           backgroundColor: isAdmin ? "#FAF8F5" : isExperience ? "#050505" : isEditorial ? "#f7ede0" : undefined,
         }}
       >
-        <AnimatePresence mode="wait" onExitComplete={handleRouteExitComplete}>
-          <Routes location={location} key={isAdmin ? "admin-shell" : location.pathname}>
+        <Routes location={location} key={isAdmin ? "admin-shell" : location.pathname}>
             {/* Admin Dashboard & Live CMS */}
             <Route
               path="/gouthamspace/*"
@@ -305,8 +303,7 @@ function AppShell() {
 
             {/* Fallback for all other routes redirects to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AnimatePresence>
+        </Routes>
       </main>
 
       {!isAdmin && <Footer />}

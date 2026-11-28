@@ -11,9 +11,9 @@ export const isTouchDevice = () =>
   typeof window !== "undefined" &&
   (window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window);
 
-export const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// The public site currently ships without motion effects so image sections are
+// never left hidden while an in-view animation waits to fire.
+export const prefersReducedMotion = () => true;
 
 export const debounce = (fn, wait = 150) => {
   let timeout;

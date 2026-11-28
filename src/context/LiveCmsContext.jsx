@@ -150,7 +150,7 @@ export function LiveCmsProvider({ children }) {
           (s) =>
             (s.id && s.id.toLowerCase() === clean) ||
             (s.category && s.category.toLowerCase() === clean)
-      ) || visibleCms.stories[0] || null
+      ) || null
       );
     },
     [visibleCms.stories]

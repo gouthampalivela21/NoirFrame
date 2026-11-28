@@ -66,21 +66,41 @@ export default function EditorialFeaturePage({ categoryOverride }) {
   const { getStoryById } = useLiveCms();
 
   const liveStory = getStoryById(categoryKey);
-  const story = liveStory || EDITORIAL_STORIES[categoryKey] || EDITORIAL_STORIES.portraits;
+  const defaultStory = EDITORIAL_STORIES[categoryKey] || EDITORIAL_STORIES.portraits;
+  const imageSource = (image) => {
+    if (typeof image === "string") return image.trim();
+    const src = image?.src;
+    return (typeof src === "string" ? src : src?.src || image?.url || "").trim();
+  };
+  const imageOrDefault = (image, fallback) => imageSource(image) ? image : fallback;
+  const story = liveStory ? {
+    ...defaultStory,
+    ...liveStory,
+    leadImage: imageOrDefault(liveStory.leadImage, defaultStory.leadImage),
+    subject: { ...defaultStory.subject, ...liveStory.subject, image: imageOrDefault(liveStory.subject?.image, defaultStory.subject?.image) },
+    moments: {
+      ...defaultStory.moments,
+      ...liveStory.moments,
+      envFigure: imageOrDefault(liveStory.moments?.envFigure, defaultStory.moments?.envFigure),
+      diptych: Array.from({ length: Math.max(defaultStory.moments?.diptych?.length || 0, liveStory.moments?.diptych?.length || 0) }, (_, index) => imageOrDefault(liveStory.moments?.diptych?.[index], defaultStory.moments?.diptych?.[index])).filter(Boolean),
+    },
+    final: { ...defaultStory.final, ...liveStory.final, image: imageOrDefault(liveStory.final?.image, defaultStory.final?.image) },
+  } : defaultStory;
   const isEditorialCategory = story.id === "editorial" || categoryKey === "editorial";
   const subject = story.subject || {};
   const moments = story.moments || {};
   const finalSec = story.final || {};
   const pageContent = getCategoryPageContent(story);
   const mobileOverrides = pageContent.mobileOverrides || {};
-  const featureImage = pageContent.sectionImages.experience || finalSec.image || moments.envFigure || subject.image || story.leadImage;
-  const longImage = pageContent.sectionImages.approach || moments.envFigure || subject.image || story.leadImage || finalSec.image || featureImage;
-  const perspectiveImage = pageContent.sectionImages.perspective || longImage;
-  const collectionImages = pageContent.galleryCards.filter((image) => image?.src);
-  const mobileCollectionImages = (mobileOverrides.galleryCards?.length ? mobileOverrides.galleryCards : collectionImages).filter((image) => image?.src);
+  const defaultsPageContent = getCategoryPageContent(defaultStory);
+  const featureImage = [pageContent.sectionImages.experience, finalSec.image, moments.envFigure, subject.image, story.leadImage, defaultsPageContent.sectionImages.experience].find((image) => imageSource(image));
+  const longImage = [pageContent.sectionImages.approach, moments.envFigure, subject.image, story.leadImage, finalSec.image, featureImage, defaultsPageContent.sectionImages.approach].find((image) => imageSource(image));
+  const perspectiveImage = [pageContent.sectionImages.perspective, longImage, defaultsPageContent.sectionImages.perspective].find((image) => imageSource(image));
+  const collectionImages = [...pageContent.galleryCards, ...defaultsPageContent.galleryCards].filter((image) => imageSource(image));
+  const mobileCollectionImages = [...(mobileOverrides.galleryCards || []), ...collectionImages].filter((image) => imageSource(image));
   const mobileCards = (key, fallback) => mobileOverrides.cards?.[key] || fallback;
   const sectionColor = (section, type = "body") => pageContent.sectionColors?.[section]?.[type] || undefined;
-  const mobileImage = (section, fallback) => mobileOverrides.images?.[section] || fallback;
+  const mobileImage = (section, fallback) => imageSource(mobileOverrides.images?.[section]) ? mobileOverrides.images[section] : fallback;
   const mobileText = (key, fallback) => mobileOverrides.copy?.[key] || fallback || "";
   const renderResponsiveText = (key, fallback) => (
     <>
