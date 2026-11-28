@@ -99,7 +99,7 @@ function applyEditToFrame(frame, edit) {
   applyImageRatio(doc, edit);
 }
 
-function Inspector({ selection, value, onChange, onClose }) {
+function Inspector({ selection, value, onChange, onResetTextStyle, onClose }) {
   if (!selection) return <aside className="canvas-inspector canvas-inspector-empty"><div className="canvas-empty-icon"><Type size={20} /></div><strong>Select something on the page</strong><span>Click any text, image or detail in the preview to edit it.</span></aside>;
   const isImage = selection.kind === "image";
   const isVector = ["svg", "path", "circle", "rect", "line", "polygon", "polyline"].includes(selection.tag);
@@ -129,6 +129,7 @@ function Inspector({ selection, value, onChange, onClose }) {
           <label className="canvas-field-label">Corner radius<div className="canvas-range-row"><input type="range" min="0" max="64" value={parseInt(currentStyles.borderRadius, 10) || 0} onChange={(event) => style("borderRadius", event.target.value + "px")} /><span>{parseInt(currentStyles.borderRadius, 10) || 0}px</span></div></label>
           <label className="canvas-field-label">Move text horizontally<div className="canvas-range-row"><input type="range" min="-240" max="240" value={parseInt(currentStyles.translate?.split(" ")[0], 10) || 0} onChange={(event) => style("translate", event.target.value + "px " + (parseInt(currentStyles.translate?.split(" ")[1], 10) || 0) + "px")} /><span>{parseInt(currentStyles.translate?.split(" ")[0], 10) || 0}px</span></div></label>
           <label className="canvas-field-label">Move text vertically<div className="canvas-range-row"><input type="range" min="-240" max="240" value={parseInt(currentStyles.translate?.split(" ")[1], 10) || 0} onChange={(event) => style("translate", (parseInt(currentStyles.translate?.split(" ")[0], 10) || 0) + "px " + event.target.value + "px")} /><span>{parseInt(currentStyles.translate?.split(" ")[1], 10) || 0}px</span></div></label>
+          <button type="button" className="studio-btn-secondary studio-btn-sm" style={{ width: "100%", justifyContent: "center" }} onClick={onResetTextStyle}><RotateCcw size={13} /> Restore default text style</button>
         </>}
         {isImage && <label className="canvas-field-label">Crop position<div className="canvas-range-row"><input type="range" min="0" max="100" value={parseInt(cropPosition, 10) || 50} onChange={(event) => style("objectPosition", event.target.value + "% 50%")} /><span>{parseInt(cropPosition, 10) || 50}%</span></div></label>}
         {isImage && <label className="canvas-field-label">Image zoom<div className="canvas-range-row"><input type="range" min="1" max="3" step="0.05" value={imageZoom} onChange={(event) => update({ zoom: Number(event.target.value) })} aria-label={(selection.viewport === "mobile" ? "Mobile" : "Desktop") + " image zoom"} /><span>{imageZoom.toFixed(2)}×</span></div></label>}
@@ -248,6 +249,19 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
     }
     iframeRef.current?.contentWindow?.postMessage({ type: "cms-canvas-live-edit", edit: elementEdit }, window.location.origin);
   };
+  const resetSelectedTextStyle = () => {
+    if (!key || !selectedValue) return;
+    const styleKeys = ["color", "fontSize", "fontWeight", "fontFamily", "textAlign", "backgroundColor", "opacity", "borderRadius"];
+    const styles = { ...(selectedValue.styles || {}) };
+    const clearStyles = Object.fromEntries(styleKeys.map((styleKey) => [styleKey, ""]));
+    styleKeys.forEach((styleKey) => delete styles[styleKey]);
+    const resetEdit = { selector: selection.selector, styles: clearStyles, viewport: mode };
+    // Remove direct inline overrides from both the selected wrapper and the
+    // positionable heading children, then save the remaining layout edits.
+    applyEditToFrame(iframeRef.current, resetEdit);
+    iframeRef.current?.contentWindow?.postMessage({ type: "cms-canvas-live-edit", edit: resetEdit }, window.location.origin);
+    updateSelected({ ...selectedValue, styles });
+  };
   const choosePage = (id) => { setSelection(null); navigate("/gouthamspace/cms/" + mode + "/canvas/" + encodeURIComponent(id)); };
   const openDevice = (nextMode) => navigate("/gouthamspace/cms/" + nextMode + "/canvas/" + encodeURIComponent(page.id));
   const scale = isMobile ? Math.min(1, Math.max(.38, (availableWidth - 40) / 390)) : Math.min(zoom, Math.max(.38, (availableWidth - 40) / 1440));
@@ -263,7 +277,7 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
     <div className="website-canvas-workspace">
       <aside className="canvas-pages"><div className="canvas-eyebrow">PAGES</div><div className="canvas-page-list">{PAGES.map((item) => <button type="button" key={item.id} className={"canvas-page-item " + (item.id === page.id ? "active " : "") + (item.category ? "category-page" : "")} onClick={() => choosePage(item.id)}><span>{item.category ? <ImageIcon size={14} /> : <ArrowUpRight size={14} />}{item.label}</span>{item.id === page.id && <ChevronRight size={14} />}</button>)}</div><div className="canvas-device-switch"><div className="canvas-eyebrow">PREVIEW DEVICE</div><div className="canvas-device-buttons"><button type="button" className={!isMobile ? "active" : ""} onClick={() => openDevice("desktop")}><Monitor size={14} /> Desktop</button><button type="button" className={isMobile ? "active" : ""} onClick={() => openDevice("mobile")}><Smartphone size={14} /> Mobile</button></div></div><div className="canvas-pages-tip"><Eye size={14} /><span>Select an element, then drag text to reposition it or drag images to crop. Use the inspector for precise changes.</span></div></aside>
       <main className="canvas-stage-column"><div className="canvas-stage-toolbar"><div><div className="canvas-eyebrow">LIVE PAGE CANVAS</div><strong>{page.label}</strong></div><div className="canvas-stage-tools"><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => setShowPreview((current) => !current)}>{showPreview ? <EyeOff size={14} /> : <Eye size={14} />}{showPreview ? "Hide canvas" : "Show canvas"}</button><span>{isMobile ? "390 px" : "1440 px"}</span></div></div><div className={"canvas-stage " + (isMobile ? "mobile" : "")} ref={canvasRef}>{showPreview ? <div className="canvas-iframe-wrap" style={{ width, height }}><iframe ref={iframeRef} key={mode + page.route} className="canvas-site-frame" title={page.label + " website canvas preview"} src={previewUrl} style={{ width: isMobile ? 390 : 1440, height: isMobile ? 844 : 900, transform: "scale(" + scale + ")", transformOrigin: "top left" }} /></div> : <div className="canvas-hidden-preview"><EyeOff size={20} /><span>Canvas preview hidden</span></div>}</div><footer className="canvas-stage-footer"><span>{selection ? "Selected " + (selection.kind === "image" ? "image · drag to crop" : "text · drag to reposition") : "Nothing selected"}</span><div><button type="button" onClick={() => setZoom((current) => Math.max(.4, current - .1))}>−</button><span>{Math.round(scale * 100)}%</span><button type="button" onClick={() => setZoom((current) => Math.min(1, current + .1))}>+</button></div></footer></main>
-      <Inspector selection={selection} value={selectedValue} onChange={updateSelected} onClose={() => setSelection(null)} />
+      <Inspector selection={selection} value={selectedValue} onChange={updateSelected} onResetTextStyle={resetSelectedTextStyle} onClose={() => setSelection(null)} />
     </div>
   </div>;
 }
