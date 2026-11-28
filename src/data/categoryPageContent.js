@@ -54,6 +54,8 @@ const asCMSImage = (image) => image ? {
   cropZoom: image.cropZoom || 1,
 } : null;
 
+const hasImageSource = (image) => Boolean(typeof image === "string" ? image.trim() : image?.src?.trim());
+
 const cloneCards = (cards) => cards.map((card) => ({ ...card }));
 
 export function getCategoryPageContent(story = {}) {
@@ -112,10 +114,15 @@ export function getCategoryPageContent(story = {}) {
     valueCards: cloneCards(VALUE_CARDS),
   };
   const saved = story.pageContent || {};
+  const savedSectionImages = saved.sectionImages || {};
+  const sectionImages = Object.fromEntries(Object.entries(defaults.sectionImages).map(([section, fallback]) => {
+    const savedImage = savedSectionImages[section];
+    return [section, hasImageSource(savedImage) ? { ...fallback, ...asCMSImage(savedImage) } : fallback];
+  }));
   return {
     ...defaults,
     ...saved,
-    sectionImages: { ...defaults.sectionImages, ...(saved.sectionImages || {}) },
+    sectionImages,
     sectionColors: saved.sectionColors || {},
     displaySettings: {
       desktop: { ...defaults.displaySettings.desktop, ...(saved.displaySettings?.desktop || {}) },
