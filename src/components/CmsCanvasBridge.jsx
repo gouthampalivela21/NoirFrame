@@ -4,6 +4,7 @@ import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { applyCmsImageObjectPosition, applyCmsImageSource, applyCmsImageZoom } from "../utils/cmsCanvasImage.js";
 
 function normalizeRoute(route) { return route.replace(/\/$/, "") || "/"; }
+function hasBackgroundImage(element) { return /url\(/i.test(getComputedStyle(element).backgroundImage); }
 function normalizeSelector(selector) {
   return typeof selector === "string" ? selector.replace(/^html\s*>\s*/i, "") : "";
 }
@@ -169,8 +170,43 @@ export default function CmsCanvasBridge() {
     let selected = null;
     let drag = null;
     const style = doc.createElement("style");
-    style.textContent = "[data-cms-canvas-hover]{outline:2px solid #0a84ff!important;outline-offset:2px!important;cursor:crosshair!important}[data-cms-canvas-active]{outline:2px solid #0a84ff!important;outline-offset:3px!important;position:relative;z-index:2}";
+    style.textContent = "[data-cms-canvas-hover]{outline:2px solid #0a84ff!important;outline-offset:2px!important;cursor:crosshair!important}[data-cms-canvas-active]{outline:2px solid #0a84ff!important;outline-offset:3px!important;position:relative;z-index:2}img[data-cms-canvas-placeholder]{display:block!important;min-width:72px!important;min-height:140px!important;object-fit:contain!important;background:#f1efe9!important;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%238b877f' stroke-width='1.4'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='m21 15-5-5L5 21'/%3E%3C/svg%3E\")!important;background-repeat:no-repeat!important;background-position:center!important;background-size:42px!important;outline:1px dashed #aaa59b!important}";
     doc.head.appendChild(style);
+
+    // Empty or broken image fields have no visible target to select. Give
+    // those slots an editor-only placeholder while keeping their DOM nodes
+    // selectable so the inspector can upload a replacement.
+    const markMissingImages = (root = doc) => {
+      const images = [];
+      if (root.matches?.("img")) images.push(root);
+      root.querySelectorAll?.("img").forEach((image) => images.push(image));
+      images.forEach((image) => {
+        const picture = image.closest("picture");
+        const hasSource = Boolean(
+          image.getAttribute("src")?.trim() ||
+          image.getAttribute("srcset")?.trim() ||
+          picture?.querySelector("source[srcset]")
+        );
+        if (!hasSource || (image.complete && image.naturalWidth === 0)) {
+          image.setAttribute("data-cms-canvas-placeholder", "true");
+        }
+      });
+    };
+    const onImageError = (event) => {
+      if (event.target?.matches?.("img")) event.target.setAttribute("data-cms-canvas-placeholder", "true");
+    };
+    const onImageLoad = (event) => {
+      if (event.target?.matches?.("img")) event.target.removeAttribute("data-cms-canvas-placeholder");
+    };
+    markMissingImages();
+    const imageObserver = new MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) markMissingImages(node);
+      }));
+    });
+    if (doc.body) imageObserver.observe(doc.body, { childList: true, subtree: true });
+    doc.addEventListener("error", onImageError, true);
+    doc.addEventListener("load", onImageLoad, true);
 
     const onPointerOver = (event) => {
       const target = event.target?.closest?.("body *");
@@ -209,7 +245,7 @@ export default function CmsCanvasBridge() {
         if (media) element = media;
         else {
           let bg = origin;
-          while (bg && bg !== doc.body && !getComputedStyle(bg).backgroundImage.startsWith("url(")) bg = bg.parentElement;
+          while (bg && bg !== doc.body && !hasBackgroundImage(bg)) bg = bg.parentElement;
           if (bg && bg !== doc.body) element = bg;
           else {
             let ancestor = origin;
@@ -251,7 +287,7 @@ export default function CmsCanvasBridge() {
       }
       // Select the whole overlay group when the user clicks any of its copy,
       // so dragging a headline moves the complete text block together.
-      if (!element.matches("img,video,source") && !getComputedStyle(element).backgroundImage.startsWith("url(")) {
+      if (!element.matches("img,video,source") && !hasBackgroundImage(element)) {
         const draggableCopy = element.closest(".cms-positionable-copy, [data-cms-canvas-draggable]");
         if (draggableCopy) {
           element = draggableCopy;
@@ -266,16 +302,18 @@ export default function CmsCanvasBridge() {
       const rect = element.getBoundingClientRect();
       const cropRect = element.matches("img,video,source") ? getCropViewport(element) : rect;
       const frame = element.matches("img,video,source") ? getCropFrame(element) : element;
-      const image = element.matches("img,video,source") ? element.currentSrc || element.src : (computed.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "");
+      const image = element.matches("img,video,source")
+        ? (element.currentSrc || element.getAttribute("src") || element.getAttribute("srcset") || "")
+        : (computed.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "");
       const link = element.closest("a,button");
-      const textSection = element.closest(".editorial-experience-section, .editorial-long-image-section");
-      const relatedImageElement = textSection?.querySelector(".editorial-experience-picture img, .editorial-long-image-picture img");
+      const textSection = element.closest("section, article, [data-cms-section]");
+      const relatedImageElement = textSection?.querySelector("picture img, img, video");
       const selection = {
-        selector: makeSelector(element), tag: element.tagName.toLowerCase(), kind: image ? "image" : "text",
+        selector: makeSelector(element), tag: element.tagName.toLowerCase(), kind: element.matches("img,video,source") || image ? "image" : "text",
         frameSelector: makeSelector(frame),
         text, textNodeIndex, src: image, route: pageRoute, viewport: mode,
         cmsField: pageRoute === "/studio" && element.matches("img") && (element.alt === "The Studio Space" || doc.querySelector("main img") === element) ? "studio.leadImage" : "",
-        relatedImage: relatedImageElement && !element.matches("img,video,source") ? { selector: makeSelector(relatedImageElement), src: relatedImageElement.currentSrc || relatedImageElement.src, alt: relatedImageElement.alt || "" } : null,
+        relatedImage: relatedImageElement && !element.matches("img,video,source") ? { selector: makeSelector(relatedImageElement), src: relatedImageElement.currentSrc || relatedImageElement.getAttribute("src") || "", alt: relatedImageElement.alt || "" } : null,
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",
         fontSize: Math.round(parseFloat(computed.fontSize) || 32),
         zoom: Number(computed.getPropertyValue("--cms-image-zoom-" + mode)) || Number(computed.scale) || 1,
@@ -287,7 +325,7 @@ export default function CmsCanvasBridge() {
     const onPointerDown = (event) => {
       const active = event.target?.closest?.("[data-cms-canvas-active]");
       if (!active || event.button !== 0) return;
-      const isImage = active.matches("img,video,source") || getComputedStyle(active).backgroundImage.startsWith("url(");
+      const isImage = active.matches("img,video,source") || hasBackgroundImage(active);
       const rect = isImage && active.matches("img,video,source") ? getCropViewport(active) : active.getBoundingClientRect();
       const pos = active.matches("img,video,source") ? getComputedStyle(active).objectPosition : getComputedStyle(active).backgroundPosition;
       // Text starts at its natural location; 50% is only the image crop
@@ -349,9 +387,12 @@ export default function CmsCanvasBridge() {
       doc.removeEventListener("pointerdown", onPointerDown, true);
       doc.removeEventListener("pointermove", onPointerMove, true);
       doc.removeEventListener("pointerup", onPointerUp, true);
+      doc.removeEventListener("error", onImageError, true);
+      doc.removeEventListener("load", onImageLoad, true);
+      imageObserver.disconnect();
       window.removeEventListener("message", onLiveEdit);
       style.remove();
-      doc.querySelectorAll("[data-cms-canvas-hover],[data-cms-canvas-active]").forEach((node) => { node.removeAttribute("data-cms-canvas-hover"); node.removeAttribute("data-cms-canvas-active"); });
+      doc.querySelectorAll("[data-cms-canvas-hover],[data-cms-canvas-active],[data-cms-canvas-placeholder]").forEach((node) => { node.removeAttribute("data-cms-canvas-hover"); node.removeAttribute("data-cms-canvas-active"); node.removeAttribute("data-cms-canvas-placeholder"); });
     };
   }, [canvasMode, location.pathname, mode]);
 

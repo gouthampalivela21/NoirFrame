@@ -6,6 +6,7 @@ function getViewport(element, viewport) {
 
 export function applyCmsImageSource(element, src, viewport) {
   if (!element || !src) return;
+  element.removeAttribute?.("data-cms-canvas-placeholder");
   if (!element.matches("img,video,source")) {
     element.style.backgroundImage = "url(" + JSON.stringify(src) + ")";
     return;
