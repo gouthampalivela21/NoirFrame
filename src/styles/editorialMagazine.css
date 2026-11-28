@@ -2144,12 +2144,12 @@
 .editorial-page--fashion .editorial-long-image-section {
   position: relative;
   display: flex;
-  min-height: 200svh;
+  min-height: 300svh;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   padding: clamp(88px, 12vh, 144px) 24px 64px;
-  background: #7d16ce;
+  background: #111;
   color: #fff;
   isolation: isolate;
 }
@@ -2168,9 +2168,7 @@
 }
 .editorial-page--fashion .editorial-long-image-overlay {
   z-index: 1;
-  background:
-    linear-gradient(180deg, rgba(125, 15, 198, .62) 0%, rgba(152, 30, 208, .25) 48%, rgba(31, 0, 72, .42) 100%),
-    linear-gradient(90deg, rgba(142, 24, 217, .28), rgba(190, 54, 222, .2));
+  background: linear-gradient(180deg, rgba(0, 0, 0, .18) 0%, rgba(0, 0, 0, .08) 48%, rgba(0, 0, 0, .3) 100%);
 }
 .editorial-page--fashion .editorial-long-image-copy {
   position: absolute;
@@ -2196,7 +2194,7 @@
   letter-spacing: -.065em;
 }
 @media (max-width: 680px) {
-  .editorial-page--fashion .editorial-long-image-section { min-height: 200svh; padding: 92px 20px 42px; }
+  .editorial-page--fashion .editorial-long-image-section { min-height: 300svh; padding: 92px 20px 42px; }
   .editorial-page--fashion .editorial-long-image-copy p { margin-bottom: 24px; }
   .editorial-page--fashion .editorial-long-image-copy h2 { font-size: clamp(3rem, 12vw, 5rem); }
 }
