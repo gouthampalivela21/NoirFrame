@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { prefersReducedMotion } from "../utils/helpers.js";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
 import { EDITORIAL_STORIES } from "../data/editorialStories.js";
 import { getCategoryPageContent } from "../data/categoryPageContent.js";
@@ -191,19 +190,7 @@ export default function EditorialFeaturePage({ categoryOverride }) {
     const color = sectionColor(section, "heading");
     return color ? { color, backgroundImage: "none", WebkitTextFillColor: color } : undefined;
   };
-  const [isReduced, setIsReduced] = useState(false);
-
-  useEffect(() => {
-    setIsReduced(prefersReducedMotion());
-    if (typeof window !== "undefined" && window.matchMedia) {
-      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const handler = (e) => setIsReduced(e.matches);
-      if (mq.addEventListener) {
-        mq.addEventListener("change", handler);
-        return () => mq.removeEventListener("change", handler);
-      }
-    }
-  }, []);
+  const isReduced = true;
 
   useEffect(() => {
     if (story) {
