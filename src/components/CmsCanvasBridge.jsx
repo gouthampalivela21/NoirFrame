@@ -46,6 +46,39 @@ function applyImageZoom(element, zoom) {
   }
 }
 
+function applyImageRatio(element, edit) {
+  if (edit.ratio === undefined) return;
+  let frame;
+  try { frame = element.ownerDocument.querySelector(edit.frameSelector || edit.selector); } catch { return; }
+  if (!frame) return;
+  const properties = ["aspect-ratio", "width", "height", "min-height", "max-height", "object-fit"];
+  if (!frame.dataset.cmsRatioOriginal) {
+    frame.dataset.cmsRatioOriginal = JSON.stringify(Object.fromEntries(properties.map((property) => [property, frame.style.getPropertyValue(property)])));
+  }
+  if (edit.ratio) {
+    frame.style.aspectRatio = edit.ratio;
+    frame.style.height = "auto";
+    frame.style.minHeight = "0";
+    frame.style.maxHeight = "none";
+    if (frame === element) {
+      frame.style.width = "100%";
+      frame.style.objectFit = "cover";
+    }
+    return;
+  }
+  try {
+    const original = JSON.parse(frame.dataset.cmsRatioOriginal);
+    for (const property of properties) {
+      if (original[property]) frame.style.setProperty(property, original[property]);
+      else frame.style.removeProperty(property);
+    }
+  } catch {
+    frame.style.removeProperty("aspect-ratio");
+    frame.style.removeProperty("height");
+  }
+  delete frame.dataset.cmsRatioOriginal;
+}
+
 function makeSelector(element) {
   const parts = [];
   let current = element;
@@ -67,17 +100,19 @@ function makeSelector(element) {
   return parts.join(" > ");
 }
 
-function getCropViewport(element) {
-  const elementRect = element.getBoundingClientRect();
+function getCropFrame(element) {
   let parent = element.parentElement;
   while (parent && parent !== document.body && parent !== document.documentElement) {
     const style = getComputedStyle(parent);
     const clipsImage = [style.overflow, style.overflowX, style.overflowY].some((value) => ["hidden", "clip", "scroll", "auto"].includes(value));
-    const rect = parent.getBoundingClientRect();
-    if (clipsImage && rect.width > 0 && rect.height > 0 && (rect.width < elementRect.width - 1 || rect.height < elementRect.height - 1)) return rect;
+    if (clipsImage) return parent;
     parent = parent.parentElement;
   }
-  return elementRect;
+  return element;
+}
+
+function getCropViewport(element) {
+  return getCropFrame(element).getBoundingClientRect();
 }
 
 function applyEdit(edit) {
@@ -112,6 +147,7 @@ function applyEdit(edit) {
     else element.style[styleKey] = key === "objectFit" && !element.matches("img,video,source") && value === "cover" ? "cover" : value;
   });
   if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom);
+  applyImageRatio(element, edit);
 }
 
 export default function CmsCanvasBridge() {
@@ -220,10 +256,12 @@ export default function CmsCanvasBridge() {
       const computed = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
       const cropRect = element.matches("img,video,source") ? getCropViewport(element) : rect;
+      const frame = element.matches("img,video,source") ? getCropFrame(element) : element;
       const image = element.matches("img,video,source") ? element.currentSrc || element.src : (computed.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "");
       const link = element.closest("a,button");
       const selection = {
         selector: makeSelector(element), tag: element.tagName.toLowerCase(), kind: image ? "image" : "text",
+        frameSelector: makeSelector(frame),
         text, textNodeIndex, src: image, route: pageRoute, viewport: mode,
         cmsField: pageRoute === "/studio" && element.matches("img") && (element.alt === "The Studio Space" || doc.querySelector("main img") === element) ? "studio.leadImage" : "",
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",

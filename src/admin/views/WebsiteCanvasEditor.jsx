@@ -36,6 +36,40 @@ function applyImageZoom(element, zoom, view = window) {
   }
 }
 
+function applyImageRatio(doc, edit) {
+  if (edit.ratio === undefined || !edit.selector) return;
+  let frame;
+  try { frame = doc.querySelector(edit.frameSelector || edit.selector); } catch { return; }
+  if (!frame) return;
+  const properties = ["aspect-ratio", "width", "height", "min-height", "max-height", "object-fit"];
+  if (!frame.dataset.cmsRatioOriginal) {
+    frame.dataset.cmsRatioOriginal = JSON.stringify(Object.fromEntries(properties.map((property) => [property, frame.style.getPropertyValue(property)])));
+  }
+  if (edit.ratio) {
+    frame.style.aspectRatio = edit.ratio;
+    frame.style.height = "auto";
+    frame.style.minHeight = "0";
+    frame.style.maxHeight = "none";
+    if (frame !== doc.querySelector(edit.selector)) return;
+    else {
+      frame.style.width = "100%";
+      frame.style.objectFit = "cover";
+    }
+  } else {
+    try {
+      const original = JSON.parse(frame.dataset.cmsRatioOriginal);
+      for (const property of properties) {
+        if (original[property]) frame.style.setProperty(property, original[property]);
+        else frame.style.removeProperty(property);
+      }
+    } catch {
+      frame.style.removeProperty("aspect-ratio");
+      frame.style.removeProperty("height");
+    }
+    delete frame.dataset.cmsRatioOriginal;
+  }
+}
+
 // Apply edits directly to the same-origin preview document. The CMS data is
 // still the source of truth; this immediate DOM write keeps the canvas in sync
 // while the editor state and autosave catch up.
@@ -75,6 +109,7 @@ function applyEditToFrame(frame, edit) {
     else element.style[styleKey] = value;
   });
   if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom, doc.defaultView);
+  applyImageRatio(doc, edit);
 }
 
 function Inspector({ selection, value, onChange, onClose }) {
@@ -84,13 +119,14 @@ function Inspector({ selection, value, onChange, onClose }) {
   const currentStyles = { ...selection.styles, ...(value?.styles || {}) };
   const cropPosition = String(currentStyles.objectPosition || "50% 50%");
   const imageZoom = Math.max(1, Math.min(3, Number(value?.zoom) || 1));
-  const update = (patch) => onChange({ ...value, ...patch, selector: selection.selector, route: selection.route, viewport: selection.viewport, linkSelector: selection.linkSelector, textNodeIndex: selection.textNodeIndex });
+  const imageRatio = value?.ratio || "";
+  const update = (patch) => onChange({ ...value, ...patch, selector: selection.selector, frameSelector: selection.frameSelector || selection.selector, route: selection.route, viewport: selection.viewport, linkSelector: selection.linkSelector, textNodeIndex: selection.textNodeIndex });
   const style = (key, next) => update({ styles: { ...(value?.styles || {}), [key]: next } });
   return (
     <aside className="canvas-inspector">
       <div className="canvas-inspector-heading"><div><div className="canvas-eyebrow">SELECTED ELEMENT</div><h2>{isImage ? "Image" : selection.tag === "button" || selection.tag === "a" ? "Link / button" : "Text & style"}</h2></div><button className="canvas-icon-button" type="button" title="Clear selection" onClick={onClose}>×</button></div>
       <div className="canvas-element-chip">{isImage ? <ImageIcon size={14} /> : <Type size={14} />}<span>{selection.tag.toUpperCase()}</span><code>{selection.selector.split(">").slice(-2).join(" › ")}</code></div>
-      {isImage ? <div className="canvas-inspector-section"><div className="canvas-image-device-scope"><strong>{selection.viewport === "mobile" ? "Mobile image settings" : "Desktop image settings"}</strong><span>Image, crop and zoom are saved separately for each device.</span></div><ImageUploadControl label="Replace image" value={value?.src || selection.src} onChange={(src) => update({ src })} aspectRatio={selection.aspectRatio || "16/9"} helperText="Upload a replacement or paste an image URL." objectPosition={cropPosition} cropZoom={imageZoom} showZoomControl={false} onCropChange={({ objectPosition }) => update({ styles: { ...(value?.styles || {}), objectPosition, objectFit: "cover" } })} /><label className="canvas-field-label">Image URL<input className="studio-input" value={value?.src || selection.src || ""} onChange={(event) => update({ src: event.target.value })} placeholder="Paste image URL" /></label><label className="canvas-field-label">Alternative text<input className="studio-input" value={value?.alt ?? selection.alt ?? ""} onChange={(event) => update({ alt: event.target.value })} /></label></div> : <div className="canvas-inspector-section"><label className="canvas-field-label">Text<textarea className="studio-textarea" rows={5} value={value?.text ?? selection.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Edit the selected text" /></label>{selection.href && <label className="canvas-field-label">Link destination<input className="studio-input" value={value?.href ?? selection.href} onChange={(event) => update({ href: event.target.value })} /></label>}<p className="canvas-help">Text is changed in place; the rest of the page remains intact.</p></div>}
+      {isImage ? <div className="canvas-inspector-section"><div className="canvas-image-device-scope"><strong>{selection.viewport === "mobile" ? "Mobile image settings" : "Desktop image settings"}</strong><span>Image, crop, ratio and zoom are saved separately for each device.</span></div><label className="canvas-field-label">Image ratio<select className="studio-input" value={imageRatio} onChange={(event) => update({ ratio: event.target.value, frameSelector: selection.frameSelector || selection.selector })}><option value="">Original layout</option><option value="1 / 1">Square · 1:1</option><option value="4 / 3">Landscape · 4:3</option><option value="3 / 2">Classic · 3:2</option><option value="16 / 9">Widescreen · 16:9</option><option value="3 / 4">Portrait · 3:4</option><option value="2 / 3">Portrait · 2:3</option><option value="9 / 16">Tall · 9:16</option></select></label><ImageUploadControl label="Replace image" value={value?.src || selection.src} onChange={(src) => update({ src })} aspectRatio={imageRatio || selection.aspectRatio || "16/9"} helperText="Upload a replacement or paste an image URL." objectPosition={cropPosition} cropZoom={imageZoom} showZoomControl={false} onCropChange={({ objectPosition }) => update({ styles: { ...(value?.styles || {}), objectPosition, objectFit: "cover" } })} /><label className="canvas-field-label">Image URL<input className="studio-input" value={value?.src || selection.src || ""} onChange={(event) => update({ src: event.target.value })} placeholder="Paste image URL" /></label><label className="canvas-field-label">Alternative text<input className="studio-input" value={value?.alt ?? selection.alt ?? ""} onChange={(event) => update({ alt: event.target.value })} /></label></div> : <div className="canvas-inspector-section"><label className="canvas-field-label">Text<textarea className="studio-textarea" rows={5} value={value?.text ?? selection.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Edit the selected text" /></label>{selection.href && <label className="canvas-field-label">Link destination<input className="studio-input" value={value?.href ?? selection.href} onChange={(event) => update({ href: event.target.value })} /></label>}<p className="canvas-help">Text is changed in place; the rest of the page remains intact.</p></div>}
       <div className="canvas-inspector-section">
         <div className="canvas-section-title">Appearance</div>
         {!isImage && <label className="canvas-field-label">Text color<div className="canvas-color-row"><input type="color" value={currentStyles.color || "#ffffff"} onChange={(event) => style("color", event.target.value)} /><input className="studio-input" value={currentStyles.color || ""} placeholder="Original color" onChange={(event) => style("color", event.target.value)} /></div></label>}

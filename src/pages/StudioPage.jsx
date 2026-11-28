@@ -84,6 +84,8 @@ export default function StudioPage() {
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px 80px" }}>
         <div
           style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
             borderRadius: "12px",
             overflow: "hidden",
             maxHeight: "680px",
@@ -93,7 +95,7 @@ export default function StudioPage() {
           <img
             src={leadImage}
             alt="The Studio Space"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
             loading="eager"
           />
         </div>
