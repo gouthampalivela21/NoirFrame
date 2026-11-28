@@ -42,6 +42,19 @@ function makeSelector(element) {
   return "html > " + parts.join(" > ");
 }
 
+function getCropViewport(element) {
+  const elementRect = element.getBoundingClientRect();
+  let parent = element.parentElement;
+  while (parent && parent !== document.body && parent !== document.documentElement) {
+    const style = getComputedStyle(parent);
+    const clipsImage = [style.overflow, style.overflowX, style.overflowY].some((value) => ["hidden", "clip", "scroll", "auto"].includes(value));
+    const rect = parent.getBoundingClientRect();
+    if (clipsImage && rect.width > 0 && rect.height > 0 && (rect.width < elementRect.width - 1 || rect.height < elementRect.height - 1)) return rect;
+    parent = parent.parentElement;
+  }
+  return elementRect;
+}
+
 function applyEdit(edit) {
   if (!edit?.selector) return;
   let element;
@@ -180,6 +193,7 @@ export default function CmsCanvasBridge() {
       selected.setAttribute("data-cms-canvas-active", "true");
       const computed = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
+      const cropRect = element.matches("img,video,source") ? getCropViewport(element) : rect;
       const image = element.matches("img,video,source") ? element.currentSrc || element.src : (computed.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "");
       const link = element.closest("a,button");
       const selection = {
@@ -189,15 +203,15 @@ export default function CmsCanvasBridge() {
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",
         fontSize: Math.round(parseFloat(computed.fontSize) || 32),
         styles: { color: colorHex(computed.color), fill: colorHex(computed.fill, ""), stroke: colorHex(computed.stroke, ""), fontSize: computed.fontSize, fontFamily: computed.fontFamily, fontWeight: computed.fontWeight, textAlign: computed.textAlign, letterSpacing: computed.letterSpacing, lineHeight: computed.lineHeight, backgroundColor: computed.backgroundColor === "rgba(0, 0, 0, 0)" ? "" : colorHex(computed.backgroundColor, ""), opacity: computed.opacity, borderRadius: computed.borderRadius, translate: element.style.translate || "0px 0px", objectPosition: computed.objectPosition || "50% 50%", objectFit: computed.objectFit || "cover" },
-        aspectRatio: rect.width && rect.height ? Math.round(rect.width) + "/" + Math.round(rect.height) : "16/9",
+        aspectRatio: cropRect.width && cropRect.height ? Math.round(cropRect.width) + "/" + Math.round(cropRect.height) : "16/9",
       };
       window.parent.postMessage({ type: "cms-canvas-select", selection }, window.location.origin);
     };
     const onPointerDown = (event) => {
       const active = event.target?.closest?.("[data-cms-canvas-active]");
       if (!active || event.button !== 0) return;
-      const rect = active.getBoundingClientRect();
       const isImage = active.matches("img,video,source") || getComputedStyle(active).backgroundImage.startsWith("url(");
+      const rect = isImage && active.matches("img,video,source") ? getCropViewport(active) : active.getBoundingClientRect();
       const pos = active.matches("img,video,source") ? getComputedStyle(active).objectPosition : getComputedStyle(active).backgroundPosition;
       const rawPosition = (isImage ? pos : active.style.translate) || "50% 50%";
       const values = rawPosition.match(/-?\d+(?:\.\d+)?/g)?.map(Number) || [];
