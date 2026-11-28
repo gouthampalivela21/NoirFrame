@@ -172,7 +172,7 @@ export default function CmsCanvasBridge() {
       const selection = {
         selector: makeSelector(element), tag: element.tagName.toLowerCase(), kind: image ? "image" : "text",
         text, textNodeIndex, src: image, route: pageRoute, viewport: mode,
-        cmsField: pageRoute === "/studio" && element.matches("img") && doc.querySelector("main img") === element ? "studio.leadImage" : "",
+        cmsField: pageRoute === "/studio" && element.matches("img") && (element.alt === "The Studio Space" || doc.querySelector("main img") === element) ? "studio.leadImage" : "",
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",
         fontSize: Math.round(parseFloat(computed.fontSize) || 32),
         styles: { color: colorHex(computed.color), fill: colorHex(computed.fill, ""), stroke: colorHex(computed.stroke, ""), fontSize: computed.fontSize, fontFamily: computed.fontFamily, fontWeight: computed.fontWeight, textAlign: computed.textAlign, letterSpacing: computed.letterSpacing, lineHeight: computed.lineHeight, backgroundColor: computed.backgroundColor === "rgba(0, 0, 0, 0)" ? "" : colorHex(computed.backgroundColor, ""), opacity: computed.opacity, borderRadius: computed.borderRadius, translate: element.style.translate || "0px 0px", objectPosition: computed.objectPosition || "50% 50%", objectFit: computed.objectFit || "cover" },
