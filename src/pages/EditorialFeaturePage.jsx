@@ -453,9 +453,23 @@ export default function EditorialFeaturePage({ categoryOverride }) {
               aria-label={`${story.category} in a new perspective`}
               {...getFadeUpMotion(isReduced, 0.04, 16)}
             >
-                {longImage && categoryImage(perspectiveImage, mobileImage("perspective", perspectiveImage), { className: "editorial-long-image", pictureClassName: "editorial-long-image-picture", alt: "", "aria-hidden": true, loading: "lazy", decoding: "async" })}
+                {longImage && categoryImage(perspectiveImage, mobileImage("perspective", perspectiveImage), {
+                  className: "editorial-long-image",
+                  pictureClassName: "editorial-long-image-picture",
+                  alt: "",
+                  "aria-hidden": true,
+                  loading: "eager",
+                  decoding: "async",
+                  onError: (event) => {
+                    const fallbackSrc = imageSource(defaultsPageContent.sectionImages.perspective);
+                    const image = event.currentTarget;
+                    if (!fallbackSrc || image.currentSrc === new URL(fallbackSrc, window.location.href).href) return;
+                    image.closest("picture")?.querySelectorAll("source").forEach((source) => source.remove());
+                    image.src = fallbackSrc;
+                  },
+                })}
               <div className="editorial-long-image-overlay" aria-hidden="true" />
-              <div className="editorial-long-image-copy">
+              <div className="editorial-long-image-copy cms-positionable-copy">
                 <p style={{ color: sectionColor("perspective", "body") }}>{renderResponsiveText("perspectiveEyebrow", pageContent.perspectiveEyebrow)}</p>
                 <h2 style={sectionHeadingStyle("perspective")}>{renderResponsiveText("perspectiveHeading", pageContent.perspectiveHeading)}</h2>
               </div>

@@ -234,6 +234,16 @@ export default function CmsCanvasBridge() {
           }
         }
       }
+      // Select the whole overlay group when the user clicks any of its copy,
+      // so dragging a headline moves the complete text block together.
+      if (!element.matches("img,video,source") && !getComputedStyle(element).backgroundImage.startsWith("url(")) {
+        const draggableCopy = element.closest(".cms-positionable-copy, [data-cms-canvas-draggable]");
+        if (draggableCopy) {
+          element = draggableCopy;
+          text = "";
+          textNodeIndex = null;
+        }
+      }
       if (selected) selected.removeAttribute("data-cms-canvas-active");
       selected = element;
       selected.setAttribute("data-cms-canvas-active", "true");
