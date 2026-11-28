@@ -145,7 +145,7 @@ function Inspector({ selection, value, onChange, onClose }) {
         {isImage && <label className="canvas-field-label">Crop position<div className="canvas-range-row"><input type="range" min="0" max="100" value={parseInt(cropPosition, 10) || 50} onChange={(event) => style("objectPosition", event.target.value + "% 50%")} /><span>{parseInt(cropPosition, 10) || 50}%</span></div></label>}
         {isImage && <label className="canvas-field-label">Image zoom<div className="canvas-range-row"><input type="range" min="1" max="3" step="0.05" value={imageZoom} onChange={(event) => update({ zoom: Number(event.target.value) })} aria-label={(selection.viewport === "mobile" ? "Mobile" : "Desktop") + " image zoom"} /><span>{imageZoom.toFixed(2)}×</span></div></label>}
       </div>
-      <div className="canvas-inspector-footer"><span><Check size={13} /> Changes preview instantly</span><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => onChange(null)}><RotateCcw size={13} /> Reset element</button></div>
+      <div className="canvas-inspector-footer"><span><Check size={13} /> Preview updates instantly · saves automatically</span><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => onChange(null)}><RotateCcw size={13} /> Reset element</button></div>
     </aside>
   );
 }
@@ -156,6 +156,9 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
   const page = getPage(pageId);
   const iframeRef = useRef(null);
   const canvasRef = useRef(null);
+  const autoSaveTimerRef = useRef(null);
+  const autoSaveSnapshotRef = useRef("");
+  const publishingRef = useRef(false);
   const [selection, setSelection] = useState(null);
   const [showPreview, setShowPreview] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -163,6 +166,28 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
   const [availableWidth, setAvailableWidth] = useState(1440);
   const isMobile = mode === "mobile";
   const previewUrl = page.route + (page.route.includes("?") ? "&" : "?") + "cmsPreview=1&cmsCanvas=1&cmsViewport=" + mode;
+
+  // Save each device's draft to its own Supabase row after a brief pause.
+  useEffect(() => {
+    if (!hasUnpublishedCMSChanges || isPublishing) return undefined;
+    const snapshot = JSON.stringify(cmsData);
+    if (!snapshot || autoSaveSnapshotRef.current === snapshot) return undefined;
+    autoSaveTimerRef.current = window.setTimeout(async () => {
+      if (publishingRef.current) return;
+      publishingRef.current = true;
+      autoSaveSnapshotRef.current = snapshot;
+      setIsPublishing(true);
+      try {
+        await saveCMSChanges(JSON.parse(snapshot), mode, { silent: true });
+      } finally {
+        publishingRef.current = false;
+        setIsPublishing(false);
+      }
+    }, 650);
+    return () => {
+      if (autoSaveTimerRef.current) window.clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [cmsData, hasUnpublishedCMSChanges, isPublishing, mode, saveCMSChanges]);
 
   useEffect(() => {
     const node = canvasRef.current;
@@ -197,10 +222,13 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
   const canvasEdits = isMobile ? cmsData.mobileContent?.canvasEdits : cmsData.canvasEdits;
   const selectedValue = key ? canvasEdits?.[key] : null;
   const publishChanges = async () => {
-    if (isPublishing) return;
+    if (isPublishing || publishingRef.current) return;
+    if (autoSaveTimerRef.current) window.clearTimeout(autoSaveTimerRef.current);
+    autoSaveSnapshotRef.current = "";
+    publishingRef.current = true;
     setIsPublishing(true);
     try { await saveCMSChanges(cmsData, mode); }
-    finally { setIsPublishing(false); }
+    finally { publishingRef.current = false; setIsPublishing(false); }
   };
   const updateSelected = (next) => {
     if (!key) return;
@@ -234,7 +262,7 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
     <header className="website-canvas-toolbar">
       <button type="button" className="canvas-back-button" onClick={onExit}><ArrowLeft size={16} /> CMS</button>
       <div className="canvas-breadcrumb"><strong>Website</strong><ChevronRight size={13} /><span>{page.label}</span><ChevronRight size={13} /><span>{isMobile ? "Mobile" : "Desktop"}</span></div>
-      <div className="canvas-toolbar-actions"><span className={"cms-publish-state " + (hasUnpublishedCMSChanges ? "is-dirty" : "")}>{isPublishing ? "Saving changes…" : hasUnpublishedCMSChanges ? "Unpublished changes" : "Published"}</span><button className="studio-btn-secondary studio-btn-sm" type="button" disabled={!canUndoCMS || isPublishing} onClick={undoCMSChange} title="Undo"><RotateCcw size={14} /></button><button className="studio-btn-secondary studio-btn-sm" type="button" disabled={!canRedoCMS || isPublishing} onClick={redoCMSChange} title="Redo"><RotateCcw size={14} style={{ transform: "scaleX(-1)" }} /></button><button className="studio-btn-primary" type="button" disabled={isPublishing} onClick={publishChanges}>{isPublishing ? "Saving…" : "Publish"}</button></div>
+      <div className="canvas-toolbar-actions"><span className={"cms-publish-state " + (hasUnpublishedCMSChanges ? "is-dirty" : "")}>{isPublishing ? "Saving changes…" : hasUnpublishedCMSChanges ? "Changes pending…" : "Published"}</span><button className="studio-btn-secondary studio-btn-sm" type="button" disabled={!canUndoCMS || isPublishing} onClick={undoCMSChange} title="Undo"><RotateCcw size={14} /></button><button className="studio-btn-secondary studio-btn-sm" type="button" disabled={!canRedoCMS || isPublishing} onClick={redoCMSChange} title="Redo"><RotateCcw size={14} style={{ transform: "scaleX(-1)" }} /></button><button className="studio-btn-primary" type="button" disabled={isPublishing} onClick={publishChanges}>{isPublishing ? "Saving…" : "Publish now"}</button></div>
     </header>
     <div className="website-canvas-workspace">
       <aside className="canvas-pages"><div className="canvas-eyebrow">PAGES</div><div className="canvas-page-list">{PAGES.map((item) => <button type="button" key={item.id} className={"canvas-page-item " + (item.id === page.id ? "active " : "") + (item.category ? "category-page" : "")} onClick={() => choosePage(item.id)}><span>{item.category ? <ImageIcon size={14} /> : <ArrowUpRight size={14} />}{item.label}</span>{item.id === page.id && <ChevronRight size={14} />}</button>)}</div><div className="canvas-device-switch"><div className="canvas-eyebrow">PREVIEW DEVICE</div><div className="canvas-device-buttons"><button type="button" className={!isMobile ? "active" : ""} onClick={() => openDevice("desktop")}><Monitor size={14} /> Desktop</button><button type="button" className={isMobile ? "active" : ""} onClick={() => openDevice("mobile")}><Smartphone size={14} /> Mobile</button></div></div><div className="canvas-pages-tip"><Eye size={14} /><span>Select an element, then drag text to reposition it or drag images to crop. Use the inspector for precise changes.</span></div></aside>

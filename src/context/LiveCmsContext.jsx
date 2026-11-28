@@ -21,6 +21,7 @@ export function LiveCmsProvider({ children }) {
   const [isMobileViewport, setIsMobileViewport] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 680px)").matches);
   const previewMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("cmsPreview") === "1";
   const previewCmsRef = React.useRef(null);
+  const cmsFetchInFlightRef = React.useRef(false);
   const [cms, setCms] = useState(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
@@ -59,8 +60,10 @@ export function LiveCmsProvider({ children }) {
     : cms;
 
   const fetchCmsData = useCallback(async () => {
+    if (cmsFetchInFlightRef.current) return;
+    cmsFetchInFlightRef.current = true;
     try {
-      const res = await fetch("/api/cms");
+      const res = await fetch("/api/cms", { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success || !data.cms) {
         throw new Error(data.error || `CMS request failed (${res.status}).`);
@@ -75,6 +78,7 @@ export function LiveCmsProvider({ children }) {
       console.warn("[Live CMS fetch warning]:", err.message);
       setError("Unable to sync live site content.");
     } finally {
+      cmsFetchInFlightRef.current = false;
       setIsLoading(false);
     }
   }, [previewMode]);
@@ -94,6 +98,24 @@ export function LiveCmsProvider({ children }) {
   useEffect(() => {
     fetchCmsData();
   }, [fetchCmsData]);
+
+  // Supabase Realtime normally refreshes the page as soon as a CMS row
+  // changes. Polling while visible keeps visitors in sync if Realtime is
+  // disabled or temporarily disconnected.
+  useEffect(() => {
+    if (previewMode) return undefined;
+    const refreshIfVisible = () => {
+      if (document.visibilityState === "visible") fetchCmsData();
+    };
+    const timer = window.setInterval(refreshIfVisible, 4000);
+    window.addEventListener("focus", refreshIfVisible);
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshIfVisible);
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+    };
+  }, [fetchCmsData, previewMode]);
 
   // Real-time Supabase subscription for instant live site updates
   useEffect(() => {

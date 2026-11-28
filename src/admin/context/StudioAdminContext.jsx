@@ -824,7 +824,8 @@ export function StudioAdminProvider({ children }) {
     });
   }, []);
 
-  const saveCMSChanges = useCallback(async (content = cmsData, viewport = null) => {
+  const saveCMSChanges = useCallback(async (content = cmsData, viewport = null, options = {}) => {
+    const silent = options?.silent === true;
     try {
       const res = await adminApiFetch("/api/admin/cms", {
         method: "PUT",
@@ -848,7 +849,7 @@ export function StudioAdminProvider({ children }) {
           setRecoverableCMSDraft(null);
           try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
         }
-        showToast(viewport ? `✓ ${viewport === "mobile" ? "Mobile" : "Desktop"} changes published to Supabase.` : "✓ CMS changes published to the shared live database.", "success");
+        if (!silent) showToast(viewport ? `✓ ${viewport === "mobile" ? "Mobile" : "Desktop"} changes published to Supabase.` : "✓ CMS changes published to the shared live database.", "success");
         return true;
       }
       if (res.ok && result.storageMode === "local") {
@@ -856,7 +857,7 @@ export function StudioAdminProvider({ children }) {
         setHasUnpublishedCMSChanges(false);
         setRecoverableCMSDraft(null);
         try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
-        showToast("Saved on this local server. Connect shared Supabase to publish changes to the live website.", "success");
+        if (!silent) showToast("Saved on this local server. Connect shared Supabase to publish changes to the live website.", "success");
         return true;
       }
       throw new Error(result.error || "The shared CMS database is not configured.");

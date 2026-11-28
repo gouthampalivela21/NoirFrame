@@ -277,7 +277,9 @@ export default function CmsCanvasBridge() {
       const isImage = active.matches("img,video,source") || getComputedStyle(active).backgroundImage.startsWith("url(");
       const rect = isImage && active.matches("img,video,source") ? getCropViewport(active) : active.getBoundingClientRect();
       const pos = active.matches("img,video,source") ? getComputedStyle(active).objectPosition : getComputedStyle(active).backgroundPosition;
-      const rawPosition = (isImage ? pos : active.style.translate) || "50% 50%";
+      // Text starts at its natural location; 50% is only the image crop
+      // default. Applying that value to text makes the first drag jump.
+      const rawPosition = (isImage ? pos : active.style.translate) || (isImage ? "50% 50%" : "0px 0px");
       const values = rawPosition.match(/-?\d+(?:\.\d+)?/g)?.map(Number) || [];
       drag = { active, pointerX: event.clientX, pointerY: event.clientY, rect, isImage, x: values[0] ?? (isImage ? 50 : 0), y: values[1] ?? (isImage ? 50 : 0), moved: false };
       event.preventDefault();
@@ -304,8 +306,12 @@ export default function CmsCanvasBridge() {
       } else {
         const next = (drag.x + dx) + "px " + (drag.y + dy) + "px";
         if (getComputedStyle(drag.active).display === "inline") drag.active.style.display = "inline-block";
+        // Keep dragged copy above nearby photos so it can be positioned as an
+        // image overlay, then persist the same stacking behavior on the site.
+        if (getComputedStyle(drag.active).position === "static") drag.active.style.position = "relative";
+        drag.active.style.zIndex = "3";
         drag.active.style.translate = next;
-        drag.nextStyle = { translate: next };
+        drag.nextStyle = { translate: next, position: drag.active.style.position, zIndex: "3", ...(drag.active.style.display === "inline-block" ? { display: "inline-block" } : {}) };
       }
     };
     const onPointerUp = () => {
