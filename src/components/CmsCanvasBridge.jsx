@@ -268,11 +268,14 @@ export default function CmsCanvasBridge() {
       const frame = element.matches("img,video,source") ? getCropFrame(element) : element;
       const image = element.matches("img,video,source") ? element.currentSrc || element.src : (computed.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "");
       const link = element.closest("a,button");
+      const textSection = element.closest(".editorial-experience-section, .editorial-long-image-section");
+      const relatedImageElement = textSection?.querySelector(".editorial-experience-picture img, .editorial-long-image-picture img");
       const selection = {
         selector: makeSelector(element), tag: element.tagName.toLowerCase(), kind: image ? "image" : "text",
         frameSelector: makeSelector(frame),
         text, textNodeIndex, src: image, route: pageRoute, viewport: mode,
         cmsField: pageRoute === "/studio" && element.matches("img") && (element.alt === "The Studio Space" || doc.querySelector("main img") === element) ? "studio.leadImage" : "",
+        relatedImage: relatedImageElement && !element.matches("img,video,source") ? { selector: makeSelector(relatedImageElement), src: relatedImageElement.currentSrc || relatedImageElement.src, alt: relatedImageElement.alt || "" } : null,
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",
         fontSize: Math.round(parseFloat(computed.fontSize) || 32),
         zoom: Number(computed.getPropertyValue("--cms-image-zoom-" + mode)) || Number(computed.scale) || 1,

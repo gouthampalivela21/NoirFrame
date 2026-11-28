@@ -2021,7 +2021,7 @@
   justify-content: center;
   overflow: hidden;
   padding: clamp(54px, 8vh, 110px) 24px 64px;
-  background: #14285f;
+  background: #111;
   color: #fff;
   isolation: isolate;
 }
@@ -2036,12 +2036,10 @@
 .editorial-page--fashion .editorial-experience-image {
   object-fit: cover;
   object-position: center 42%;
-  filter: saturate(.8);
+  filter: none;
 }
 .editorial-page--fashion .editorial-experience-overlay {
-  background:
-    linear-gradient(180deg, rgba(9, 20, 57, .78) 0%, rgba(13, 39, 98, .55) 42%, rgba(0, 103, 202, .48) 100%),
-    linear-gradient(120deg, rgba(11, 25, 70, .42), rgba(31, 96, 183, .28));
+  background: linear-gradient(180deg, rgba(0, 0, 0, .18) 0%, rgba(0, 0, 0, .08) 42%, rgba(0, 0, 0, .28) 100%);
 }
 .editorial-page--fashion .editorial-experience-copy {
   width: min(1160px, 100%);

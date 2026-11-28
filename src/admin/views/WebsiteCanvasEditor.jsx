@@ -114,6 +114,7 @@ function Inspector({ selection, value, onChange, onClose }) {
       <div className="canvas-inspector-heading"><div><div className="canvas-eyebrow">SELECTED ELEMENT</div><h2>{isImage ? "Image" : selection.tag === "button" || selection.tag === "a" ? "Link / button" : "Text & style"}</h2></div><button className="canvas-icon-button" type="button" title="Clear selection" onClick={onClose}>×</button></div>
       <div className="canvas-element-chip">{isImage ? <ImageIcon size={14} /> : <Type size={14} />}<span>{selection.tag.toUpperCase()}</span><code>{selection.selector.split(">").slice(-2).join(" › ")}</code></div>
       {isImage ? <div className="canvas-inspector-section"><div className="canvas-image-device-scope"><strong>{selection.viewport === "mobile" ? "Mobile image settings" : "Desktop image settings"}</strong><span>Image, crop, ratio and zoom are saved separately for each device.</span></div><label className="canvas-field-label">Image ratio<select className="studio-input" value={imageRatio} onChange={(event) => update({ ratio: event.target.value, frameSelector: selection.frameSelector || selection.selector })}><option value="">Original layout</option><option value="1 / 1">Square · 1:1</option><option value="4 / 3">Landscape · 4:3</option><option value="3 / 2">Classic · 3:2</option><option value="16 / 9">Widescreen · 16:9</option><option value="3 / 4">Portrait · 3:4</option><option value="2 / 3">Portrait · 2:3</option><option value="9 / 16">Tall · 9:16</option></select></label><ImageUploadControl label="Replace image" value={value?.src || selection.src} onChange={(src) => update({ src })} aspectRatio={imageRatio || selection.aspectRatio || "16/9"} helperText="Upload a replacement or paste an image URL." objectPosition={cropPosition} cropZoom={imageZoom} showZoomControl={false} onCropChange={({ objectPosition }) => update({ styles: { ...(value?.styles || {}), objectPosition, objectFit: "cover" } })} /><label className="canvas-field-label">Image URL<input className="studio-input" value={value?.src || selection.src || ""} onChange={(event) => update({ src: event.target.value })} placeholder="Paste image URL" /></label><label className="canvas-field-label">Alternative text<input className="studio-input" value={value?.alt ?? selection.alt ?? ""} onChange={(event) => update({ alt: event.target.value })} /></label></div> : <div className="canvas-inspector-section"><label className="canvas-field-label">Text<textarea className="studio-textarea" rows={5} value={value?.text ?? selection.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Edit the selected text" /></label>{selection.href && <label className="canvas-field-label">Link destination<input className="studio-input" value={value?.href ?? selection.href} onChange={(event) => update({ href: event.target.value })} /></label>}<p className="canvas-help">Text is changed in place; the rest of the page remains intact.</p></div>}
+      {selection.relatedImage && !isImage && <div className="canvas-inspector-section"><div className="canvas-section-title">Section image</div><ImageUploadControl label="Replace section image" value={selection.relatedImage.src || ""} onChange={(src) => update({ relatedImage: { ...selection.relatedImage, src } })} aspectRatio="16/9" helperText="This image sits behind the selected text. Upload a replacement or paste an image URL." /></div>}
       <div className="canvas-inspector-section">
         <div className="canvas-section-title">Appearance</div>
         {!isImage && <label className="canvas-field-label">Text color<div className="canvas-color-row"><input type="color" value={currentStyles.color || "#ffffff"} onChange={(event) => style("color", event.target.value)} /><input className="studio-input" value={currentStyles.color || ""} placeholder="Original color" onChange={(event) => style("color", event.target.value)} /></div></label>}
@@ -228,16 +229,24 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
       window.setTimeout(() => iframeRef.current?.contentWindow?.location.reload(), 80);
       return;
     }
-    applyEditToFrame(iframeRef.current, next);
-    updateCMSPath([...editPath, key], next);
+    const { relatedImage, ...elementEdit } = next;
+    if (relatedImage?.selector && typeof relatedImage.src === "string") {
+      const imageEditKey = editKey(mode, selection.route, relatedImage.selector);
+      const imageEdit = { selector: relatedImage.selector, src: relatedImage.src, route: selection.route, viewport: mode };
+      applyEditToFrame(iframeRef.current, imageEdit);
+      updateCMSPath([...editPath, imageEditKey], imageEdit);
+      iframeRef.current?.contentWindow?.postMessage({ type: "cms-canvas-live-edit", edit: imageEdit }, window.location.origin);
+    }
+    applyEditToFrame(iframeRef.current, elementEdit);
+    updateCMSPath([...editPath, key], elementEdit);
     // The Studio lead photograph is also a first-class page field. Persisting
     // it there makes replacement survive a full page render and immediately
     // updates the actual live page, instead of relying only on a canvas DOM
     // override that could be lost during React reconciliation.
-    if (selection?.cmsField === "studio.leadImage" && typeof next.src === "string") {
-      updateCMSPath(isMobile ? ["mobileContent", "studio", "leadImage"] : ["studio", "leadImage"], next.src);
+    if (selection?.cmsField === "studio.leadImage" && typeof elementEdit.src === "string") {
+      updateCMSPath(isMobile ? ["mobileContent", "studio", "leadImage"] : ["studio", "leadImage"], elementEdit.src);
     }
-    iframeRef.current?.contentWindow?.postMessage({ type: "cms-canvas-live-edit", edit: next }, window.location.origin);
+    iframeRef.current?.contentWindow?.postMessage({ type: "cms-canvas-live-edit", edit: elementEdit }, window.location.origin);
   };
   const choosePage = (id) => { setSelection(null); navigate("/gouthamspace/cms/" + mode + "/canvas/" + encodeURIComponent(id)); };
   const openDevice = (nextMode) => navigate("/gouthamspace/cms/" + nextMode + "/canvas/" + encodeURIComponent(page.id));
