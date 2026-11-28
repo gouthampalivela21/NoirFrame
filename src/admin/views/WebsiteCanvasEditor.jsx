@@ -141,7 +141,7 @@ function Inspector({ selection, value, onChange, onResetTextStyle, onClose }) {
 
 export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero", onExit }) {
   const navigate = useNavigate();
-  const { cmsData, updateCMSPath, saveCMSChanges, hasUnpublishedCMSChanges, undoCMSChange, redoCMSChange, canUndoCMS, canRedoCMS } = useStudioAdmin();
+  const { cmsData, updateCMSPath, updateCMSCategories, saveCMSChanges, hasUnpublishedCMSChanges, undoCMSChange, redoCMSChange, canUndoCMS, canRedoCMS } = useStudioAdmin();
   const page = getPage(pageId);
   const iframeRef = useRef(null);
   const canvasRef = useRef(null);
@@ -154,6 +154,9 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
   const [zoom, setZoom] = useState(1);
   const [availableWidth, setAvailableWidth] = useState(1440);
   const isMobile = mode === "mobile";
+  const categorySlug = page.category ? page.id.replace("categoryPage:", "") : "";
+  const category = categorySlug ? (cmsData.categories || []).find((item) => item.id === categorySlug) : null;
+  const categoryIsPublished = category?.published !== false;
   const previewUrl = page.route + (page.route.includes("?") ? "&" : "?") + "cmsPreview=1&cmsCanvas=1&cmsViewport=" + mode;
 
   // Save each device's draft to its own Supabase row after a brief pause.
@@ -219,6 +222,26 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
     try { await saveCMSChanges(cmsData, mode); }
     finally { publishingRef.current = false; setIsPublishing(false); }
   };
+  const toggleCategoryPublished = async () => {
+    if (!category || isPublishing || publishingRef.current) return;
+    if (autoSaveTimerRef.current) window.clearTimeout(autoSaveTimerRef.current);
+    const categories = (cmsData.categories || []).map((item) => item.id === categorySlug
+      ? { ...item, published: !categoryIsPublished }
+      : item);
+    const nextCMS = { ...cmsData, categories };
+    autoSaveSnapshotRef.current = "";
+    publishingRef.current = true;
+    setIsPublishing(true);
+    updateCMSCategories(categories);
+    try {
+      // Category availability is shared across desktop and mobile, so save it
+      // to the shared CMS record rather than either viewport-specific draft.
+      await saveCMSChanges(nextCMS);
+    } finally {
+      publishingRef.current = false;
+      setIsPublishing(false);
+    }
+  };
   const updateSelected = (next) => {
     if (!key) return;
     const editPath = isMobile ? ["mobileContent", "canvasEdits"] : ["canvasEdits"];
@@ -276,7 +299,7 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
     </header>
     <div className="website-canvas-workspace">
       <aside className="canvas-pages"><div className="canvas-eyebrow">PAGES</div><div className="canvas-page-list">{PAGES.map((item) => <button type="button" key={item.id} className={"canvas-page-item " + (item.id === page.id ? "active " : "") + (item.category ? "category-page" : "")} onClick={() => choosePage(item.id)}><span>{item.category ? <ImageIcon size={14} /> : <ArrowUpRight size={14} />}{item.label}</span>{item.id === page.id && <ChevronRight size={14} />}</button>)}</div><div className="canvas-device-switch"><div className="canvas-eyebrow">PREVIEW DEVICE</div><div className="canvas-device-buttons"><button type="button" className={!isMobile ? "active" : ""} onClick={() => openDevice("desktop")}><Monitor size={14} /> Desktop</button><button type="button" className={isMobile ? "active" : ""} onClick={() => openDevice("mobile")}><Smartphone size={14} /> Mobile</button></div></div><div className="canvas-pages-tip"><Eye size={14} /><span>Select an element, then drag text to reposition it or drag images to crop. Use the inspector for precise changes.</span></div></aside>
-      <main className="canvas-stage-column"><div className="canvas-stage-toolbar"><div><div className="canvas-eyebrow">LIVE PAGE CANVAS</div><strong>{page.label}</strong></div><div className="canvas-stage-tools"><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => setShowPreview((current) => !current)}>{showPreview ? <EyeOff size={14} /> : <Eye size={14} />}{showPreview ? "Hide canvas" : "Show canvas"}</button><span>{isMobile ? "390 px" : "1440 px"}</span></div></div><div className={"canvas-stage " + (isMobile ? "mobile" : "")} ref={canvasRef}>{showPreview ? <div className="canvas-iframe-wrap" style={{ width, height }}><iframe ref={iframeRef} key={mode + page.route} className="canvas-site-frame" title={page.label + " website canvas preview"} src={previewUrl} style={{ width: isMobile ? 390 : 1440, height: isMobile ? 844 : 900, transform: "scale(" + scale + ")", transformOrigin: "top left" }} /></div> : <div className="canvas-hidden-preview"><EyeOff size={20} /><span>Canvas preview hidden</span></div>}</div><footer className="canvas-stage-footer"><span>{selection ? "Selected " + (selection.kind === "image" ? "image · drag to crop" : "text · drag to reposition") : "Nothing selected"}</span><div><button type="button" onClick={() => setZoom((current) => Math.max(.4, current - .1))}>−</button><span>{Math.round(scale * 100)}%</span><button type="button" onClick={() => setZoom((current) => Math.min(1, current + .1))}>+</button></div></footer></main>
+      <main className="canvas-stage-column"><div className="canvas-stage-toolbar"><div><div className="canvas-eyebrow">LIVE PAGE CANVAS</div><strong>{page.label}</strong></div><div className="canvas-stage-tools"><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => setShowPreview((current) => !current)}>{showPreview ? <EyeOff size={14} /> : <Eye size={14} />}{showPreview ? "Hide canvas" : "Show canvas"}</button>{page.category && category && <button type="button" className={categoryIsPublished ? "studio-btn-secondary studio-btn-sm" : "studio-btn-primary studio-btn-sm"} onClick={toggleCategoryPublished} disabled={isPublishing} aria-label={(categoryIsPublished ? "Unpublish " : "Publish ") + page.label + " category"}>{isPublishing ? "Saving…" : categoryIsPublished ? "Unpublish" : "Publish"}</button>}<span>{isMobile ? "390 px" : "1440 px"}</span></div></div><div className={"canvas-stage " + (isMobile ? "mobile" : "")} ref={canvasRef}>{showPreview ? <div className="canvas-iframe-wrap" style={{ width, height }}><iframe ref={iframeRef} key={mode + page.route} className="canvas-site-frame" title={page.label + " website canvas preview"} src={previewUrl} style={{ width: isMobile ? 390 : 1440, height: isMobile ? 844 : 900, transform: "scale(" + scale + ")", transformOrigin: "top left" }} /></div> : <div className="canvas-hidden-preview"><EyeOff size={20} /><span>Canvas preview hidden</span></div>}</div><footer className="canvas-stage-footer"><span>{selection ? "Selected " + (selection.kind === "image" ? "image · drag to crop" : "text · drag to reposition") : "Nothing selected"}</span><div><button type="button" onClick={() => setZoom((current) => Math.max(.4, current - .1))}>−</button><span>{Math.round(scale * 100)}%</span><button type="button" onClick={() => setZoom((current) => Math.min(1, current + .1))}>+</button></div></footer></main>
       <Inspector selection={selection} value={selectedValue} onChange={updateSelected} onResetTextStyle={resetSelectedTextStyle} onClose={() => setSelection(null)} />
     </div>
   </div>;
