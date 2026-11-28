@@ -986,6 +986,9 @@
 .canvas-element-chip code { overflow: hidden; margin-left: auto; color: #96918a; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .canvas-inspector-section { display: grid; gap: 13px; padding: 17px 0; border-bottom: 1px solid #ece9e4; }
 .canvas-inspector-section .studio-form-group { margin: 0; gap: 7px; }
+.canvas-image-device-scope { display: grid; gap: 4px; padding: 10px 11px; border: 1px solid #e9e6e0; border-radius: 9px; background: #faf9f7; }
+.canvas-image-device-scope strong { color: #302e2a; font-size: 11px; font-weight: 650; }
+.canvas-image-device-scope span { color: #817c74; font-size: 10px; line-height: 1.45; }
 .canvas-field-label { display: grid; gap: 7px; color: #6f6b64; font-size: 11px; }
 .canvas-field-label .studio-input, .canvas-field-label .studio-textarea { color: #282724; font-size: 12px; }
 .canvas-section-title { color: #36342f; font-size: 12px; font-weight: 700; }

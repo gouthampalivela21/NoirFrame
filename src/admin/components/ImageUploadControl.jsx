@@ -12,6 +12,7 @@ export default function ImageUploadControl({
   objectPosition = "50% 50%",
   cropZoom = 1,
   onCropChange,
+  showZoomControl = true,
 }) {
   const imageUrl = typeof value === "string" ? value : (typeof value?.src === "string" ? value.src : typeof value?.url === "string" ? value.url : typeof value?.src?.src === "string" ? value.src.src : "");
   const [isUploading, setIsUploading] = useState(false);
@@ -301,7 +302,7 @@ export default function ImageUploadControl({
           )}
 
           {onCropChange && imageUrl && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", padding: "10px 12px", border: "1px solid var(--studio-border-crisp)", borderRadius: "8px", background: "#fff" }}>
+            <div style={{ display: "grid", gridTemplateColumns: showZoomControl ? "repeat(3, minmax(0, 1fr))" : "repeat(2, minmax(0, 1fr))", gap: "10px", padding: "10px 12px", border: "1px solid var(--studio-border-crisp)", borderRadius: "8px", background: "#fff" }}>
               <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
                 Crop left / right <span style={{ color: "var(--studio-text-primary)" }}>{Math.round(cropX)}%</span>
                 <input type="range" min="0" max="100" value={cropX} onChange={(e) => updateCrop({ x: Number(e.target.value) })} aria-label={`${label} crop horizontal position`} />
@@ -310,10 +311,10 @@ export default function ImageUploadControl({
                 Crop top / bottom <span style={{ color: "var(--studio-text-primary)" }}>{Math.round(cropY)}%</span>
                 <input type="range" min="0" max="100" value={cropY} onChange={(e) => updateCrop({ y: Number(e.target.value) })} aria-label={`${label} crop vertical position`} />
               </label>
-              <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
+              {showZoomControl && <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
                 Zoom <span style={{ color: "var(--studio-text-primary)" }}>{Number(cropZoom || 1).toFixed(1)}×</span>
                 <input type="range" min="1" max="2.5" step="0.05" value={cropZoom || 1} onChange={(e) => updateCrop({ zoom: Number(e.target.value) })} aria-label={`${label} crop zoom`} />
-              </label>
+              </label>}
             </div>
           )}
 

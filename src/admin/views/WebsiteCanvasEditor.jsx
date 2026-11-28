@@ -23,6 +23,19 @@ const normalizeRoute = (route) => route.replace(/\/$/, "") || "/";
 const editKey = (mode, route, selector) => mode + "|" + normalizeRoute(route) + "|" + selector;
 const getPage = (id) => PAGES.find((item) => item.id === id) || PAGES[0];
 
+function applyImageZoom(element, zoom, view = window) {
+  const amount = Number(zoom);
+  if (!Number.isFinite(amount)) return;
+  if (element.matches("img,video")) {
+    if (amount === 1) element.style.removeProperty("scale");
+    else element.style.scale = String(amount);
+    return;
+  }
+  if (view.getComputedStyle(element).backgroundImage !== "none") {
+    element.style.backgroundSize = amount === 1 ? "cover" : `${amount * 100}%`;
+  }
+}
+
 // Apply edits directly to the same-origin preview document. The CMS data is
 // still the source of truth; this immediate DOM write keeps the canvas in sync
 // while the editor state and autosave catch up.
@@ -54,7 +67,6 @@ function applyEditToFrame(frame, edit) {
   if (edit.href && edit.linkSelector) {
     try { doc.querySelector(edit.linkSelector)?.setAttribute("href", edit.href); } catch {}
   }
-  if (Number(edit.zoom) > 1 && element.matches("img")) element.style.scale = String(edit.zoom);
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const isMedia = element.matches("img,video,source");
     const styleKey = key === "objectPosition" && !isMedia ? "backgroundPosition" : key === "objectFit" && !isMedia ? "backgroundSize" : key;
@@ -62,6 +74,7 @@ function applyEditToFrame(frame, edit) {
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = value;
   });
+  if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom, doc.defaultView);
 }
 
 function Inspector({ selection, value, onChange, onClose }) {
@@ -70,13 +83,14 @@ function Inspector({ selection, value, onChange, onClose }) {
   const isVector = ["svg", "path", "circle", "rect", "line", "polygon", "polyline"].includes(selection.tag);
   const currentStyles = { ...selection.styles, ...(value?.styles || {}) };
   const cropPosition = String(currentStyles.objectPosition || "50% 50%");
+  const imageZoom = Math.max(1, Math.min(3, Number(value?.zoom) || 1));
   const update = (patch) => onChange({ ...value, ...patch, selector: selection.selector, route: selection.route, viewport: selection.viewport, linkSelector: selection.linkSelector, textNodeIndex: selection.textNodeIndex });
   const style = (key, next) => update({ styles: { ...(value?.styles || {}), [key]: next } });
   return (
     <aside className="canvas-inspector">
       <div className="canvas-inspector-heading"><div><div className="canvas-eyebrow">SELECTED ELEMENT</div><h2>{isImage ? "Image" : selection.tag === "button" || selection.tag === "a" ? "Link / button" : "Text & style"}</h2></div><button className="canvas-icon-button" type="button" title="Clear selection" onClick={onClose}>×</button></div>
       <div className="canvas-element-chip">{isImage ? <ImageIcon size={14} /> : <Type size={14} />}<span>{selection.tag.toUpperCase()}</span><code>{selection.selector.split(">").slice(-2).join(" › ")}</code></div>
-      {isImage ? <div className="canvas-inspector-section"><ImageUploadControl label="Replace image" value={value?.src || selection.src} onChange={(src) => update({ src })} aspectRatio={selection.aspectRatio || "16/9"} helperText="Upload a replacement or paste an image URL." objectPosition={cropPosition} cropZoom={Number(value?.zoom || 1)} onCropChange={({ objectPosition, cropZoom }) => update({ styles: { ...(value?.styles || {}), objectPosition, objectFit: "cover" }, zoom: cropZoom })} /><label className="canvas-field-label">Image URL<input className="studio-input" value={value?.src || selection.src || ""} onChange={(event) => update({ src: event.target.value })} placeholder="Paste image URL" /></label><label className="canvas-field-label">Alternative text<input className="studio-input" value={value?.alt ?? selection.alt ?? ""} onChange={(event) => update({ alt: event.target.value })} /></label></div> : <div className="canvas-inspector-section"><label className="canvas-field-label">Text<textarea className="studio-textarea" rows={5} value={value?.text ?? selection.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Edit the selected text" /></label>{selection.href && <label className="canvas-field-label">Link destination<input className="studio-input" value={value?.href ?? selection.href} onChange={(event) => update({ href: event.target.value })} /></label>}<p className="canvas-help">Text is changed in place; the rest of the page remains intact.</p></div>}
+      {isImage ? <div className="canvas-inspector-section"><div className="canvas-image-device-scope"><strong>{selection.viewport === "mobile" ? "Mobile image settings" : "Desktop image settings"}</strong><span>Image, crop and zoom are saved separately for each device.</span></div><ImageUploadControl label="Replace image" value={value?.src || selection.src} onChange={(src) => update({ src })} aspectRatio={selection.aspectRatio || "16/9"} helperText="Upload a replacement or paste an image URL." objectPosition={cropPosition} cropZoom={imageZoom} showZoomControl={false} onCropChange={({ objectPosition }) => update({ styles: { ...(value?.styles || {}), objectPosition, objectFit: "cover" } })} /><label className="canvas-field-label">Image URL<input className="studio-input" value={value?.src || selection.src || ""} onChange={(event) => update({ src: event.target.value })} placeholder="Paste image URL" /></label><label className="canvas-field-label">Alternative text<input className="studio-input" value={value?.alt ?? selection.alt ?? ""} onChange={(event) => update({ alt: event.target.value })} /></label></div> : <div className="canvas-inspector-section"><label className="canvas-field-label">Text<textarea className="studio-textarea" rows={5} value={value?.text ?? selection.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Edit the selected text" /></label>{selection.href && <label className="canvas-field-label">Link destination<input className="studio-input" value={value?.href ?? selection.href} onChange={(event) => update({ href: event.target.value })} /></label>}<p className="canvas-help">Text is changed in place; the rest of the page remains intact.</p></div>}
       <div className="canvas-inspector-section">
         <div className="canvas-section-title">Appearance</div>
         {!isImage && <label className="canvas-field-label">Text color<div className="canvas-color-row"><input type="color" value={currentStyles.color || "#ffffff"} onChange={(event) => style("color", event.target.value)} /><input className="studio-input" value={currentStyles.color || ""} placeholder="Original color" onChange={(event) => style("color", event.target.value)} /></div></label>}
@@ -93,6 +107,7 @@ function Inspector({ selection, value, onChange, onClose }) {
           <label className="canvas-field-label">Move text vertically<div className="canvas-range-row"><input type="range" min="-240" max="240" value={parseInt(currentStyles.translate?.split(" ")[1], 10) || 0} onChange={(event) => style("translate", (parseInt(currentStyles.translate?.split(" ")[0], 10) || 0) + "px " + event.target.value + "px")} /><span>{parseInt(currentStyles.translate?.split(" ")[1], 10) || 0}px</span></div></label>
         </>}
         {isImage && <label className="canvas-field-label">Crop position<div className="canvas-range-row"><input type="range" min="0" max="100" value={parseInt(cropPosition, 10) || 50} onChange={(event) => style("objectPosition", event.target.value + "% 50%")} /><span>{parseInt(cropPosition, 10) || 50}%</span></div></label>}
+        {isImage && <label className="canvas-field-label">Image zoom<div className="canvas-range-row"><input type="range" min="1" max="3" step="0.05" value={imageZoom} onChange={(event) => update({ zoom: Number(event.target.value) })} aria-label={(selection.viewport === "mobile" ? "Mobile" : "Desktop") + " image zoom"} /><span>{imageZoom.toFixed(2)}×</span></div></label>}
       </div>
       <div className="canvas-inspector-footer"><span><Check size={13} /> Changes preview instantly</span><button type="button" className="studio-btn-secondary studio-btn-sm" onClick={() => onChange(null)}><RotateCcw size={13} /> Reset element</button></div>
     </aside>

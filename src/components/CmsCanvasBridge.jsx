@@ -9,6 +9,19 @@ function colorHex(value, fallback = "#ffffff") {
   return channels ? "#" + channels.slice(1, 4).map((part) => Number(part).toString(16).padStart(2, "0")).join("") : fallback;
 }
 
+function applyImageZoom(element, zoom) {
+  const amount = Number(zoom);
+  if (!Number.isFinite(amount)) return;
+  if (element.matches("img,video")) {
+    if (amount === 1) element.style.removeProperty("scale");
+    else element.style.scale = String(amount);
+    return;
+  }
+  if (getComputedStyle(element).backgroundImage !== "none") {
+    element.style.backgroundSize = amount === 1 ? "cover" : `${amount * 100}%`;
+  }
+}
+
 function makeSelector(element) {
   const parts = [];
   let current = element;
@@ -54,13 +67,13 @@ function applyEdit(edit) {
   if (edit.href && edit.linkSelector) {
     try { const link = document.querySelector(edit.linkSelector); if (link) link.setAttribute("href", edit.href); } catch {}
   }
-  if (Number(edit.zoom) > 1 && element.matches("img")) element.style.scale = String(edit.zoom);
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const styleKey = key === "objectPosition" && !element.matches("img,video,source") ? "backgroundPosition" : key === "objectFit" && !element.matches("img,video,source") ? "backgroundSize" : key;
     if (key === "translate" && value && getComputedStyle(element).display === "inline") element.style.display = "inline-block";
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = key === "objectFit" && !element.matches("img,video,source") && value === "cover" ? "cover" : value;
   });
+  if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom);
 }
 
 export default function CmsCanvasBridge() {
