@@ -2192,7 +2192,7 @@
   letter-spacing: -.065em;
 }
 @media (max-width: 680px) {
-  .editorial-page--fashion .editorial-long-image-section { min-height: 200svh; padding: 92px 20px 42px; }
+  .editorial-page--fashion .editorial-long-image-section { min-height: 100svh; padding: 92px 20px 42px; }
   .editorial-page--fashion .editorial-long-image-copy p { margin-bottom: 24px; }
   .editorial-page--fashion .editorial-long-image-copy h2 { font-size: clamp(3rem, 12vw, 5rem); }
 }
