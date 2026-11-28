@@ -3097,73 +3097,21 @@
   .editorial-page .cms-section-layout :is(h1, h2, h3, p, figcaption) { text-align: var(--cms-mobile-text-align, var(--cms-desktop-text-align, inherit)) !important; }
 }
 
-/* A calmer, more compact scale for all category pages. */
-.editorial-page--fashion .editorial-container { max-width: 1280px; }
-.editorial-page--fashion .editorial-opening-spread {
-  height: min(84svh, 780px);
-  min-height: 560px;
-}
-.editorial-page--fashion .editorial-opening-copy .editorial-headline {
-  max-width: 900px;
-  font-size: clamp(3rem, 5.4vw, 5.25rem);
-  line-height: 1;
-  letter-spacing: -.055em;
-}
-.editorial-page--fashion .editorial-opening-label { font-size: clamp(15px, 1.35vw, 18px); }
-.editorial-page--fashion .editorial-opening-copy .editorial-deck { max-width: 480px; font-size: clamp(15px, 1.25vw, 18px); }
-.editorial-page--fashion .editorial-closer-heading h2,
-.editorial-page--fashion .editorial-collection-heading h2,
-.editorial-page--fashion .editorial-approach-intro h2,
-.editorial-page--fashion .editorial-why-heading h2,
-.editorial-page--fashion .editorial-values-heading h2 {
-  font-size: clamp(2.35rem, 3.7vw, 3.6rem);
-  line-height: 1.06;
-}
-.editorial-page--fashion .editorial-photo-collection { padding-inline: clamp(24px, 7vw, 96px); gap: 22px; }
+/* Reduce category image card dimensions while preserving page and hero scale. */
 .editorial-page--fashion .editorial-collection-photo,
 .editorial-page--fashion .editorial-collection-photo--1,
 .editorial-page--fashion .editorial-collection-photo--2,
 .editorial-page--fashion .editorial-collection-photo--3,
-.editorial-page--fashion .editorial-collection-photo--4 { flex-basis: min(72vw, 980px); }
-.editorial-page--fashion .editorial-collection-image { height: min(68svh, 680px); min-height: 400px; border-radius: 24px; }
-.editorial-page--fashion .editorial-experience-copy p,
-.editorial-page--fashion .editorial-long-image-copy p { font-size: clamp(16px, 1.5vw, 22px); }
-.editorial-page--fashion .editorial-experience-copy h2,
-.editorial-page--fashion .editorial-long-image-copy h2 {
-  max-width: 900px;
-  font-size: clamp(3rem, 5.4vw, 5.25rem);
-  line-height: 1.02;
-  letter-spacing: -.055em;
-}
-.editorial-page--fashion .editorial-feature-cards-section,
-.editorial-page--fashion .editorial-values-section { padding-block: 64px 76px; }
-.editorial-page--fashion .editorial-feature-card { flex-basis: min(24vw, 340px); min-width: 280px; }
-.editorial-page--fashion .editorial-feature-card-image { height: clamp(320px, 34vw, 460px); }
-.editorial-page--fashion .editorial-why-grid .editorial-why-card,
-.editorial-page--fashion .editorial-value-card { min-height: 230px; }
+.editorial-page--fashion .editorial-collection-photo--4 { flex-basis: min(64vw, 900px); }
+.editorial-page--fashion .editorial-collection-image { height: min(60svh, 660px); min-height: 420px; }
+.editorial-page--fashion .editorial-feature-card { flex-basis: min(30vw, 440px); }
 
 @media (max-width: 680px) {
-  .editorial-page--fashion .editorial-opening-spread { height: 84svh; min-height: 600px; }
-  .editorial-page--fashion .editorial-opening-copy .editorial-headline,
-  .editorial-page--fashion .editorial-experience-copy h2,
-  .editorial-page--fashion .editorial-long-image-copy h2 { font-size: clamp(2.5rem, 10vw, 3.5rem); }
-  .editorial-page--fashion .editorial-opening-label { font-size: 16px; }
-  .editorial-page--fashion .editorial-closer-heading h2,
-  .editorial-page--fashion .editorial-collection-heading h2,
-  .editorial-page--fashion .editorial-approach-intro h2,
-  .editorial-page--fashion .editorial-why-heading h2,
-  .editorial-page--fashion .editorial-values-heading h2 { font-size: clamp(2rem, 8vw, 2.8rem); }
-  .editorial-page--fashion .editorial-photo-collection { padding-inline: 18px; gap: 14px; }
   .editorial-page--fashion .editorial-collection-photo,
   .editorial-page--fashion .editorial-collection-photo--1,
   .editorial-page--fashion .editorial-collection-photo--2,
   .editorial-page--fashion .editorial-collection-photo--3,
-  .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 84vw; }
-  .editorial-page--fashion .editorial-collection-image { height: 58svh; min-height: 340px; border-radius: 20px; }
-  .editorial-page--fashion .editorial-feature-card { flex-basis: 78vw; min-width: 0; }
-  .editorial-page--fashion .editorial-feature-card-image { height: 48svh; min-height: 300px; }
-  .editorial-page--fashion .editorial-feature-cards-section,
-  .editorial-page--fashion .editorial-values-section { padding-block: 48px 56px; }
-  .editorial-page--fashion .editorial-why-grid .editorial-why-card,
-  .editorial-page--fashion .editorial-value-card { min-height: 0; }
+  .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 76vw; }
+  .editorial-page--fashion .editorial-collection-image { height: 54svh; min-height: 360px; }
+  .editorial-page--fashion .editorial-feature-card { flex-basis: 72vw; }
 }
