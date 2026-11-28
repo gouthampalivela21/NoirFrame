@@ -3,6 +3,30 @@ import { useLocation } from "react-router-dom";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
 
 function normalizeRoute(route) { return route.replace(/\/$/, "") || "/"; }
+function normalizeSelector(selector) {
+  return typeof selector === "string" ? selector.replace(/^html\s*>\s*/i, "") : "";
+}
+function findCanvasElement(doc, selector) {
+  const normalized = normalizeSelector(selector);
+  for (const candidate of [selector, normalized]) {
+    if (!candidate) continue;
+    try {
+      const element = doc.querySelector(candidate);
+      if (element) return element;
+    } catch {}
+  }
+  return null;
+}
+function normalizeCanvasEdits(edits) {
+  return Object.entries(edits || {}).reduce((result, [key, edit]) => {
+    if (!edit || typeof edit !== "object") return result;
+    const selector = normalizeSelector(edit.selector);
+    const prefix = edit.viewport && edit.route ? `${edit.viewport}|${normalizeRoute(edit.route)}|` : "";
+    const nextKey = prefix && key.startsWith(prefix) ? `${prefix}${selector}` : key.replace(/^((?:desktop|mobile)\|[^|]+\|)html\s*>\s*/i, "$1");
+    result[nextKey] = { ...(result[nextKey] || {}), ...edit, ...(selector ? { selector } : {}) };
+    return result;
+  }, {});
+}
 function colorHex(value, fallback = "#ffffff") {
   if (typeof value === "string" && /^#[\da-f]{3,8}$/i.test(value)) return value;
   const channels = String(value || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
@@ -39,7 +63,8 @@ function makeSelector(element) {
     parts.unshift(tag + stableClasses + ":nth-of-type(" + index + ")");
     current = current.parentElement;
   }
-  return "html > " + parts.join(" > ");
+  // #root is below body, so prefixing its path with `html >` never matches.
+  return parts.join(" > ");
 }
 
 function getCropViewport(element) {
@@ -57,8 +82,7 @@ function getCropViewport(element) {
 
 function applyEdit(edit) {
   if (!edit?.selector) return;
-  let element;
-  try { element = document.querySelector(edit.selector); } catch { return; }
+  const element = findCanvasElement(document, edit.selector);
   if (!element) return;
   if (typeof edit.text === "string") {
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
@@ -78,7 +102,8 @@ function applyEdit(edit) {
   }
   if (edit.alt !== undefined && element.matches("img")) element.alt = edit.alt;
   if (edit.href && edit.linkSelector) {
-    try { const link = document.querySelector(edit.linkSelector); if (link) link.setAttribute("href", edit.href); } catch {}
+    const link = findCanvasElement(document, edit.linkSelector);
+    if (link) link.setAttribute("href", edit.href);
   }
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const styleKey = key === "objectPosition" && !element.matches("img,video,source") ? "backgroundPosition" : key === "objectFit" && !element.matches("img,video,source") ? "backgroundSize" : key;
@@ -95,11 +120,12 @@ export default function CmsCanvasBridge() {
   const previewMode = new URLSearchParams(window.location.search).get("cmsPreview") === "1";
   const canvasMode = previewMode && new URLSearchParams(window.location.search).get("cmsCanvas") === "1";
   const mode = new URLSearchParams(window.location.search).get("cmsViewport") || (window.matchMedia("(max-width: 680px)").matches ? "mobile" : "desktop");
+  const canvasEdits = normalizeCanvasEdits(cms.canvasEdits);
 
   useEffect(() => {
     const pageRoute = normalizeRoute(location.pathname);
     const applyPageEdits = () => {
-      const edits = Object.entries(cms.canvasEdits || {}).filter(([key, edit]) => key.startsWith(mode + "|" + pageRoute + "|") && edit.viewport === mode);
+      const edits = Object.entries(canvasEdits).filter(([key, edit]) => key.startsWith(mode + "|" + pageRoute + "|") && edit.viewport === mode);
       edits.forEach(([, edit]) => applyEdit(edit));
     };
     applyPageEdits();
@@ -110,7 +136,7 @@ export default function CmsCanvasBridge() {
     });
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
     return () => { observer.disconnect(); window.clearTimeout(timer); };
-  }, [cms.canvasEdits, location.pathname, mode]);
+  }, [canvasEdits, location.pathname, mode]);
 
   useEffect(() => {
     if (!canvasMode) return undefined;
