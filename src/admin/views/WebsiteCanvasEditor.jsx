@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight, Check, ChevronRight, Eye, EyeOff, Image as ImageIcon, Monitor, RotateCcw, Smartphone, Type } from "lucide-react";
 import { useStudioAdmin } from "../context/StudioAdminContext.jsx";
 import ImageUploadControl from "../components/ImageUploadControl.jsx";
+import { applyCmsImageObjectPosition, applyCmsImageSource, applyCmsImageZoom } from "../../utils/cmsCanvasImage.js";
 
 const PAGES = [
   { id: "hero", label: "Home", route: "/" },
@@ -22,19 +23,6 @@ const PAGES = [
 const normalizeRoute = (route) => route.replace(/\/$/, "") || "/";
 const editKey = (mode, route, selector) => mode + "|" + normalizeRoute(route) + "|" + selector;
 const getPage = (id) => PAGES.find((item) => item.id === id) || PAGES[0];
-
-function applyImageZoom(element, zoom, view = window) {
-  const amount = Number(zoom);
-  if (!Number.isFinite(amount)) return;
-  if (element.matches("img,video")) {
-    if (amount === 1) element.style.removeProperty("scale");
-    else element.style.scale = String(amount);
-    return;
-  }
-  if (view.getComputedStyle(element).backgroundImage !== "none") {
-    element.style.backgroundSize = amount === 1 ? "cover" : `${amount * 100}%`;
-  }
-}
 
 function applyImageRatio(doc, edit) {
   if (edit.ratio === undefined || !edit.selector) return;
@@ -90,12 +78,7 @@ function applyEditToFrame(frame, edit) {
     else if (edit.text) element.appendChild(doc.createTextNode(edit.text));
   }
   if (edit.src) {
-    if (element.matches("img,source,video")) {
-      element.setAttribute("src", edit.src);
-      element.removeAttribute("srcset");
-    } else {
-      element.style.backgroundImage = `url(${JSON.stringify(edit.src)})`;
-    }
+    applyCmsImageSource(element, edit.src, edit.viewport);
   }
   if (edit.alt !== undefined && element.matches("img")) element.alt = edit.alt;
   if (edit.href && edit.linkSelector) {
@@ -104,11 +87,12 @@ function applyEditToFrame(frame, edit) {
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const isMedia = element.matches("img,video,source");
     const styleKey = key === "objectPosition" && !isMedia ? "backgroundPosition" : key === "objectFit" && !isMedia ? "backgroundSize" : key;
+    if (key === "objectPosition" && applyCmsImageObjectPosition(element, value, edit.viewport)) return;
     if (key === "translate" && value && doc.defaultView.getComputedStyle(element).display === "inline") element.style.display = "inline-block";
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = value;
   });
-  if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom, doc.defaultView);
+  if (edit.zoom !== undefined) applyCmsImageZoom(element, edit.zoom, edit.viewport);
   applyImageRatio(doc, edit);
 }
 
@@ -118,7 +102,7 @@ function Inspector({ selection, value, onChange, onClose }) {
   const isVector = ["svg", "path", "circle", "rect", "line", "polygon", "polyline"].includes(selection.tag);
   const currentStyles = { ...selection.styles, ...(value?.styles || {}) };
   const cropPosition = String(currentStyles.objectPosition || "50% 50%");
-  const imageZoom = Math.max(1, Math.min(3, Number(value?.zoom) || 1));
+  const imageZoom = Math.max(1, Math.min(3, Number(value?.zoom ?? selection.zoom) || 1));
   const imageRatio = value?.ratio || "";
   const update = (patch) => onChange({ ...value, ...patch, selector: selection.selector, frameSelector: selection.frameSelector || selection.selector, route: selection.route, viewport: selection.viewport, linkSelector: selection.linkSelector, textNodeIndex: selection.textNodeIndex });
   const style = (key, next) => update({ styles: { ...(value?.styles || {}), [key]: next } });

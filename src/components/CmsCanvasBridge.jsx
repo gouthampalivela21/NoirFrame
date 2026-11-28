@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useLiveCms } from "../context/LiveCmsContext.jsx";
+import { applyCmsImageObjectPosition, applyCmsImageSource, applyCmsImageZoom } from "../utils/cmsCanvasImage.js";
 
 function normalizeRoute(route) { return route.replace(/\/$/, "") || "/"; }
 function normalizeSelector(selector) {
@@ -31,19 +32,6 @@ function colorHex(value, fallback = "#ffffff") {
   if (typeof value === "string" && /^#[\da-f]{3,8}$/i.test(value)) return value;
   const channels = String(value || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
   return channels ? "#" + channels.slice(1, 4).map((part) => Number(part).toString(16).padStart(2, "0")).join("") : fallback;
-}
-
-function applyImageZoom(element, zoom) {
-  const amount = Number(zoom);
-  if (!Number.isFinite(amount)) return;
-  if (element.matches("img,video")) {
-    if (amount === 1) element.style.removeProperty("scale");
-    else element.style.scale = String(amount);
-    return;
-  }
-  if (getComputedStyle(element).backgroundImage !== "none") {
-    element.style.backgroundSize = amount === 1 ? "cover" : `${amount * 100}%`;
-  }
 }
 
 function applyImageRatio(element, edit) {
@@ -128,12 +116,7 @@ function applyEdit(edit) {
     else if (edit.text) element.appendChild(document.createTextNode(edit.text));
   }
   if (edit.src) {
-    if (element.matches("img,source,video")) {
-      element.setAttribute("src", edit.src);
-      element.removeAttribute("srcset");
-    } else {
-      element.style.backgroundImage = "url(" + JSON.stringify(edit.src) + ")";
-    }
+    applyCmsImageSource(element, edit.src, edit.viewport);
   }
   if (edit.alt !== undefined && element.matches("img")) element.alt = edit.alt;
   if (edit.href && edit.linkSelector) {
@@ -142,11 +125,12 @@ function applyEdit(edit) {
   }
   Object.entries(edit.styles || {}).forEach(([key, value]) => {
     const styleKey = key === "objectPosition" && !element.matches("img,video,source") ? "backgroundPosition" : key === "objectFit" && !element.matches("img,video,source") ? "backgroundSize" : key;
+    if (key === "objectPosition" && applyCmsImageObjectPosition(element, value, edit.viewport)) return;
     if (key === "translate" && value && getComputedStyle(element).display === "inline") element.style.display = "inline-block";
     if (value === "" || value === null || value === undefined) element.style.removeProperty(styleKey.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()));
     else element.style[styleKey] = key === "objectFit" && !element.matches("img,video,source") && value === "cover" ? "cover" : value;
   });
-  if (edit.zoom !== undefined) applyImageZoom(element, edit.zoom);
+  if (edit.zoom !== undefined) applyCmsImageZoom(element, edit.zoom, edit.viewport);
   applyImageRatio(element, edit);
 }
 
@@ -266,6 +250,7 @@ export default function CmsCanvasBridge() {
         cmsField: pageRoute === "/studio" && element.matches("img") && (element.alt === "The Studio Space" || doc.querySelector("main img") === element) ? "studio.leadImage" : "",
         alt: element.alt || "", href: link?.getAttribute("href") || "", linkSelector: link ? makeSelector(link) : "",
         fontSize: Math.round(parseFloat(computed.fontSize) || 32),
+        zoom: Number(computed.getPropertyValue("--cms-image-zoom-" + mode)) || Number(computed.scale) || 1,
         styles: { color: colorHex(computed.color), fill: colorHex(computed.fill, ""), stroke: colorHex(computed.stroke, ""), fontSize: computed.fontSize, fontFamily: computed.fontFamily, fontWeight: computed.fontWeight, textAlign: computed.textAlign, letterSpacing: computed.letterSpacing, lineHeight: computed.lineHeight, backgroundColor: computed.backgroundColor === "rgba(0, 0, 0, 0)" ? "" : colorHex(computed.backgroundColor, ""), opacity: computed.opacity, borderRadius: computed.borderRadius, translate: element.style.translate || "0px 0px", objectPosition: computed.objectPosition || "50% 50%", objectFit: computed.objectFit || "cover" },
         aspectRatio: cropRect.width && cropRect.height ? Math.round(cropRect.width) + "/" + Math.round(cropRect.height) : "16/9",
       };
@@ -297,7 +282,7 @@ export default function CmsCanvasBridge() {
         const y = Math.max(0, Math.min(100, drag.y - (dy / Math.max(1, drag.rect.height)) * 100));
         const next = x + "% " + y + "%";
         if (drag.active.matches("img,video,source")) {
-          drag.active.style.objectPosition = next;
+          applyCmsImageObjectPosition(drag.active, next, mode);
           drag.nextStyle = { objectPosition: next, objectFit: "cover" };
         } else {
           drag.active.style.backgroundPosition = next;
