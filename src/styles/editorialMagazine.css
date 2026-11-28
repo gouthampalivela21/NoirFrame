@@ -3105,6 +3105,8 @@
 .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: min(64vw, 900px); }
 .editorial-page--fashion .editorial-collection-image { height: min(60svh, 660px); min-height: 420px; }
 .editorial-page--fashion .editorial-feature-card { flex-basis: min(30vw, 440px); }
+.editorial-page--fashion .editorial-feature-card-copy h3 { font-size: clamp(16px, 1.2vw, 18px); }
+.editorial-page--fashion .editorial-feature-card-copy p { font-size: clamp(14px, 1.05vw, 16px); }
 
 @media (max-width: 680px) {
   .editorial-page--fashion .editorial-collection-photo,
@@ -3114,4 +3116,6 @@
   .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 76vw; }
   .editorial-page--fashion .editorial-collection-image { height: 54svh; min-height: 360px; }
   .editorial-page--fashion .editorial-feature-card { flex-basis: 72vw; }
+  .editorial-page--fashion .editorial-feature-card-copy h3 { font-size: 16px; }
+  .editorial-page--fashion .editorial-feature-card-copy p { font-size: 14px; }
 }

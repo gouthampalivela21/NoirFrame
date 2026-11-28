@@ -177,9 +177,13 @@ export default function EditorialFeaturePage({ categoryOverride }) {
     const settings = pageContent.displaySettings?.[viewport]?.[section] || {};
     const headingSize = Number(settings.headingSize);
     const bodySize = Number(settings.bodySize);
+    const cardTitleSize = Number(settings.cardTitleSize);
+    const cardBodySize = Number(settings.cardBodySize);
     const rules = [];
     if (Number.isFinite(headingSize) && headingSize > 0) rules.push(`#${id} h1, #${id} h2, #${id} h3 { font-size: ${Math.min(160, Math.max(12, headingSize))}px !important; }`);
     if (Number.isFinite(bodySize) && bodySize > 0) rules.push(`#${id} p, #${id} a, #${id} figcaption { font-size: ${Math.min(48, Math.max(10, bodySize))}px !important; }`);
+    if (Number.isFinite(cardTitleSize) && cardTitleSize > 0) rules.push(`#${id} .editorial-feature-card-copy h3 { font-size: ${Math.min(80, Math.max(10, cardTitleSize))}px !important; }`);
+    if (Number.isFinite(cardBodySize) && cardBodySize > 0) rules.push(`#${id} .editorial-feature-card-copy p { font-size: ${Math.min(40, Math.max(10, cardBodySize))}px !important; }`);
     return rules;
   }).join("\n");
   const responsiveTypographyCss = [

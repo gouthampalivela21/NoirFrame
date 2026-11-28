@@ -1290,6 +1290,13 @@ export default function PortfolioCMSView({ mode = "desktop", onActiveStoryChange
                             </label>
                           ))}
                         </div>
+                        {section === "featureCards" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "8px" }}>
+                          {[ ["cardTitleSize", "Card title px", 10, 80], ["cardBodySize", "Card text px", 10, 40] ].map(([key, title, min, max]) => (
+                            <label key={key} style={{ display: "grid", gap: "4px", fontSize: "10px" }}>{title}
+                              <input className="studio-input" type="number" min={min} max={max} value={settings[key] ?? ""} onChange={(e) => updateDisplaySetting("desktop", section, key, e.target.value ? Number(e.target.value) : "")} aria-label={`Desktop ${title}`} />
+                            </label>
+                          ))}
+                        </div>}
                       </div>
                     );
                   })}
@@ -1432,6 +1439,13 @@ export default function PortfolioCMSView({ mode = "desktop", onActiveStoryChange
                             </label>
                           ))}
                         </div>
+                        {section === "featureCards" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "8px" }}>
+                          {[ ["cardTitleSize", "Card title px", 10, 64], ["cardBodySize", "Card text px", 10, 32] ].map(([key, title, min, max]) => (
+                            <label key={key} style={{ display: "grid", gap: "4px", fontSize: "10px" }}>{title}
+                              <input className="studio-input" type="number" min={min} max={max} value={settings[key] ?? ""} onChange={(e) => updateDisplaySetting("mobile", section, key, e.target.value ? Number(e.target.value) : "")} aria-label={`Mobile ${title}`} />
+                            </label>
+                          ))}
+                        </div>}
                       </div>
                     );
                   })}
