@@ -86,7 +86,7 @@ function JourneyChapterContent({ chapter, packageInfo, index, sectionRef, imageS
         <img
           src={optimizedImageSrc(image)}
           alt={chapter.alt}
-          style={{ objectPosition: chapter.imagePosition }}
+          style={{ objectPosition: chapter.imageObjectPosition || chapter.imagePosition, transform: `scale(${Number(chapter.imageCropZoom) || 1})`, transformOrigin: chapter.imageObjectPosition || chapter.imagePosition || "center" }}
           loading={index === 0 ? "eager" : "lazy"}
           decoding="async"
         />

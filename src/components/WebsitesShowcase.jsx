@@ -17,12 +17,19 @@ export default function WebsitesShowcase() {
   const imageDesktop = optimizedImageSrc(website.imageDesktop || "/images/websites-showcase-desktop.jpg");
   const imageMobile = optimizedImageSrc(website.imageMobile || "/images/websites-showcase-mobile.jpg");
   const ctaLink = website.ctaLink || "/experiences/website-design";
+  const imageCropStyle = {
+    "--website-image-position-desktop": website.imageDesktopObjectPosition || "50% 50%",
+    "--website-image-zoom-desktop": Number(website.imageDesktopCropZoom) || 1,
+    "--website-image-position-mobile": website.imageMobileObjectPosition || "50% 50%",
+    "--website-image-zoom-mobile": Number(website.imageMobileCropZoom) || 1,
+  };
 
   return (
     <section
       className="websites-showcase"
       id="websites"
       aria-label="Phantom Labs — Website Showcase"
+      style={imageCropStyle}
     >
       {/* Centered Heading & Tagline in Pure Black Studio Negative Space */}
       <motion.div

@@ -1362,35 +1362,6 @@
 .editorial-page--fashion .editorial-subject-section { margin-top: 44px; }
 .editorial-page--fashion .editorial-section-tag { color: var(--editorial-ink-secondary); }
 .editorial-page--fashion .editorial-subject-quote::before { color: #93897c; }
-.editorial-page--fashion .editorial-commission-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 34px;
-  padding: 18px 0 0;
-  border-top: 1px solid var(--editorial-divider);
-}
-.editorial-page--fashion .editorial-commission-footer .editorial-back-link {
-  border: 0;
-  padding: 8px 0;
-  color: var(--editorial-ink-secondary);
-  font-size: 9px;
-}
-.editorial-page--fashion .editorial-commission-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 12px 18px;
-  background: var(--editorial-ink);
-  color: #fff;
-  text-decoration: none;
-  font: 600 9px/1.4 var(--editorial-sans);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  transition: opacity .2s ease;
-}
-.editorial-page--fashion .editorial-commission-btn:hover { opacity: .78; }
 @media (max-width: 820px) {
   .editorial-page--fashion .editorial-opening-spread { grid-template-columns: 1.05fr .95fr; gap: 28px; }
   .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(2.8rem, 7vw, 4.8rem); }
@@ -1553,14 +1524,6 @@
 }
 .editorial-page--fashion .editorial-collection-photo { background: #f2f2f2; }
 .editorial-page--fashion .editorial-collection-photo figcaption { font-size: 8px; }
-.editorial-page--fashion .editorial-commission-footer {
-  max-width: 1480px;
-  margin: 0 auto;
-  padding: 24px clamp(18px, 5vw, 76px) 42px;
-  border-top: 0;
-  background: #fff;
-}
-.editorial-page--fashion .editorial-commission-btn { border-radius: 0; }
 .editorial-page--category-couples .editorial-opening-copy { left: auto; right: clamp(22px, 7vw, 108px); align-items: flex-end; text-align: right; }
 .editorial-page--category-couples .editorial-opening-copy .editorial-headline,
 .editorial-page--category-couples .editorial-opening-copy .editorial-deck { text-align: right; }
@@ -1575,7 +1538,6 @@
   .editorial-page--fashion .editorial-opening-copy .editorial-headline { font-size: clamp(3.4rem, 15vw, 5.6rem); }
   .editorial-page--fashion .editorial-collection-section { padding: 48px 14px 24px; }
   .editorial-page--fashion .editorial-photo-collection { height: 76svh; min-height: 440px; }
-  .editorial-page--fashion .editorial-commission-footer { padding: 22px 18px 32px; }
   .editorial-page--category-couples .editorial-opening-copy { right: 20px; left: 20px; align-items: flex-start; text-align: left; }
   .editorial-page--category-couples .editorial-opening-copy .editorial-headline,
   .editorial-page--category-couples .editorial-opening-copy .editorial-deck { text-align: left; }
@@ -1887,21 +1849,6 @@
   letter-spacing: -.01em;
 }
 .editorial-page--fashion .editorial-collection-photo figcaption span:last-child { color: #1d1d1f; }
-.editorial-page--fashion .editorial-commission-footer {
-  max-width: 1480px;
-  margin: 0 auto;
-  padding: 26px clamp(22px, 6vw, 90px) 56px;
-}
-.editorial-page--fashion .editorial-commission-btn {
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: #0071e3;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.editorial-page--fashion .editorial-commission-footer .editorial-back-link { font-size: 14px; }
 @media (max-width: 680px) {
   .editorial-page--fashion { padding-top: 0; }
   .editorial-page--fashion .editorial-masthead {
@@ -1930,7 +1877,6 @@
   .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 88vw; }
   .editorial-page--fashion .editorial-collection-image { height: 66svh; min-height: 420px; border-radius: 28px; }
   .editorial-page--fashion .editorial-collection-photo figcaption { padding-top: 13px; font-size: 13px; }
-  .editorial-page--fashion .editorial-commission-footer { padding: 20px 20px 38px; }
 }
 
 /* Category hero navigation uses the same glass material over photography. */
@@ -2513,4 +2459,636 @@
   .editorial-page--fashion .editorial-value-card h3 { font-size: 26px; }
   .editorial-page--fashion .editorial-value-card p,
   .editorial-page--fashion .editorial-value-card a { font-size: 18px; }
+}
+
+/* Editorial category feature uses the light, type-led treatment from the reference. */
+.editorial-page--category-editorial .editorial-experience-section {
+  display: block;
+  min-height: 0;
+  padding: clamp(76px, 8.2vw, 126px) clamp(24px, 5.35vw, 84px) clamp(92px, 9vw, 138px);
+  overflow: visible;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  isolation: auto;
+}
+.editorial-page--category-editorial .editorial-experience-copy--editorial {
+  width: 100%;
+  text-align: left;
+}
+.editorial-page--category-editorial .editorial-experience-copy--editorial > p {
+  margin: 0 0 clamp(36px, 4.2vw, 64px);
+  color: #1d1d1f;
+  font-size: clamp(24px, 1.8vw, 30px);
+  font-weight: 550;
+  line-height: 1.2;
+}
+.editorial-page--category-editorial .editorial-experience-copy--editorial h2 {
+  max-width: 1250px;
+  margin: 0;
+  color: #8c79bd;
+  font-size: clamp(46px, 4.8vw, 76px);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -.065em;
+}
+.editorial-page--category-editorial .editorial-experience-copy--editorial h2 span {
+  display: block;
+  width: fit-content;
+  background: linear-gradient(100deg, #b477c8 0%, #788dc7 52%, #659850 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.editorial-page--category-editorial .editorial-experience-description {
+  max-width: 1180px;
+  margin-top: clamp(32px, 4.2vw, 64px);
+  color: #747478;
+  font-size: clamp(18px, 1.5vw, 23px);
+  font-weight: 550;
+  line-height: 1.38;
+  letter-spacing: -.025em;
+}
+.editorial-page--category-editorial .editorial-experience-description strong {
+  color: #1d1d1f;
+  font-weight: 650;
+}
+.editorial-page--category-editorial .editorial-experience-editorial-image {
+  width: 100%;
+  aspect-ratio: 2.15 / 1;
+  margin: clamp(36px, 5vw, 76px) 0 0;
+  overflow: hidden;
+  border-radius: clamp(18px, 2vw, 30px);
+  background: #e9e9eb;
+}
+.editorial-page--category-editorial .editorial-experience-editorial-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 680px) {
+  .editorial-page--category-editorial .editorial-experience-section {
+    padding: 68px 22px 82px;
+  }
+  .editorial-page--category-editorial .editorial-experience-copy--editorial > p {
+    margin-bottom: 30px;
+    font-size: 25px;
+  }
+  .editorial-page--category-editorial .editorial-experience-copy--editorial h2 {
+    font-size: clamp(40px, 10vw, 54px);
+    line-height: 1.02;
+  }
+  .editorial-page--category-editorial .editorial-experience-description {
+    margin-top: 30px;
+    font-size: 19px;
+    line-height: 1.42;
+  }
+  .editorial-page--category-editorial .editorial-experience-editorial-image {
+    aspect-ratio: 1.15 / 1;
+    margin-top: 34px;
+    border-radius: 18px;
+  }
+}
+
+/* The Editorial camera feature stays continuous from its copy into the image. */
+.editorial-page--category-editorial .editorial-approach-section {
+  padding: clamp(92px, 11vw, 168px) 0 0;
+  overflow: hidden;
+  background: #fff;
+  color: #1d1d1f;
+}
+.editorial-page--category-editorial .editorial-camera-copy {
+  width: min(1760px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(24px, 5vw, 84px);
+  text-align: center;
+}
+.editorial-page--category-editorial .editorial-camera-label {
+  margin: 0 0 clamp(34px, 4.5vw, 68px);
+  color: #1d1d1f;
+  font-size: clamp(22px, 1.6vw, 28px);
+  font-weight: 550;
+  line-height: 1.2;
+}
+.editorial-page--category-editorial .editorial-camera-copy h2 {
+  margin: 0 auto;
+  color: #8a80c2;
+  font-size: clamp(42px, 4.5vw, 68px);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -.06em;
+}
+.editorial-page--category-editorial .editorial-camera-copy h2 span {
+  display: block;
+  background: linear-gradient(100deg, #b477c8 0%, #788dc7 52%, #659850 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.editorial-page--category-editorial .editorial-camera-description {
+  max-width: 1180px;
+  margin: clamp(30px, 4vw, 58px) auto 0;
+  color: #747478;
+  font-size: clamp(17px, 1.4vw, 21px);
+  font-weight: 550;
+  line-height: 1.42;
+  letter-spacing: -.022em;
+}
+.editorial-page--category-editorial .editorial-camera-description strong {
+  color: #1d1d1f;
+  font-weight: 650;
+}
+.editorial-page--category-editorial .editorial-camera-image {
+  width: min(72vw, 960px);
+  aspect-ratio: 4 / 5;
+  margin: clamp(76px, 9vw, 138px) auto 0;
+  overflow: hidden;
+  background: #f5f5f2;
+}
+.editorial-page--category-editorial .editorial-camera-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 64% 28%;
+}
+@media (max-width: 680px) {
+  .editorial-page--category-editorial .editorial-approach-section {
+    padding-top: 78px;
+  }
+  .editorial-page--category-editorial .editorial-camera-copy {
+    padding: 0 22px;
+  }
+  .editorial-page--category-editorial .editorial-camera-label {
+    margin-bottom: 28px;
+    font-size: 24px;
+  }
+  .editorial-page--category-editorial .editorial-camera-copy h2 {
+    font-size: clamp(42px, 11.5vw, 64px);
+    line-height: 1.04;
+  }
+  .editorial-page--category-editorial .editorial-camera-description {
+    margin-top: 26px;
+    font-size: 18px;
+  }
+  .editorial-page--category-editorial .editorial-camera-image {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    margin-top: 58px;
+  }
+}
+
+/* Image cards use the same reference scale on every category page. */
+.editorial-page--fashion .editorial-feature-cards-section {
+  padding: clamp(42px, 4vw, 60px) 0 52px;
+}
+.editorial-page--fashion .editorial-feature-cards-heading {
+  margin: 0;
+  padding: 0 clamp(24px, 6.25vw, 90px) clamp(32px, 4vw, 54px);
+}
+.editorial-page--fashion .editorial-feature-cards-heading h2 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: clamp(30px, 2.8vw, 42px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.05em;
+}
+.editorial-page--fashion .editorial-feature-cards-track {
+  gap: clamp(16px, 1.5vw, 22px);
+}
+.editorial-page--fashion .editorial-feature-card {
+  flex-basis: min(40vw, 580px);
+  min-width: 0;
+}
+.editorial-page--fashion .editorial-feature-card-image {
+  height: auto;
+  aspect-ratio: 1.56 / 1;
+  border-radius: clamp(18px, 1.6vw, 24px);
+}
+.editorial-page--fashion .editorial-feature-card-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 16px 3px 0;
+}
+.editorial-page--fashion .editorial-feature-card-copy h3 {
+  flex: 0 0 auto;
+  font-size: clamp(17px, 1.35vw, 20px);
+}
+.editorial-page--fashion .editorial-feature-card-copy p {
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-feature-cards-section {
+    padding: 54px 0 64px;
+  }
+  .editorial-page--fashion .editorial-feature-cards-heading {
+    padding: 0 20px 32px;
+  }
+  .editorial-page--fashion .editorial-feature-cards-heading h2 {
+    font-size: clamp(28px, 7vw, 36px);
+  }
+  .editorial-page--fashion .editorial-feature-card {
+    flex-basis: 82vw;
+  }
+  .editorial-page--fashion .editorial-feature-card-image {
+    aspect-ratio: 1.2 / 1;
+    border-radius: 20px;
+  }
+  .editorial-page--fashion .editorial-feature-card-copy {
+    display: block;
+    padding: 16px 3px 0;
+  }
+  .editorial-page--fashion .editorial-feature-card-copy h3 {
+    font-size: 18px;
+  }
+  .editorial-page--fashion .editorial-feature-card-copy p {
+    margin-top: 4px;
+    font-size: 16px;
+  }
+}
+
+/* A layered editorial collection follows the values cards on Editorial only. */
+.editorial-page--category-editorial .editorial-family-section {
+  padding: clamp(96px, 10vw, 152px) 24px clamp(82px, 9vw, 136px);
+  overflow: hidden;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  text-align: center;
+}
+.editorial-page--category-editorial .editorial-family-copy > p {
+  margin: 0 0 clamp(34px, 4vw, 60px);
+  font-size: clamp(22px, 1.6vw, 28px);
+  font-weight: 550;
+  line-height: 1.2;
+}
+.editorial-page--category-editorial .editorial-family-copy h2 {
+  margin: 0 auto;
+  font-size: clamp(42px, 4.5vw, 68px);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -.06em;
+}
+.editorial-page--category-editorial .editorial-family-copy h2 span {
+  display: block;
+  background: linear-gradient(100deg, #b477c8 0%, #788dc7 52%, #659850 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.editorial-page--category-editorial .editorial-family-composition {
+  position: relative;
+  width: min(100%, 840px);
+  height: clamp(420px, 40vw, 500px);
+  margin: clamp(54px, 7vw, 104px) auto 0;
+}
+.editorial-page--category-editorial .editorial-family-frame {
+  position: absolute;
+  top: 14%;
+  width: 29%;
+  height: 76%;
+  margin: 0;
+  overflow: hidden;
+  border: 6px solid #fff;
+  border-radius: clamp(24px, 2vw, 32px);
+  background: #e9e9ed;
+  box-shadow: 0 24px 70px rgba(24, 24, 30, .12);
+}
+.editorial-page--category-editorial .editorial-family-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.editorial-page--category-editorial .editorial-family-frame--1 {
+  left: 12%;
+  transform: rotate(-7deg);
+}
+.editorial-page--category-editorial .editorial-family-frame--2 {
+  z-index: 2;
+  top: 3%;
+  left: 35.5%;
+  width: 29%;
+  height: 91%;
+  transform: none;
+}
+.editorial-page--category-editorial .editorial-family-frame--3 {
+  right: 12%;
+  transform: rotate(7deg);
+}
+.editorial-page--category-editorial .editorial-family-description {
+  max-width: 1080px;
+  margin: clamp(44px, 5vw, 76px) auto 0;
+  color: #747478;
+  font-size: clamp(18px, 1.45vw, 21px);
+  font-weight: 550;
+  line-height: 1.42;
+  letter-spacing: -.02em;
+}
+@media (max-width: 680px) {
+  .editorial-page--category-editorial .editorial-family-section {
+    padding: 78px 18px 84px;
+  }
+  .editorial-page--category-editorial .editorial-family-copy > p {
+    margin-bottom: 28px;
+    font-size: 23px;
+  }
+  .editorial-page--category-editorial .editorial-family-copy h2 {
+    font-size: clamp(40px, 10vw, 54px);
+    line-height: 1.04;
+  }
+  .editorial-page--category-editorial .editorial-family-composition {
+    height: 440px;
+    margin-top: 34px;
+  }
+  .editorial-page--category-editorial .editorial-family-frame {
+    top: 15%;
+    width: 34%;
+    height: 70%;
+    border-width: 6px;
+    border-radius: 26px;
+  }
+  .editorial-page--category-editorial .editorial-family-frame--1 { left: 2%; }
+  .editorial-page--category-editorial .editorial-family-frame--2 {
+    top: 4%;
+    left: 28%;
+    width: 44%;
+    height: 88%;
+  }
+  .editorial-page--category-editorial .editorial-family-frame--3 { right: 2%; }
+  .editorial-page--category-editorial .editorial-family-description {
+    margin-top: 34px;
+    font-size: 18px;
+  }
+}
+
+/* Every category uses the reference scale for its comparison-style Why panel. */
+.editorial-page--fashion .editorial-why-section {
+  padding: 0 clamp(20px, 6.25vw, 90px) clamp(56px, 6vw, 88px);
+  background: #fff;
+}
+.editorial-page--fashion .editorial-why-panel {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: clamp(40px, 5vw, 76px) clamp(32px, 5vw, 92px) clamp(44px, 5vw, 76px);
+  border-radius: clamp(24px, 2vw, 32px);
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+.editorial-page--fashion .editorial-why-heading {
+  align-items: center;
+  padding: 0 0 clamp(34px, 4vw, 58px);
+}
+.editorial-page--fashion .editorial-why-heading h2 {
+  max-width: 900px;
+  font-size: clamp(2.4rem, 3.8vw, 3.8rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+.editorial-page--fashion .editorial-why-heading a {
+  padding-top: 12px;
+}
+.editorial-page--fashion .editorial-why-lead {
+  margin: 0 0 clamp(24px, 2.5vw, 36px);
+  color: #6e6e73;
+  font-size: clamp(18px, 1.5vw, 22px);
+  font-weight: 550;
+  letter-spacing: -.025em;
+}
+.editorial-page--fashion .editorial-why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 1.5vw, 22px);
+}
+.editorial-page--fashion .editorial-why-grid .editorial-why-card {
+  min-width: 0;
+  min-height: clamp(240px, 20vw, 290px);
+  padding: clamp(22px, 1.8vw, 28px);
+  border: 1px solid rgba(29, 29, 31, .045);
+  border-radius: clamp(18px, 1.5vw, 22px);
+}
+.editorial-page--fashion .editorial-why-grid .editorial-why-icon {
+  width: clamp(34px, 2.7vw, 40px);
+  height: clamp(34px, 2.7vw, 40px);
+  margin-bottom: clamp(20px, 2vw, 28px);
+}
+.editorial-page--fashion .editorial-why-grid .editorial-why-card h3 {
+  max-width: 440px;
+  margin-bottom: 16px;
+  font-size: clamp(20px, 1.65vw, 24px);
+  line-height: 1.18;
+}
+.editorial-page--fashion .editorial-why-grid .editorial-why-card p {
+  max-width: 440px;
+  color: #303034;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.5;
+}
+.editorial-page--fashion .editorial-why-footer {
+  padding: clamp(46px, 5vw, 72px) 20px 0;
+  text-align: center;
+}
+.editorial-page--fashion .editorial-why-footer h3 {
+  margin: 0;
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+}
+.editorial-page--fashion .editorial-why-footer p {
+  max-width: 900px;
+  margin: 20px auto 24px;
+  color: #6e6e73;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.4;
+}
+.editorial-page--fashion .editorial-why-footer a {
+  color: #06c;
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 550;
+  text-decoration: none;
+}
+.editorial-page--fashion .editorial-why-footer a span {
+  padding-left: 3px;
+  font-size: 1.2em;
+  vertical-align: -1px;
+}
+.editorial-page--fashion .editorial-approach-intro {
+  max-width: 1000px;
+}
+.editorial-page--fashion .editorial-approach-intro h2 {
+  font-size: clamp(2.4rem, 3.8vw, 3.8rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+.editorial-page--fashion .editorial-approach-grid {
+  width: min(1500px, 100%);
+}
+.editorial-page--fashion .editorial-approach-item h3 {
+  font-size: clamp(19px, 1.65vw, 25px);
+}
+.editorial-page--fashion .editorial-approach-item p {
+  font-size: clamp(16px, 1.3vw, 19px);
+}
+.editorial-page--fashion .editorial-values-heading h2 {
+  max-width: 1200px;
+  font-size: clamp(2.4rem, 3.8vw, 3.8rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+.editorial-page--fashion .editorial-values-grid {
+  gap: clamp(18px, 1.5vw, 40px);
+}
+.editorial-page--fashion .editorial-value-card {
+  min-height: clamp(260px, 20vw, 310px);
+  padding: clamp(24px, 1.8vw, 30px);
+  border-radius: clamp(18px, 1.5vw, 22px);
+}
+.editorial-page--fashion .editorial-value-card h3 {
+  font-size: clamp(21px, 1.9vw, 28px);
+}
+.editorial-page--fashion .editorial-value-card p,
+.editorial-page--fashion .editorial-value-card a {
+  font-size: clamp(16px, 1.35vw, 19px);
+}
+@media (max-width: 1000px) {
+  .editorial-page--fashion .editorial-why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editorial-page--fashion .editorial-why-grid .editorial-why-card { min-height: 300px; }
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-approach-intro { margin-bottom: 48px; }
+  .editorial-page--fashion .editorial-approach-intro h2 { font-size: clamp(36px, 9vw, 52px); line-height: 1.06; }
+  .editorial-page--fashion .editorial-approach-grid { width: 100%; }
+  .editorial-page--fashion .editorial-approach-item h3 { font-size: 22px; }
+  .editorial-page--fashion .editorial-approach-item p { font-size: 18px; }
+  .editorial-page--fashion .editorial-values-heading h2 { font-size: clamp(36px, 9vw, 52px); line-height: 1.06; }
+  .editorial-page--fashion .editorial-value-card { min-height: 0; padding: 28px 26px; }
+  .editorial-page--fashion .editorial-value-card h3 { font-size: 24px; }
+  .editorial-page--fashion .editorial-value-card p,
+  .editorial-page--fashion .editorial-value-card a { font-size: 16px; }
+  .editorial-page--fashion .editorial-why-section { padding: 0 16px 72px; }
+  .editorial-page--fashion .editorial-why-panel { padding: 42px 20px 52px; border-radius: 28px; }
+  .editorial-page--fashion .editorial-why-heading { padding: 0 0 38px; }
+  .editorial-page--fashion .editorial-why-heading h2 { font-size: clamp(36px, 9vw, 52px); line-height: 1.06; }
+  .editorial-page--fashion .editorial-why-heading a { margin-top: 16px; font-size: 17px; }
+  .editorial-page--fashion .editorial-why-lead { margin-bottom: 24px; font-size: 19px; }
+  .editorial-page--fashion .editorial-why-grid { grid-template-columns: 1fr; gap: 13px; }
+  .editorial-page--fashion .editorial-why-grid .editorial-why-card { min-height: 0; padding: 26px; border-radius: 23px; }
+  .editorial-page--fashion .editorial-why-grid .editorial-why-icon { margin-bottom: 22px; }
+  .editorial-page--fashion .editorial-why-grid .editorial-why-card h3 { font-size: 24px; }
+  .editorial-page--fashion .editorial-why-grid .editorial-why-card p { font-size: 16px; }
+  .editorial-page--fashion .editorial-why-footer { padding: 52px 2px 0; }
+  .editorial-page--fashion .editorial-why-footer h3 { font-size: 34px; }
+  .editorial-page--fashion .editorial-why-footer p { font-size: 17px; }
+}
+
+/* Large, near-full-width photo cards with smooth snap scrolling. */
+.editorial-page--fashion .editorial-photo-collection {
+  width: 100%;
+  padding: 0 clamp(24px, 6.25vw, 120px) 26px;
+  gap: clamp(16px, 1.5vw, 24px);
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: clamp(24px, 6.25vw, 120px);
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.editorial-page--fashion .editorial-collection-photo,
+.editorial-page--fashion .editorial-collection-photo--1,
+.editorial-page--fashion .editorial-collection-photo--2,
+.editorial-page--fashion .editorial-collection-photo--3,
+.editorial-page--fashion .editorial-collection-photo--4 {
+  flex: 0 0 87.5vw;
+  scroll-snap-align: start;
+}
+.editorial-page--fashion .editorial-collection-image {
+  height: min(76svh, 900px);
+  min-height: 520px;
+  border-radius: clamp(20px, 2vw, 30px);
+}
+@media (max-width: 680px) {
+  .editorial-page--fashion .editorial-photo-collection {
+    padding: 0 18px 20px;
+    gap: 14px;
+    scroll-padding-inline: 18px;
+  }
+  .editorial-page--fashion .editorial-collection-photo,
+  .editorial-page--fashion .editorial-collection-photo--1,
+  .editorial-page--fashion .editorial-collection-photo--2,
+  .editorial-page--fashion .editorial-collection-photo--3,
+  .editorial-page--fashion .editorial-collection-photo--4 { flex-basis: 88vw; }
+  .editorial-page--fashion .editorial-collection-image { height: 68svh; min-height: 430px; border-radius: 22px; }
+}
+.editorial-page--fashion .editorial-closer-section .editorial-collection-photo:hover .editorial-collection-image img {
+  transform: none;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .editorial-page--fashion .editorial-photo-collection { scroll-behavior: auto; }
+}
+
+/* Category CMS desktop/mobile editors share content while keeping their layouts independent. */
+.editorial-page .cms-positionable-copy {
+  left: var(--cms-desktop-text-x, auto) !important;
+  top: var(--cms-desktop-text-y, auto) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(var(--cms-desktop-copy-shift, 0%), -50%) !important;
+  text-align: var(--cms-desktop-text-align, inherit) !important;
+}
+.editorial-page .cms-crop-image {
+  object-position: var(--cms-image-position-desktop, 50% 50%) !important;
+  transform: scale(var(--cms-image-zoom-desktop, 1)) !important;
+  transform-origin: var(--cms-image-position-desktop, 50% 50%);
+}
+.editorial-page .cms-responsive-picture { display: block; width: 100%; height: 100%; }
+.editorial-page .editorial-experience-picture,
+.editorial-page .editorial-long-image-picture { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; }
+.editorial-page .editorial-experience-picture img,
+.editorial-page .editorial-long-image-picture img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.editorial-page .cms-mobile-copy { display: none !important; }
+.editorial-page .cms-mobile-feature-cards { display: none !important; }
+.editorial-page .cms-section-layout { text-align: var(--cms-desktop-text-align, inherit); }
+.editorial-page .cms-section-layout :is(h1, h2, h3, p, figcaption) { text-align: var(--cms-desktop-text-align, inherit) !important; }
+@media (max-width: 680px) {
+  .editorial-page .cms-desktop-copy { display: none !important; }
+  .editorial-page .cms-mobile-copy { display: inline !important; white-space: pre-line; }
+  .editorial-page .cms-mobile-copy > span { display: block; }
+  .editorial-page .cms-mobile-feature-cards.editorial-feature-cards-track { display: flex !important; }
+  .editorial-page .cms-mobile-feature-cards.editorial-why-grid,
+  .editorial-page .cms-mobile-feature-cards.editorial-approach-grid,
+  .editorial-page .cms-mobile-feature-cards.editorial-values-grid { display: grid !important; }
+  .editorial-page .cms-positionable-copy {
+    left: var(--cms-mobile-text-x, var(--cms-desktop-text-x, auto)) !important;
+    top: var(--cms-mobile-text-y, var(--cms-desktop-text-y, auto)) !important;
+    transform: translate(var(--cms-mobile-copy-shift, var(--cms-desktop-copy-shift, 0%)), -50%) !important;
+    text-align: var(--cms-mobile-text-align, var(--cms-desktop-text-align, inherit)) !important;
+  }
+  .editorial-page .cms-crop-image {
+    object-position: var(--cms-image-position-mobile, var(--cms-image-position-desktop, 50% 50%)) !important;
+    transform: scale(var(--cms-image-zoom-mobile, var(--cms-image-zoom-desktop, 1))) !important;
+    transform-origin: var(--cms-image-position-mobile, var(--cms-image-position-desktop, 50% 50%));
+  }
+  .editorial-page .cms-mobile-head-custom h1,
+  .editorial-page .cms-mobile-head-custom h2,
+  .editorial-page .cms-mobile-head-custom h3,
+  .editorial-page .cms-mobile-head-custom h2 span {
+    color: var(--cms-mobile-heading-color) !important;
+    -webkit-text-fill-color: var(--cms-mobile-heading-color) !important;
+    background-image: none !important;
+  }
+  .editorial-page .cms-mobile-body-custom p,
+  .editorial-page .cms-mobile-body-custom p span,
+  .editorial-page .cms-mobile-body-custom a,
+  .editorial-page .cms-mobile-body-custom figcaption,
+  .editorial-page .cms-mobile-body-custom .editorial-opening-label,
+  .editorial-page .cms-mobile-body-custom .editorial-experience-description span,
+  .editorial-page .cms-mobile-body-custom .editorial-camera-label { color: var(--cms-mobile-body-color) !important; }
+  .editorial-page .cms-section-layout { text-align: var(--cms-mobile-text-align, var(--cms-desktop-text-align, inherit)); }
+  .editorial-page .cms-section-layout :is(h1, h2, h3, p, figcaption) { text-align: var(--cms-mobile-text-align, var(--cms-desktop-text-align, inherit)) !important; }
 }

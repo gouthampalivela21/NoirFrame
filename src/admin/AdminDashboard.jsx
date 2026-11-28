@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AdminAuthProvider, useAdminAuth } from "./auth/AdminAuthContext.jsx";
 import AdminGuard from "./auth/AdminGuard.jsx";
 import { StudioAdminProvider, useStudioAdmin } from "./context/StudioAdminContext.jsx";
@@ -12,6 +12,7 @@ import MessagesView from "./views/MessagesView.jsx";
 import AnalyticsView from "./views/AnalyticsView.jsx";
 import TeamView from "./views/TeamView.jsx";
 import WebsiteContentView from "./views/WebsiteContentView.jsx";
+import WebsiteCanvasEditor from "./views/WebsiteCanvasEditor.jsx";
 
 import NewProjectModal from "./components/NewProjectModal.jsx";
 import LogPaymentModal from "./components/LogPaymentModal.jsx";
@@ -101,6 +102,8 @@ function UserAvatar({ size = 36, url, name, initialsText, onClick, title }) {
 }
 
 function AdminDashboardInner() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { logout, user } = useAdminAuth();
   const {
     activeView,
@@ -115,6 +118,10 @@ function AdminDashboardInner() {
 
   const [founderMenuOpen, setFounderMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const returnView = new URLSearchParams(location.search).get("view");
+  useEffect(() => {
+    if (returnView === "cms" || returnView === "mobile-cms") setActiveView(returnView);
+  }, [returnView, setActiveView]);
 
   // Live profile details directly from Firebase Auth
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Studio Founder";
@@ -132,6 +139,28 @@ function AdminDashboardInner() {
   };
 
   const initials = getInitials(displayName, email);
+  const categoryEditorMatch = location.pathname.match(/^\/gouthamspace\/cms\/(desktop|mobile)\/category\/([^/]+)\/?$/);
+  const sectionEditorMatch = location.pathname.match(/^\/gouthamspace\/cms\/(desktop|mobile)\/edit\/([^/]+)\/?$/);
+
+  if (categoryEditorMatch) {
+    return (
+      <WebsiteCanvasEditor key={`${categoryEditorMatch[1]}-${categoryEditorMatch[2]}`} mode={categoryEditorMatch[1]} pageId={`categoryPage:${decodeURIComponent(categoryEditorMatch[2])}`} onExit={() => navigate(`/gouthamspace?view=${categoryEditorMatch[1] === "mobile" ? "mobile-cms" : "cms"}`)} />
+    );
+  }
+
+  if (sectionEditorMatch) {
+    const mode = sectionEditorMatch[1];
+    const section = decodeURIComponent(sectionEditorMatch[2]);
+    return (
+      <WebsiteCanvasEditor key={`${mode}-${section}`} mode={mode} pageId={section} onExit={() => navigate(`/gouthamspace?view=${mode === "mobile" ? "mobile-cms" : "cms"}`)} />
+    );
+  }
+
+  const canvasEditorMatch = location.pathname.match(/^\/gouthamspace\/cms\/(desktop|mobile)\/canvas\/([^/]+)\/?$/);
+  if (canvasEditorMatch) {
+    const mode = canvasEditorMatch[1];
+    return <WebsiteCanvasEditor key={`${mode}-${canvasEditorMatch[2]}`} mode={mode} pageId={decodeURIComponent(canvasEditorMatch[2])} onExit={() => navigate(`/gouthamspace?view=${mode === "mobile" ? "mobile-cms" : "cms"}`)} />;
+  }
 
   // Keep operational tools visible and collect every website editor under CMS.
   const NAV_ITEMS = [
@@ -140,7 +169,8 @@ function AdminDashboardInner() {
     { id: "clients", label: "Clients", icon: Users },
     { id: "projects", label: "Projects", icon: Camera, badge: projects.filter((p) => p.stage !== "Delivered").length },
     { id: "bookings", label: "Bookings", icon: Calendar },
-    { id: "cms", label: "CMS", icon: Layers },
+    { id: "cms", label: "Desktop CMS", icon: Layers },
+    { id: "mobile-cms", label: "Mobile CMS", icon: Layers },
     { id: "messages", label: "Messages", icon: Mail, badge: messages.filter((m) => m.unread).length },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "team", label: "Team", icon: UserCheck },
@@ -458,7 +488,8 @@ function AdminDashboardInner() {
           {activeView === "messages" && <MessagesView />}
           {activeView === "analytics" && <AnalyticsView />}
           {activeView === "team" && <TeamView />}
-          {activeView === "cms" && <WebsiteContentView />}
+          {activeView === "cms" && <WebsiteContentView mode="desktop" />}
+          {activeView === "mobile-cms" && <WebsiteContentView mode="mobile" />}
         </main>
       </div>
 

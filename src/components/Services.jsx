@@ -22,6 +22,12 @@ export default function Services() {
         {categories.map((tile, idx) => {
           const imageSrc = optimizedImageSrc(tile.image || (tile.imageBase ? `${tile.imageBase}.jpg` : "/images/hero-villa-wide.jpg"));
           const mobileSrc = optimizedImageSrc(tile.mobileImage || (tile.mobileImageBase ? `${tile.mobileImageBase}.jpg` : null));
+          const tileImageStyle = {
+            "--tile-image-position-desktop": tile.imageObjectPosition || "center bottom",
+            "--tile-image-zoom-desktop": Number(tile.imageCropZoom) || 1,
+            "--tile-image-position-mobile": tile.mobileImageObjectPosition || tile.imageObjectPosition || "center bottom",
+            "--tile-image-zoom-mobile": Number(tile.mobileImageCropZoom) || Number(tile.imageCropZoom) || 1,
+          };
 
           return (
             <motion.article
@@ -45,6 +51,7 @@ export default function Services() {
                       src={imageSrc}
                       alt={tile.alt || tile.title}
                       className="promo-tile__img"
+                      style={tileImageStyle}
                       width="1200"
                       height="750"
                       loading="lazy"
@@ -56,6 +63,7 @@ export default function Services() {
                     src={imageSrc}
                     alt={tile.alt || tile.title}
                     className="promo-tile__img"
+                    style={tileImageStyle}
                     width="1200"
                     height="750"
                     loading="lazy"
@@ -64,7 +72,7 @@ export default function Services() {
                 )}
               </div>
 
-              <div className="promo-tile__copy" style={{ "--tile-text-x": `${tile.textPosition?.x ?? 50}%`, "--tile-text-y": `${tile.textPosition?.y ?? 16}%` }}>
+              <div className="promo-tile__copy" style={{ "--tile-text-x": `${tile.textPosition?.x ?? 50}%`, "--tile-text-y": `${tile.textPosition?.y ?? 16}%`, "--tile-title-color": tile.titleColor || "", "--tile-tagline-color": tile.taglineColor || "" }}>
                 <hgroup className="promo-tile__header">
                   <h2 className="promo-tile__title">{tile.title}</h2>
                   <p className="promo-tile__tagline">{tile.tagline}</p>

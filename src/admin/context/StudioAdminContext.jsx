@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
 } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { adminApiFetch } from "../auth/adminApi.js";
@@ -33,6 +34,7 @@ export function formatINR(amount) {
 }
 
 export function StudioAdminProvider({ children }) {
+  const CMS_DRAFT_KEY = "phantom-admin-cms-draft-v1";
   // Live records state (Strictly empty defaults, NO mock data)
   const [inquiries, setInquiries] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -41,6 +43,8 @@ export function StudioAdminProvider({ children }) {
   const [invoices, setInvoices] = useState([]);
   const [messages, setMessages] = useState([]);
   const [team, setTeam] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [cmsData, setCmsData] = useState({
     hero: {
       headline: "Visual Stories, Framed Differently",
@@ -81,12 +85,86 @@ export function StudioAdminProvider({ children }) {
     portfolio: [],
     services: [],
     testimonials: [],
+    mobileContent: {},
   });
+  const cmsDataRef = useRef(cmsData);
+  const cmsHistoryRef = useRef({ past: [], future: [] });
+  const lastPublishedCMSRef = useRef(null);
+  const draftTimerRef = useRef(null);
+  const [historyVersion, setHistoryVersion] = useState(0);
+  const [recoverableCMSDraft, setRecoverableCMSDraft] = useState(null);
+  const [hasUnpublishedCMSChanges, setHasUnpublishedCMSChanges] = useState(false);
+
+  const commitCMSDraft = useCallback((updater) => {
+    const previous = cmsDataRef.current;
+    const next = typeof updater === "function" ? updater(previous) : updater;
+    if (!next || next === previous) return;
+    cmsHistoryRef.current.past = [...cmsHistoryRef.current.past.slice(-39), previous];
+    cmsHistoryRef.current.future = [];
+    cmsDataRef.current = next;
+    setCmsData(next);
+    setHistoryVersion((version) => version + 1);
+  }, []);
+
+  const undoCMSChange = useCallback(() => {
+    const history = cmsHistoryRef.current;
+    if (!history.past.length) return;
+    const previous = history.past[history.past.length - 1];
+    history.past = history.past.slice(0, -1);
+    history.future = [cmsDataRef.current, ...history.future];
+    cmsDataRef.current = previous;
+    setCmsData(previous);
+    setHistoryVersion((version) => version + 1);
+  }, []);
+
+  const redoCMSChange = useCallback(() => {
+    const history = cmsHistoryRef.current;
+    if (!history.future.length) return;
+    const next = history.future[0];
+    history.future = history.future.slice(1);
+    history.past = [...history.past, cmsDataRef.current];
+    cmsDataRef.current = next;
+    setCmsData(next);
+    setHistoryVersion((version) => version + 1);
+  }, []);
+
+  const restoreCMSDraft = useCallback(() => {
+    if (!recoverableCMSDraft) return;
+    commitCMSDraft(recoverableCMSDraft);
+    setRecoverableCMSDraft(null);
+  }, [commitCMSDraft, recoverableCMSDraft]);
+
+  useEffect(() => {
+    cmsDataRef.current = cmsData;
+  }, [cmsData]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    try {
+      const rawDraft = window.localStorage.getItem(CMS_DRAFT_KEY);
+      if (rawDraft) {
+        const parsed = JSON.parse(rawDraft);
+        if (parsed && JSON.stringify(parsed) !== JSON.stringify(cmsData)) setRecoverableCMSDraft(parsed);
+      }
+    } catch { /* Ignore an invalid or unavailable local draft. */ }
+    lastPublishedCMSRef.current = JSON.stringify(cmsData);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (isLoading) return undefined;
+    setHasUnpublishedCMSChanges(JSON.stringify(cmsData) !== lastPublishedCMSRef.current);
+    if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(CMS_DRAFT_KEY, JSON.stringify(cmsData));
+      } catch { /* Storage can be unavailable or full; editing remains available. */ }
+    }, 450);
+    return () => window.clearTimeout(draftTimerRef.current);
+  }, [cmsData, isLoading]);
+
+  useEffect(() => () => window.clearTimeout(draftTimerRef.current), []);
 
   // Loading & Error States
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   // Navigation & UI state
   const [activeView, setActiveView] = useState("overview");
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState("All");
@@ -152,6 +230,7 @@ export function StudioAdminProvider({ children }) {
         setCmsData((prev) => ({
           ...prev,
           ...cmsRes.cms,
+          mobileContent: cmsRes.cms.mobileContent && typeof cmsRes.cms.mobileContent === "object" ? cmsRes.cms.mobileContent : (prev.mobileContent || {}),
           hero: { ...prev.hero, ...(cmsRes.cms.hero || {}) },
           websiteSection: { ...prev.websiteSection, ...(cmsRes.cms.websiteSection || {}) },
           websiteExperience: { ...prev.websiteExperience, ...(cmsRes.cms.websiteExperience || {}) },
@@ -646,70 +725,70 @@ export function StudioAdminProvider({ children }) {
 
   // CMS Content Operations
   const updateCMSPortfolio = useCallback((updatedPortfolio) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       portfolio: updatedPortfolio,
     }));
   }, []);
 
   const updateCMSServices = useCallback((updatedServices) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       services: updatedServices,
     }));
   }, []);
 
   const updateCMSTestimonials = useCallback((updatedTestimonials) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       testimonials: updatedTestimonials,
     }));
   }, []);
 
   const updateCMSHero = useCallback((heroUpdates) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       hero: { ...prev.hero, ...heroUpdates },
     }));
   }, []);
 
   const updateCMSStories = useCallback((updatedStories) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       stories: updatedStories,
     }));
   }, []);
 
   const updateCMSJourneys = useCallback((updatedJourneys) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       journeys: updatedJourneys,
     }));
   }, []);
 
   const updateCMSStudio = useCallback((updatedStudio) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       studio: updatedStudio,
     }));
   }, []);
 
   const updateCMSCategories = useCallback((updatedCategories) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       categories: updatedCategories,
     }));
   }, []);
 
   const updateCMSWebsiteSection = useCallback((sectionUpdates) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       websiteSection: { ...prev.websiteSection, ...sectionUpdates },
     }));
   }, []);
 
   const updateCMSFooter = useCallback((footerUpdates) => {
-    setCmsData((prev) => ({
+    commitCMSDraft((prev) => ({
       ...prev,
       footer: { ...prev.footer, ...footerUpdates },
     }));
@@ -718,7 +797,7 @@ export function StudioAdminProvider({ children }) {
   const updateCMSPath = useCallback((path, value) => {
     const parts = Array.isArray(path) ? path : String(path).split(".").filter(Boolean);
     if (!parts.length) return;
-    setCmsData((previous) => {
+    commitCMSDraft((previous) => {
       const next = { ...previous };
       let source = previous;
       let target = next;
@@ -729,7 +808,14 @@ export function StudioAdminProvider({ children }) {
           return;
         }
         const child = source?.[key];
-        const clone = Array.isArray(child) ? [...child] : { ...(child || {}) };
+        const nextPart = parts[index + 1];
+        const clone = Array.isArray(child)
+          ? [...child]
+          : child && typeof child === "object"
+            ? { ...child }
+            : /^\d+$/.test(String(nextPart))
+              ? []
+              : {};
         target[key] = clone;
         source = child || {};
         target = clone;
@@ -738,25 +824,34 @@ export function StudioAdminProvider({ children }) {
     });
   }, []);
 
-  const saveCMSChanges = useCallback(async () => {
+  const saveCMSChanges = useCallback(async (content = cmsData) => {
     try {
       const res = await adminApiFetch("/api/admin/cms", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cmsData),
+        body: JSON.stringify(content),
       });
       const result = await res.json().catch(() => ({}));
       if (res.ok && result.storageMode === "supabase") {
+        lastPublishedCMSRef.current = JSON.stringify(content);
+        setHasUnpublishedCMSChanges(false);
+        setRecoverableCMSDraft(null);
+        try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
         showToast("✓ CMS changes published to the shared live database.", "success");
-        return;
+        return true;
       }
       if (res.ok && result.storageMode === "local") {
-        showToast("Saved only on this computer. Connect local Supabase to sync changes live.", "error");
-        return;
+        lastPublishedCMSRef.current = JSON.stringify(content);
+        setHasUnpublishedCMSChanges(false);
+        setRecoverableCMSDraft(null);
+        try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
+        showToast("Saved on this local server. Connect shared Supabase to publish changes to the live website.", "success");
+        return true;
       }
       throw new Error(result.error || "The shared CMS database is not configured.");
     } catch (err) {
       showToast(err.message || "Error publishing CMS changes to the shared database.", "error");
+      return false;
     }
   }, [cmsData, showToast]);
 
@@ -804,6 +899,13 @@ export function StudioAdminProvider({ children }) {
     messages,
     team,
     cmsData,
+    hasUnpublishedCMSChanges,
+    recoverableCMSDraft,
+    restoreCMSDraft,
+    undoCMSChange,
+    redoCMSChange,
+    canUndoCMS: cmsHistoryRef.current.past.length > 0 && historyVersion >= 0,
+    canRedoCMS: cmsHistoryRef.current.future.length > 0 && historyVersion >= 0,
     monthlyRevenueHistory,
     categoryDistribution,
     kpiStats,

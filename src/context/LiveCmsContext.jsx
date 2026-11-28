@@ -5,7 +5,22 @@ import { withLiveCmsDefaults } from "../data/liveCmsDefaults.js";
 const LiveCmsContext = createContext(null);
 const STORAGE_KEY = "phantom_labs_live_cms_v3";
 
+function applyMobileContent(base, overrides) {
+  if (overrides === undefined || overrides === null) return base;
+  if (Array.isArray(overrides)) {
+    if (!Array.isArray(base)) return overrides;
+    return overrides.map((item, index) => applyMobileContent(base[index], item));
+  }
+  if (typeof overrides !== "object") return overrides;
+  const result = { ...(base && typeof base === "object" && !Array.isArray(base) ? base : {}) };
+  for (const [key, value] of Object.entries(overrides)) result[key] = applyMobileContent(result[key], value);
+  return result;
+}
+
 export function LiveCmsProvider({ children }) {
+  const [isMobileViewport, setIsMobileViewport] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 680px)").matches);
+  const previewMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("cmsPreview") === "1";
+  const previewCmsRef = React.useRef(null);
   const [cms, setCms] = useState(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
@@ -26,6 +41,23 @@ export function LiveCmsProvider({ children }) {
   const [isLoading, setIsLoading] = useState(!cms.hero?.headline);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const query = window.matchMedia("(max-width: 680px)");
+    const updateViewport = (event) => setIsMobileViewport(event.matches);
+    setIsMobileViewport(query.matches);
+    query.addEventListener?.("change", updateViewport);
+    if (!query.addEventListener) query.addListener?.(updateViewport);
+    return () => {
+      query.removeEventListener?.("change", updateViewport);
+      if (!query.removeEventListener) query.removeListener?.(updateViewport);
+    };
+  }, []);
+
+  const visibleCms = isMobileViewport
+    ? applyMobileContent(cms, cms.mobileContent || {})
+    : cms;
+
   const fetchCmsData = useCallback(async () => {
     try {
       const res = await fetch("/api/cms");
@@ -34,9 +66,9 @@ export function LiveCmsProvider({ children }) {
         throw new Error(data.error || `CMS request failed (${res.status}).`);
       }
 
-      setCms(withLiveCmsDefaults(data.cms));
+      if (!previewCmsRef.current) setCms(withLiveCmsDefaults(data.cms));
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.cms));
+        if (!previewMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.cms));
       } catch {}
       setError(null);
     } catch (err) {
@@ -45,7 +77,19 @@ export function LiveCmsProvider({ children }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [previewMode]);
+
+  useEffect(() => {
+    if (!previewMode) return undefined;
+    const receivePreview = (event) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "studio-cms-preview" || !event.data.cms) return;
+      previewCmsRef.current = event.data.cms;
+      setCms(withLiveCmsDefaults(event.data.cms));
+    };
+    window.addEventListener("message", receivePreview);
+    window.parent.postMessage({ type: "studio-cms-preview-ready" }, window.location.origin);
+    return () => window.removeEventListener("message", receivePreview);
+  }, [previewMode]);
 
   useEffect(() => {
     fetchCmsData();
@@ -53,7 +97,7 @@ export function LiveCmsProvider({ children }) {
 
   // Real-time Supabase subscription for instant live site updates
   useEffect(() => {
-    if (!supabase) return undefined;
+    if (!supabase || previewMode) return undefined;
 
     try {
       const channel = supabase
@@ -73,41 +117,41 @@ export function LiveCmsProvider({ children }) {
         } catch {}
       };
     } catch {}
-  }, [fetchCmsData]);
+  }, [fetchCmsData, previewMode]);
 
   const getStoryById = useCallback(
     (id) => {
-      if (!Array.isArray(cms.stories)) return null;
+      if (!Array.isArray(visibleCms.stories)) return null;
       const clean = String(id || "").toLowerCase().trim();
       return (
-        cms.stories.find(
+        visibleCms.stories.find(
           (s) =>
             (s.id && s.id.toLowerCase() === clean) ||
             (s.category && s.category.toLowerCase() === clean)
-        ) || cms.stories[0] || null
+      ) || visibleCms.stories[0] || null
       );
     },
-    [cms.stories]
+    [visibleCms.stories]
   );
 
   const value = {
-    cms,
+    cms: visibleCms,
     home: {
-      hero: cms.hero || {},
-      websiteSection: cms.websiteSection || {},
-      websiteExperience: cms.websiteExperience || {},
-      categories: cms.categories || [],
+      hero: visibleCms.hero || {},
+      websiteSection: visibleCms.websiteSection || {},
+      websiteExperience: visibleCms.websiteExperience || {},
+      categories: visibleCms.categories || [],
     },
-    studio: cms.studio || {},
-    journeys: cms.journeys || { packages: [] },
-    stories: cms.stories || [],
-    footer: cms.footer || {},
-    navigation: cms.navigation || [],
-    branding: cms.branding || {},
-    pages: cms.pages || {},
-    booking: cms.booking || {},
-    websiteExperience: cms.websiteExperience || {},
-    testimonials: cms.testimonials || [],
+    studio: visibleCms.studio || {},
+    journeys: visibleCms.journeys || { packages: [] },
+    stories: visibleCms.stories || [],
+    footer: visibleCms.footer || {},
+    navigation: visibleCms.navigation || [],
+    branding: visibleCms.branding || {},
+    pages: visibleCms.pages || {},
+    booking: visibleCms.booking || {},
+    websiteExperience: visibleCms.websiteExperience || {},
+    testimonials: visibleCms.testimonials || [],
     getStoryById,
     isLoading,
     error,

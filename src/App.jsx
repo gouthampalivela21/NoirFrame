@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import CmsCanvasBridge from "./components/CmsCanvasBridge.jsx";
 import { LiveCmsProvider } from "./context/LiveCmsContext.jsx";
 
 import { prefersReducedMotion, isTouchDevice } from "./utils/helpers.js";
@@ -146,6 +147,7 @@ function AppShell() {
 
   return (
     <>
+      <CmsCanvasBridge />
       {!isAdmin && <Navbar />}
 
       <main

@@ -19,12 +19,33 @@ export default function HeroShowcase() {
   const ctaTo = hero.secondaryButtonLink || "/stories";
   const ctaLabel = hero.secondaryButtonText || "Explore Our Work";
   const altText = hero.altText || "Architectural landscape and photography showcase by Phantom Labs";
+  const desktopLayout = hero.displaySettings?.desktop || {};
+  const mobileLayout = hero.displaySettings?.mobile || {};
+  const layoutStyle = {
+    "--hero-copy-x-desktop": `${desktopLayout.textX ?? 7}%`,
+    "--hero-copy-y-desktop": `${desktopLayout.textY ?? 52}%`,
+    "--hero-copy-shift-desktop": desktopLayout.textAlign === "center" ? "-50%" : desktopLayout.textAlign === "right" ? "-100%" : "0%",
+    "--hero-copy-x-mobile": `${mobileLayout.textX ?? 50}%`,
+    "--hero-copy-y-mobile": `${mobileLayout.textY ?? 27}%`,
+    "--hero-copy-shift-mobile": (mobileLayout.textAlign || "center") === "center" ? "-50%" : mobileLayout.textAlign === "right" ? "-100%" : "0%",
+    "--hero-copy-align-desktop": desktopLayout.textAlign || "left",
+    "--hero-copy-align-mobile": mobileLayout.textAlign || "center",
+    "--hero-heading-color-desktop": desktopLayout.headingColor || "#ffffff",
+    "--hero-body-color-desktop": desktopLayout.bodyColor || "rgba(255, 255, 255, 0.9)",
+    "--hero-heading-color-mobile": mobileLayout.headingColor || "#ffffff",
+    "--hero-body-color-mobile": mobileLayout.bodyColor || "rgba(255, 255, 255, 0.9)",
+    "--hero-image-position-desktop": hero.heroImageWideObjectPosition || "62% 52%",
+    "--hero-image-zoom-desktop": Number(hero.heroImageWideCropZoom) || 1,
+    "--hero-image-position-mobile": hero.heroImageMobileObjectPosition || "56% 58%",
+    "--hero-image-zoom-mobile": Number(hero.heroImageMobileCropZoom) || 1,
+  };
 
   return (
     <section
       className="hero-showcase"
       id="hero"
       aria-label="Phantom Labs — Photography Showcase"
+      style={layoutStyle}
     >
       {/* Full-Viewport Photographic Architectural Canvas */}
       <motion.div

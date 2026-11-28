@@ -71,7 +71,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% 52%;
+  object-position: var(--hero-image-position-desktop, 62% 52%);
+  transform: scale(var(--hero-image-zoom-desktop, 1));
+  transform-origin: var(--hero-image-position-desktop, 62% 52%);
 }
 
 /* Subtle left atmospheric dusk scrim preserving bright sunset clouds and villa */
@@ -101,10 +103,11 @@
 .hero-showcase__copy-block {
   pointer-events: auto;
   position: absolute;
-  left: clamp(32px, 6.2vw, 108px);
-  top: 52%;
-  transform: translateY(-50%);
+  left: var(--hero-copy-x-desktop, 7%);
+  top: var(--hero-copy-y-desktop, 52%);
+  transform: translate(var(--hero-copy-shift-desktop, 0%), -50%);
   max-width: min(38vw, 520px);
+  text-align: var(--hero-copy-align-desktop, left);
   text-shadow: 0 2px 18px rgba(8, 10, 14, 0.34);
 }
 
@@ -115,7 +118,7 @@
   letter-spacing: -0.015em;
   word-spacing: 0.06em;
   line-height: 1.05;
-  color: #FFFFFF;
+  color: var(--hero-heading-color-desktop, #FFFFFF);
   margin: 0 0 10px 0;
   text-transform: uppercase;
   text-wrap: balance;
@@ -128,7 +131,7 @@
   font-weight: 400;
   letter-spacing: -0.005em;
   line-height: 1.35;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--hero-body-color-desktop, rgba(255, 255, 255, 0.9));
   margin: 0 0 22px 0;
 }
 
@@ -141,7 +144,7 @@
   font-size: clamp(0.84375rem, 0.76rem + 0.16vw, 0.90625rem);
   font-weight: 500;
   letter-spacing: 0.005em;
-  color: #FFFFFF;
+  color: var(--hero-body-color-desktop, #FFFFFF);
   text-decoration: none;
   padding-bottom: 5px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.56);
@@ -173,7 +176,7 @@
 /* Intermediate Tablet Landscapes: Guard horizontal clearance from villa edge */
 @media (max-width: 1120px) and (min-aspect-ratio: 1/1) {
   .hero-showcase__image {
-    object-position: 66% 52%;
+    object-position: var(--hero-image-position-desktop, 66% 52%);
   }
 
   .hero-showcase__copy-block {
@@ -188,7 +191,9 @@
   }
 
   .hero-showcase__image {
-    object-position: 56% 58%;
+    object-position: var(--hero-image-position-mobile, 56% 58%);
+    transform: scale(var(--hero-image-zoom-mobile, 1));
+    transform-origin: var(--hero-image-position-mobile, 56% 58%);
   }
 
   /* Subtle atmospheric dusk scrim behind upper-middle sky typography above villa roof */
@@ -203,13 +208,14 @@
   }
 
   .hero-showcase__copy-block {
-    left: 0;
-    right: 0;
-    top: clamp(150px, 27%, 260px);
-    transform: none;
+    left: var(--hero-copy-x-mobile, 50%);
+    right: auto;
+    top: var(--hero-copy-y-mobile, 27%);
+    transform: translateX(var(--hero-copy-shift-mobile, -50%));
     max-width: 100%;
-    padding: 0 clamp(24px, 6vw, 48px);
-    text-align: center;
+    width: calc(100% - 48px);
+    padding: 0;
+    text-align: var(--hero-copy-align-mobile, center);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -217,18 +223,18 @@
 
   .hero-showcase__title {
     font-size: clamp(1.75rem, 1rem + 4vw, 2.75rem);
-    color: #FFFFFF;
+    color: var(--hero-heading-color-mobile, #FFFFFF);
     margin-bottom: 10px;
   }
 
   .hero-showcase__tagline {
     font-size: clamp(1rem, 0.72rem + 1.5vw, 1.3125rem);
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--hero-body-color-mobile, rgba(255, 255, 255, 0.9));
     margin-bottom: 18px;
   }
 
   .hero-showcase__cta {
-    color: #FFFFFF;
+    color: var(--hero-body-color-mobile, #FFFFFF);
     border-bottom-color: rgba(255, 255, 255, 0.56);
   }
 }
@@ -343,6 +349,9 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: var(--website-image-position-desktop, 50% 50%);
+  transform: scale(var(--website-image-zoom-desktop, 1));
+  transform-origin: var(--website-image-position-desktop, 50% 50%);
 }
 
 .websites-showcase__interactive-link:focus-visible {
@@ -351,6 +360,12 @@
 }
 
 @media (max-aspect-ratio: 1/1) {
+  .websites-showcase__image {
+    object-position: var(--website-image-position-mobile, 50% 50%);
+    transform: scale(var(--website-image-zoom-mobile, 1));
+    transform-origin: var(--website-image-position-mobile, 50% 50%);
+  }
+
   .websites-showcase {
     min-height: clamp(460px, 68svh, 720px);
     justify-content: center;
@@ -435,7 +450,9 @@
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
-  object-position: center bottom;
+  object-position: var(--tile-image-position-desktop, center bottom);
+  transform: scale(var(--tile-image-zoom-desktop, 1));
+  transform-origin: var(--tile-image-position-desktop, center bottom);
 }
 
 /* Split Layout (Row 3 Desktop/Tablet: Left-Centered Copy beside Right Visual) */
@@ -534,7 +551,7 @@
   font-weight: 700;
   letter-spacing: -0.028em;
   line-height: 1.06;
-  color: inherit;
+  color: var(--tile-title-color, inherit);
   margin: 0;
 }
 
@@ -548,11 +565,11 @@
 }
 
 .promo-tile--light .promo-tile__tagline {
-  color: rgba(29, 29, 31, 0.86);
+  color: var(--tile-tagline-color, rgba(29, 29, 31, 0.86));
 }
 
 .promo-tile--dark .promo-tile__tagline {
-  color: rgba(245, 245, 247, 0.88);
+  color: var(--tile-tagline-color, rgba(245, 245, 247, 0.88));
 }
 
 .promo-tile__actions {
@@ -661,6 +678,12 @@
   .promo-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .promo-tile__img {
+    object-position: var(--tile-image-position-mobile, center bottom);
+    transform: scale(var(--tile-image-zoom-mobile, 1));
+    transform-origin: var(--tile-image-position-mobile, center bottom);
   }
 
   .promo-tile {

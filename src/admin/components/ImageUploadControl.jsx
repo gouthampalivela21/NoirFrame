@@ -9,11 +9,46 @@ export default function ImageUploadControl({
   onChange,
   aspectRatio = "16/9",
   helperText,
+  objectPosition = "50% 50%",
+  cropZoom = 1,
+  onCropChange,
 }) {
+  const imageUrl = typeof value === "string" ? value : (typeof value?.src === "string" ? value.src : typeof value?.url === "string" ? value.url : typeof value?.src?.src === "string" ? value.src.src : "");
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [isCropDragging, setIsCropDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const cropStageRef = useRef(null);
+  const cropPointerRef = useRef(null);
+  const [cropXValue, cropYValue] = String(objectPosition || "50% 50%").split(/\s+/);
+  const parsedCropX = Number.parseFloat(cropXValue);
+  const parsedCropY = Number.parseFloat(cropYValue);
+  const cropX = Number.isFinite(parsedCropX) ? parsedCropX : 50;
+  const cropY = Number.isFinite(parsedCropY) ? parsedCropY : 50;
+  const updateCrop = (next) => onCropChange?.({ objectPosition: `${next.x ?? cropX}% ${next.y ?? cropY}%`, cropZoom: next.zoom ?? cropZoom });
+  const beginCropDrag = (event) => {
+    if (!imageUrl || !onCropChange || event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    cropPointerRef.current = { x: event.clientX, y: event.clientY };
+    setIsCropDragging(true);
+  };
+  const moveCrop = (event) => {
+    const previous = cropPointerRef.current;
+    const bounds = cropStageRef.current?.getBoundingClientRect();
+    if (!previous || !bounds) return;
+    cropPointerRef.current = { x: event.clientX, y: event.clientY };
+    updateCrop({
+      x: Math.max(0, Math.min(100, cropX - ((event.clientX - previous.x) / bounds.width) * 100)),
+      y: Math.max(0, Math.min(100, cropY - ((event.clientY - previous.y) / bounds.height) * 100)),
+    });
+  };
+  const endCropDrag = (event) => {
+    cropPointerRef.current = null;
+    setIsCropDragging(false);
+    if (event?.currentTarget?.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
   const makeDeliveryImage = async (file) => {
     if (file.type === "image/svg+xml" || file.type === "image/gif") return null;
@@ -131,8 +166,14 @@ export default function ImageUploadControl({
       <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
         {/* Live Preview Thumbnail */}
         <div
+          ref={cropStageRef}
+          onPointerDown={beginCropDrag}
+          onPointerMove={moveCrop}
+          onPointerUp={endCropDrag}
+          onPointerCancel={endCropDrag}
+          title={onCropChange && imageUrl ? "Drag the image to adjust its crop" : undefined}
           style={{
-            width: "120px",
+            width: "min(100%, 280px)",
             aspectRatio: aspectRatio || "16/9",
             backgroundColor: "#FAF9F6",
             border: "1px solid var(--studio-border-crisp)",
@@ -143,13 +184,17 @@ export default function ImageUploadControl({
             justifyContent: "center",
             position: "relative",
             flexShrink: 0,
+            cursor: onCropChange && imageUrl ? (isCropDragging ? "grabbing" : "grab") : "default",
+            touchAction: onCropChange && imageUrl ? "none" : "auto",
+            userSelect: "none",
           }}
         >
-          {value ? (
+          {imageUrl ? (
             <img
-              src={value}
-              alt="Media Preview"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              src={imageUrl}
+              alt="Drag to reframe image crop"
+              draggable="false"
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition, transform: `scale(${cropZoom || 1})`, transformOrigin: objectPosition, pointerEvents: "none" }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
@@ -158,6 +203,12 @@ export default function ImageUploadControl({
             <div style={{ color: "var(--studio-text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
               <ImageIcon size={20} />
               <span style={{ fontSize: "10px" }}>No Media</span>
+            </div>
+          )}
+
+          {imageUrl && onCropChange && !isUploading && (
+            <div style={{ position: "absolute", left: 8, bottom: 8, padding: "5px 8px", borderRadius: 99, background: "rgba(15,15,15,.72)", color: "white", fontSize: 10, letterSpacing: ".01em", pointerEvents: "none" }}>
+              {isCropDragging ? "Reframing…" : "Drag to reframe"}
             </div>
           )}
 
@@ -186,13 +237,13 @@ export default function ImageUploadControl({
               className="studio-input studio-mono"
               style={{ fontSize: "12.5px" }}
               placeholder="Paste direct image URL or upload below..."
-              value={value || ""}
+              value={imageUrl}
               onChange={(e) => {
                 setUploadError("");
                 onChange(e.target.value);
               }}
             />
-            {value && (
+            {imageUrl && (
               <button
                 type="button"
                 className="studio-btn-secondary studio-btn-sm"
@@ -247,6 +298,23 @@ export default function ImageUploadControl({
             <span style={{ fontSize: "11px", color: "var(--studio-text-muted)" }}>
               {helperText}
             </span>
+          )}
+
+          {onCropChange && imageUrl && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", padding: "10px 12px", border: "1px solid var(--studio-border-crisp)", borderRadius: "8px", background: "#fff" }}>
+              <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
+                Crop left / right <span style={{ color: "var(--studio-text-primary)" }}>{Math.round(cropX)}%</span>
+                <input type="range" min="0" max="100" value={cropX} onChange={(e) => updateCrop({ x: Number(e.target.value) })} aria-label={`${label} crop horizontal position`} />
+              </label>
+              <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
+                Crop top / bottom <span style={{ color: "var(--studio-text-primary)" }}>{Math.round(cropY)}%</span>
+                <input type="range" min="0" max="100" value={cropY} onChange={(e) => updateCrop({ y: Number(e.target.value) })} aria-label={`${label} crop vertical position`} />
+              </label>
+              <label style={{ display: "grid", gap: "4px", fontSize: "10px", color: "var(--studio-text-muted)" }}>
+                Zoom <span style={{ color: "var(--studio-text-primary)" }}>{Number(cropZoom || 1).toFixed(1)}×</span>
+                <input type="range" min="1" max="2.5" step="0.05" value={cropZoom || 1} onChange={(e) => updateCrop({ zoom: Number(e.target.value) })} aria-label={`${label} crop zoom`} />
+              </label>
+            </div>
           )}
 
           {uploadError && (
