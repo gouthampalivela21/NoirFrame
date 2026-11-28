@@ -611,16 +611,24 @@ export async function getCMSContent() {
   try {
     const supabase = getSupabaseAdminClient();
     supabaseConfigured = true;
-    const { data, error } = await supabase
+    const { data: rows, error } = await supabase
       .from(SITE_CONTENT_TABLE)
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
+      .select("id, data, updated_at")
+      .in("id", [1, 2]);
 
     if (error) throw error;
-    if (!error && data && data.data && Object.keys(data.data).length > 0) {
-      writeJsonFile("cms.json", data.data);
-      return data.data;
+    const desktopRow = rows?.find((row) => row.id === 1);
+    const mobileRow = rows?.find((row) => row.id === 2);
+    const desktopContent = desktopRow?.data && typeof desktopRow.data === "object" ? desktopRow.data : {};
+    // Read the legacy nested mobile payload until the device-row migration has
+    // been applied. New writes always use the dedicated id=2 Supabase record.
+    const mobileContent = mobileRow?.data && typeof mobileRow.data === "object" && Object.keys(mobileRow.data).length
+      ? mobileRow.data
+      : (desktopContent.mobileContent && typeof desktopContent.mobileContent === "object" ? desktopContent.mobileContent : {});
+    if (Object.keys(desktopContent).length || Object.keys(mobileContent).length) {
+      const combined = { ...desktopContent, mobileContent };
+      writeJsonFile("cms.json", combined);
+      return combined;
     }
   } catch (error) {
     if (supabaseConfigured || process.env.VERCEL) {
@@ -668,7 +676,7 @@ export function getCMSStorageMode() {
   }
 }
 
-export async function updateCMSContent(newContent) {
+export async function updateCMSContent(newContent, options = {}) {
   let supabase;
   try {
     supabase = getSupabaseAdminClient();
@@ -680,18 +688,46 @@ export async function updateCMSContent(newContent) {
     throw error;
   }
 
-  const { error } = await supabase.from(SITE_CONTENT_TABLE).upsert({
-    id: 1,
-    data: newContent,
-    updated_at: new Date().toISOString(),
-  });
-  if (error) {
-    const err = new Error(`Could not publish CMS content to Supabase: ${error.message}`);
-    err.statusCode = 503;
-    throw err;
+  const viewport = options.viewport === "mobile" ? "mobile" : options.viewport === "desktop" ? "desktop" : null;
+  const timestamp = new Date().toISOString();
+  const saveRecord = async (id, data) => {
+    const { error } = await supabase.from(SITE_CONTENT_TABLE).upsert({ id, data, updated_at: timestamp });
+    if (error) {
+      const err = new Error(`Could not publish ${id === 2 ? "mobile" : "desktop"} CMS content to Supabase: ${error.message}`);
+      err.statusCode = 503;
+      throw err;
+    }
+  };
+
+  if (viewport === "mobile") {
+    // Only the mobile record is written for a mobile canvas publish.
+    await saveRecord(2, newContent.mobileContent && typeof newContent.mobileContent === "object" ? newContent.mobileContent : {});
+  } else if (viewport === "desktop") {
+    const desktopContent = { ...newContent };
+    const legacyMobileContent = desktopContent.mobileContent;
+    delete desktopContent.mobileContent;
+    await saveRecord(1, desktopContent);
+    // One-time compatibility path: preserve existing mobile edits when the
+    // first desktop publish occurs before the SQL migration has run.
+    if (legacyMobileContent && typeof legacyMobileContent === "object" && Object.keys(legacyMobileContent).length) {
+      const { data: mobileRow, error } = await supabase.from(SITE_CONTENT_TABLE).select("id").eq("id", 2).maybeSingle();
+      if (error) throw error;
+      if (!mobileRow) await saveRecord(2, legacyMobileContent);
+    }
+  } else {
+    // Older CMS screens publish the whole document. Keep the two device
+    // records independent while updating each from the combined editor data.
+    const desktopContent = { ...newContent };
+    const mobileContent = desktopContent.mobileContent && typeof desktopContent.mobileContent === "object" ? desktopContent.mobileContent : {};
+    delete desktopContent.mobileContent;
+    await saveRecord(1, desktopContent);
+    await saveRecord(2, mobileContent);
   }
-  writeJsonFile("cms.json", newContent);
-  return newContent;
+
+  const combined = { ...newContent };
+  if (viewport === "desktop") delete combined.mobileContent;
+  writeJsonFile("cms.json", combined);
+  return combined;
 }
 
 // ---------------------------------------------------------------------------

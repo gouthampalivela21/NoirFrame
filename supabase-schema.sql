@@ -124,6 +124,19 @@ INSERT INTO public.site_content (id, data, content, updated_at)
 VALUES (1, '{}'::jsonb, '{}'::jsonb, now())
 ON CONFLICT (id) DO UPDATE SET updated_at = now();
 
+-- Desktop CMS is stored in site_content.id=1 and mobile CMS in id=2.
+-- Preserve any mobile edits from the former nested JSON document before
+-- removing that nested copy from the desktop record.
+INSERT INTO public.site_content (id, data, content, updated_at)
+SELECT 2, COALESCE(data->'mobileContent', '{}'::jsonb), '{}'::jsonb, now()
+FROM public.site_content
+WHERE id = 1 AND jsonb_typeof(data->'mobileContent') = 'object'
+ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.site_content
+SET data = data - 'mobileContent', updated_at = now()
+WHERE id = 1 AND data ? 'mobileContent';
+
 -- -------------------------------------------------------------------------
 -- 4. BOOKING REQUESTS TABLE (STRICT FOUNDER-ONLY RLS)
 -- -------------------------------------------------------------------------

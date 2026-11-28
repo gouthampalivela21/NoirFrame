@@ -824,20 +824,31 @@ export function StudioAdminProvider({ children }) {
     });
   }, []);
 
-  const saveCMSChanges = useCallback(async (content = cmsData) => {
+  const saveCMSChanges = useCallback(async (content = cmsData, viewport = null) => {
     try {
       const res = await adminApiFetch("/api/admin/cms", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(content),
+        body: JSON.stringify(viewport ? { cms: content, viewport } : content),
       });
       const result = await res.json().catch(() => ({}));
       if (res.ok && result.storageMode === "supabase") {
-        lastPublishedCMSRef.current = JSON.stringify(content);
-        setHasUnpublishedCMSChanges(false);
-        setRecoverableCMSDraft(null);
-        try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
-        showToast("✓ CMS changes published to the shared live database.", "success");
+        let publishedSnapshot = content;
+        if (viewport) {
+          let previousPublished = {};
+          try { previousPublished = JSON.parse(lastPublishedCMSRef.current || "{}"); } catch {}
+          publishedSnapshot = viewport === "mobile"
+            ? { ...previousPublished, mobileContent: content.mobileContent || {} }
+            : { ...content, mobileContent: previousPublished.mobileContent || {} };
+        }
+        lastPublishedCMSRef.current = JSON.stringify(publishedSnapshot);
+        const stillDirty = JSON.stringify(cmsDataRef.current) !== lastPublishedCMSRef.current;
+        setHasUnpublishedCMSChanges(stillDirty);
+        if (!stillDirty) {
+          setRecoverableCMSDraft(null);
+          try { window.localStorage.removeItem(CMS_DRAFT_KEY); } catch { /* Ignore unavailable local storage. */ }
+        }
+        showToast(viewport ? `✓ ${viewport === "mobile" ? "Mobile" : "Desktop"} changes published to Supabase.` : "✓ CMS changes published to the shared live database.", "success");
         return true;
       }
       if (res.ok && result.storageMode === "local") {

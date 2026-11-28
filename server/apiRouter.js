@@ -373,7 +373,10 @@ export async function handleApiRequest(req, res) {
     if (req.method === "PUT" || req.method === "POST") {
       try {
         const body = await parseJsonBody(req);
-        const updated = await updateCMSContent(body);
+        const hasDeviceScope = body && typeof body === "object" && body.cms && ["desktop", "mobile"].includes(body.viewport);
+        const updated = hasDeviceScope
+          ? await updateCMSContent(body.cms, { viewport: body.viewport })
+          : await updateCMSContent(body);
         sendJson(res, 200, { success: true, cms: updated, storageMode: getCMSStorageMode() });
       } catch (err) {
         sendJson(res, err.statusCode || 500, { success: false, error: err.message });

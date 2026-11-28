@@ -163,7 +163,7 @@ export default function WebsiteCanvasEditor({ mode = "desktop", pageId = "hero",
   const publishChanges = async () => {
     if (isPublishing) return;
     setIsPublishing(true);
-    try { await saveCMSChanges(cmsData); }
+    try { await saveCMSChanges(cmsData, mode); }
     finally { setIsPublishing(false); }
   };
   const updateSelected = (next) => {
